@@ -1,0 +1,362 @@
+﻿@page "/add-category"
+@inject HttpClient Http
+@inject ApiService _apiService
+@using System.Net.Http.Json
+@inject NavigationManager NavigationManager
+
+
+<MudDialog>
+    <DialogContent>
+        <MudPaper Class="px-4" Style="margin: auto; box-shadow:none;">
+            <div class="head-container my-5">
+                <MudText Typo="Typo.h5" Align="Align.Start" Class="heading-txt mb-2">@DialogTitle</MudText>
+                    <MudButton OnClick="Cancel">
+                        <img src="./images/Close.svg" alt="X" />
+                    </MudButton>
+                </div>
+                <MudGrid>
+                    <MudItem md="12">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Category Name</span>
+                            <input @bind="categoryName" type="text" class="custom-input"  placeholder="Category" required />
+                            <div style="height:20px">
+                                <span class="error-text">@categoryNameError</span>
+                        </div>
+                    </div>
+                </MudItem>
+
+                <MudItem md="12">
+                    <div>
+                        <label class="custom-label">Description</label>
+                        <textarea @bind="description" placeholder="Description" class="category-description"></textarea>
+                    </div>
+                </MudItem>
+
+                <MudItem xs="12" class="d-flex align-center mt-2 user-container">
+                    <span class="avatar-container">
+                        <img src="@AvatarImageSrc" alt="Avatar Image" class="avatar-img" />
+                    </span>
+
+                    <MudItem class="d-flex flex-column ml-3">
+                        <MudButton Variant="Variant.Outlined" class="upload-btn" OnClick="TriggerFileUpload">
+                            Upload icon/ Image
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="mt-2" OnClick="RemoveImage" Disabled="@(!IsImageUploaded)">
+                            Remove
+                        </MudButton>
+
+                        <InputFile id="fileInput" OnChange="HandleFileSelected" style="display:none;" />
+                        <div style="height:20px">
+                            <span class="error-text">@imageError</span>
+                        </div>
+                    </MudItem>
+                </MudItem>
+
+                <MudItem xs="12" class="d-flex justify-center mt-4">
+                    <MudButton Variant="Variant.Filled" FullWidth="true" Class="AddBtn" OnClick="Submit">@ButtonLabel</MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </DialogContent>
+        <DialogActions>
+        </DialogActions>
+    </MudDialog>
+
+    @code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string DialogTitle { get; set; } = "Add New Category";
+    [Parameter] public string ButtonLabel { get; set; } = "Add Category";
+    [Parameter] public CategoryDto Category { get; set; }
+
+    @inject GlobalServices _globalService;
+    private string categoryName { get; set; }
+    private string categoryNameError { get; set; }
+    private string description { get; set; }
+    private string AvatarImageSrc { get; set; } = "./Images/Category-upload-icon.svg";
+    private bool IsImageUploaded { get; set; } = false;
+    private string key;
+    private string imageError { get; set; }
+
+    [Inject] private ApiService ApiService { get; set; }
+    [Inject] private IJSRuntime JS { get; set; }
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Category != null)
+        {
+            categoryName = Category.Name;
+            description = Category.Description;
+            AvatarImageSrc = Category.Icon ?? "./Images/Category-upload-icon.svg";
+            IsImageUploaded = !string.IsNullOrEmpty(Category.Icon);
+        }
+    }
+
+    private async Task Submit()
+    {
+        ValidateForm();
+        if (!string.IsNullOrEmpty(categoryNameError) || !string.IsNullOrEmpty(imageError))
+        {
+            return;
+        }
+
+        try
+        {
+            bool isNameUpdated = true;
+            bool isIconUpdated = true;
+
+            if (ButtonLabel == "Update Category")
+            {
+                isNameUpdated = await ApiService.MakeHttpPutRequest<bool>(
+                    $"Admin/updateservicecategoryName?id={Category.Id}&newCategoryName={categoryName}&newDescription={description}&domainId={_globalService.domainId}", null);
+                if (!string.IsNullOrEmpty(key))
+                {
+                    isIconUpdated = await ApiService.MakeHttpPutRequest<bool>(
+                        $"Admin/updateservicecategoryicon?id={Category.Id}&newCategoryIcon={key}&domainId={_globalService.domainId}", null);
+                }
+            }
+            else
+            {
+                var newCategory = new
+                {
+                    Name = categoryName,
+                    Description = description,
+                    Icon = key
+                };
+
+                isNameUpdated = await ApiService.MakeHttpPostRequest<ApiResponse<CategoryDto>>($"Admin/addservicecategory?domainId={_globalService.domainId}", newCategory);
+            }
+
+            if (isNameUpdated && isIconUpdated)
+            {
+                MudDialog.Close(DialogResult.Ok(true)); // Close with success result
+                Snackbar.Add(ButtonLabel == "Add Category"
+                    ? "Category added successfully!"
+                    : "Category updated successfully!", Severity.Success);
+            }
+            else
+            {
+                MudDialog.Close(DialogResult.Ok(false)); // Close with failure result
+                Snackbar.Add(ButtonLabel == "Add Category"
+                    ? "Failed to add category."
+                    : "Failed to update category.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            NavigationManager.NavigateTo("/ServiceCategories");
+        }
+    }
+
+
+    private void ValidateForm()
+    {
+        categoryNameError = string.IsNullOrWhiteSpace(categoryName) ? "Category Name is required." : string.Empty;
+        imageError = string.IsNullOrEmpty(AvatarImageSrc) || AvatarImageSrc == "./Images/Category-upload-icon.svg"
+            ? "Image is required."
+            : string.Empty;
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            var content = new MultipartFormDataContent();
+            var fileStreamContent = new StreamContent(file.OpenReadStream());
+            fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(fileStreamContent, "file", file.Name);
+
+            var response = await ApiService.MakeHttpPostUploadPicRequest<FileUploadRes>($"File/uploadfile?FileName=categoryicon&domainId={_globalService.domainId}", content);
+            if (response.IsSuccess)
+            {
+                key = response.Result.Key;
+                AvatarImageSrc = response.Result.FileUrl;
+                IsImageUploaded = true;
+                imageError = string.Empty; 
+            }
+            else
+            {
+                Console.WriteLine("Image upload failed");
+                imageError = "Image upload failed.";
+            }
+        }
+    }
+
+    private async Task TriggerFileUpload()
+    {
+        await JS.InvokeVoidAsync("triggerFileInputClick", "fileInput");
+    }
+
+    private void RemoveImage()
+    {
+        AvatarImageSrc = "./Images/Category-upload-icon.svg";
+        key = null;
+        IsImageUploaded = false;
+    }
+   
+}
+
+
+    <style>
+        .mud-dialog-title {
+            padding-top: 3px;
+        }
+
+        .blur {
+            backdrop-filter: blur(10px);
+        }
+
+        .dialog-background {
+            background-color: transparent;
+        }
+
+        .dialog-background-title {
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--mud-palette-white);
+        }
+
+        .dialog-background-surface {
+            background: rgba(255, 255, 255, 0.75);
+        }
+
+        .head-container {
+            display: flex;
+            justify-content: space-between
+        }
+
+        .heading-txt {
+            color: #000;
+            font-family: Inter;
+            font-size: 25px;
+            font-style: normal;
+            font-weight: 800;
+            line-height: normal;
+        }
+
+        .custom-label {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-size: 18px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+            margin-bottom: 10px;
+        }
+
+        .custom-input {
+            width: 100%;
+            border-radius: 5px;
+            border: 0.5px solid #555454;
+            padding: 8px;
+            box-sizing: border-box;
+            height: 57px;
+            padding: 10px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            align-self: stretch;
+            color: #000;
+            font-family: Inter;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+        }
+
+        .category-description {
+            font-family: 'Inter', sans-serif;
+            font-size: 17px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 23px;
+            color: #000;
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-sizing: border-box;
+            resize: vertical;
+            display: flex;
+            height: 216px;
+            padding: 16px 10px;
+            border: 0.5px solid #555454;
+        }
+
+            .category-description:focus {
+                outline: none;
+            }
+        /**/
+        .user-container {
+            justify-content: center;
+        }
+
+        .avatar-container {
+            width: 100px !important;
+            height: 100px !important;
+            border: 0.1px solid #CBCBCB;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: #D9D9D9;
+        }
+
+        .avatar-img {
+            object-fit: fill;
+            object-position: center;
+            width: 100px;
+            height: 100px;
+        }
+
+        .upload-btn {
+            color: #0074E3;
+            border-color: #0074E3;
+            text-transform: capitalize
+        }
+
+        .AddBtn {
+            padding: 10px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            border: 0.5px #555454;
+            background-color: #0074E3;
+            color: #fff;
+        }
+
+            .AddBtn:hover {
+                padding: 10px;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                flex-shrink: 0;
+                border-radius: 8px;
+                border: 0.5px #555454;
+                background: #0074E3;
+                color: #fff;
+            }
+
+        .mud-dialog-title {
+            display:none;
+        }
+          .error-text {
+        color: #ff0000;
+        font-size: 13px;
+        margin-left: 5px;
+    }
+
+
+    </style>

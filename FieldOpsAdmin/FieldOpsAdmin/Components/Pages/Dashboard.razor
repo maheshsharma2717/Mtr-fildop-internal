@@ -1,0 +1,513 @@
+﻿@page "/dashboard"
+@using FieldOpsAdmin.Models
+@using FieldOpsAdmin.Service
+@using Newtonsoft.Json
+@inject IJSRuntime JSRuntime
+
+<MudContainer MaxWidth="MaxWidth.Large" Style="margin-top:55px">
+
+    <!-- Container for the buttons -->
+    <MudContainer Class="Frame_25_6009_1274" MaxWidth="MaxWidth.False" Style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);height: 100%; margin-top:15px">
+        <MudGrid>
+            <!-- Row for the two buttons -->
+            <MudItem xs="12">
+                <MudGrid Class="d-flex justify-content-between">
+                    <MudItem xs="12" sm="6" Class="d-flex justify-content-start">
+
+                        <MudButton Class="Frame_23_6009_1275 " OnClick="OpenCustomerDialog">
+                            <img src="./Images/User _ User_Add.svg" alt="Dashboard Icon" style="width: 29px; height: 29px;margin-right: 8px" />
+                            Add New Customer
+                        </MudButton>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" Class="d-flex " style="align-items: center;justify-content: end;">
+
+                        <MudButton Class="Frame_24_6009_1278" OnClick="OpenEmployeeDialog">
+                            <img src="./Images/User _ User_Add _2.svg" alt="Dashboard Icon" style="width: 29px; height: 29px;margin-right: 8px" />
+
+                            Add New Employee
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+
+
+
+    <!-- Placeholder paper -->
+    <MudContainer Class="Frame_44_6009_1292" MaxWidth="MaxWidth.False" Style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);margin-top:16px;height: 100%;">
+        <MudGrid Frame_44_6009_1292>
+            <!-- Row for the two buttons -->
+            <MudItem xs="12" Class="Frame_44_6009_1292_2">
+                <MudGrid Class="d-flex justify-content-between " Style="padding-top:10px">
+                    <MudItem xs="12" sm="6" Class="d-flex justify-content-start">
+                        <span class="custom-svg">
+                            <img src="./Images/Status _ Circle_Warning.svg" alt="Dashboard Icon" style="width: 29px; height: 29px;" />
+                            <MudText Class="YouHaveANewServiceRequest_6009_1295">
+                                You have a new service request
+                            </MudText>
+
+                        </span>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" Class="d-flex " style="align-items: center;justify-content: end;">
+                        <span class="custom-svg">
+                            <img src="./Images/Show.svg" alt="Dashboard Icon" style="width: 29px; height: 29px;" />
+
+                            <a href="" target="_blank" Class="ViewHere_6009_1298">
+                                View here
+                            </a>
+                        </span>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+
+    <!-- Container for the 6 boxes -->
+    <MudContainer Class=" Frame_22_6009_1301 " MaxWidth="MaxWidth.False" Style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);margin-top:16px;height: 100%;">
+        <MudOverlay Visible="@isLoading" DarkBackground="true" ZIndex="9999">
+            <MudProgressCircular Color="Color.Tertiary" Indeterminate="true" />
+        </MudOverlay>
+        <MudGrid>
+            <!-- First Row of 3 Cards -->
+
+            <MudItem xs="12" sm="6" md="4">
+                <MudContainer Class="Frame_19_6009_1302" MaxWidth="MaxWidth.False" Style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);">
+
+                    <MudGrid>
+                        <MudItem xs="12" ms="12">
+                            <div class="card-content">
+                                <span class="custom-svg">
+                                    <img src="./Images/UserGroup.svg" alt="Dashboard Icon" style="width: 49px; height: 49px;" />
+
+                                </span>
+                                <MudText Class="generated_20304_6009_1307">
+                                    @dashboard.TotalCustomer
+                                </MudText>
+
+                                <MudText Class="TextTotalNumbaer">
+                                    Total Number of Customers
+                                </MudText>
+
+                                <div class="Line_1_6009_1332"></div>
+                                <MudText Class="DashboardCardUpdatedDate">
+                                    Updated: @dashboard.LastUpdated
+                                </MudText>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudContainer Class="Frame_17_6009_1312" MaxWidth="MaxWidth.False" Style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);">
+                    <MudGrid>
+                        <MudItem xs="12" ms="12">
+                            <div class="card-content">
+                                <span class="custom-svg">
+                                    <img src="./Images/dashboard_users.svg" alt="Users Icon" style="width: 49px; height: 49px;" />
+                                </span>
+                                <MudText Class="generated_20304_6009_1307">
+                                    @dashboard.TotalWorkers
+                                </MudText>
+
+                                <MudText Class="TextTotalNumbaer">
+                                    Total Number of Employees
+                                </MudText>
+
+                                <div class="Line_1_6009_1332"></div>
+                                <MudText Class="DashboardCardUpdatedDate">
+                                    Updated: @dashboard.LastUpdated
+                                </MudText>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudContainer Class="Frame_20_6009_1322" MaxWidth="MaxWidth.False" Style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);">
+                    <MudGrid>
+                        <MudItem xs="12" ms="12">
+                            <div class="card-content">
+                                <span class="dashboard-custom-svg">
+                                    <img src="./Images/desktop_pendingtasks.svg" alt="Dashboard Icon" style="width: 49px; height: 49px;" />
+                                    <img src="./Images/dashboard_pending.svg" alt="Dashboard Icon" style="width: 60px; height: 21px;" />
+
+                                </span>
+                                <MudText Class="generated_20304_6009_1307">
+                                    @dashboard.TotalPendingTasks
+                                </MudText>
+
+                                <MudText Class="TextTotalNumbaer">
+                                    Pending Tasks
+                                </MudText>
+
+                                <div class="Line_1_6009_1332"></div>
+                                <MudText Class="DashboardCardUpdatedDate">
+                                    Updated: @dashboard.LastUpdated
+                                </MudText>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+            </MudItem>
+
+            <!-- Second Row of 3 Cards -->
+            <MudItem xs="12" sm="6" md="4">
+                <MudContainer Class="Frame_24_6009_1376" MaxWidth="MaxWidth.False" Style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);">
+                    <MudGrid>
+                        <MudItem xs="12" ms="12">
+                            <div class="card-content">
+                                <span class="dashboard-custom-svg">
+                                    <img src="./Images/desktop_ongoingtasks.svg" alt="Dashboard Icon" style="width: 49px; height: 49px;" />
+                                    <img src="./Images/dashboard_ongoing.svg" alt="Dashboard Icon" style="width: 60px; height: 21px;" />
+
+                                </span>
+                                <MudText Class="generated_20304_6009_1307">
+                                    @dashboard.OngoingTasks
+                                </MudText>
+
+                                <MudText Class="TextTotalNumbaer">
+                                    Ongoing Tasks
+                                </MudText>
+
+                                <div class="Line_1_6009_1332"></div>
+                                <MudText Class="DashboardCardUpdatedDate">
+                                    Updated: @dashboard.LastUpdated
+                                </MudText>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudContainer Class="Frame_21_6009_1334" MaxWidth="MaxWidth.False" Style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);">
+                    <MudGrid>
+                        <MudItem xs="12" ms="12">
+                            <div class="card-content">
+                                <span class="dashboard-custom-svg">
+                                    <img src="./Images/desktop_completedtasks.svg" alt="Dashboard Icon" style="width: 49px; height: 49px;" />
+                                    <img src="./Images/dashboard_completed.svg" alt="Dashboard Icon" style="width: 73px; height: 21px;" />
+
+                                </span>
+                                <MudText Class="generated_20304_6009_1307">
+                                    @dashboard.CompletedTasks
+                                </MudText>
+
+                                <MudText Class="TextTotalNumbaer">
+                                    Completed Tasks
+                                </MudText>
+
+                                <div class="Line_1_6009_1332"></div>
+                                <MudText Class="DashboardCardUpdatedDate">
+                                    Updated: @dashboard.LastUpdated
+                                </MudText>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudContainer Class="Frame_23_6009_1363" MaxWidth="MaxWidth.False" Style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);">
+                    <MudGrid>
+                        <MudItem xs="12" ms="12">
+                            <div class="card-content">
+                                <span class="dashboard-custom-svg">
+                                    <img src="./Images/desktop_cancelledtasks.svg" alt="Dashboard Icon" style="width: 49px; height: 49px;" />
+                                    <img src="./Images/dashboard_cancelled.svg" alt="Dashboard Icon" style="width: 68px; height: 21px;" />
+
+                                </span>
+                                <MudText Class="generated_20304_6009_1307">
+                                    @dashboard.CanceledTasks
+                                </MudText>
+
+                                <MudText Class="TextTotalNumbaer">
+                                    Cancelled Tasks
+                                </MudText>
+
+                                <div class="Line_1_6009_1332"></div>
+                                <MudText Class="DashboardCardUpdatedDate">
+                                    Updated: @dashboard.LastUpdated
+                                </MudText>
+                            </div>
+                        </MudItem>
+                    
+                    </MudGrid>
+                </MudContainer>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+
+</MudContainer>
+<MudContainer>
+
+    @inject IJSRuntime JS
+
+    <script>
+        // For MudBlazor Snackbar
+        export function showNotification(title, body) {
+            const snackbar = window.MudBlazorSnackbar;
+            if (snackbar) {
+                snackbar.show(`${title}: ${body}`);
+            } else {
+                alert(`${title}: ${body}`); // Fallback to alert if MudSnackbar is not available
+            }
+        }
+
+        </script>
+</MudContainer>
+
+@code {
+  
+    @inject IDialogService DialogService
+    [Inject] AdminService adminService{ get; set; }
+    private bool isLoading = false;
+    [Inject] ISnackbar Snackbar { get; set; }
+    private async void OpenEmployeeDialog()
+    {
+        DialogService.Show<AddEmployee>();
+    }
+
+    private async void OpenCustomerDialog()
+    {
+        DialogService.Show<AddNewCustomer>();
+    }
+    DashboardData dashboard = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetDashboardDetails();
+            
+            StateHasChanged();
+        }
+    }
+    public class DashboardData
+    {
+        public decimal TotalCustomer { get; set; }
+        public decimal TotalWorkers { get; set; }
+        public int TotalPendingTasks { get; set; }
+        public double OngoingTasks { get; set; }
+        public int CanceledTasks { get; set; }
+        public int CompletedTasks { get; set; }
+        public string LastUpdated { get; set; }
+    }
+    async Task GetDashboardDetails()
+    {
+      
+        // AdminService adminService = new AdminService();
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+            var responseDto = await adminService.GetDashboardData();
+            if (responseDto.IsSuccess)
+            {
+                string json = JsonConvert.SerializeObject(responseDto.Result);
+                DashboardDataViewModel dash = JsonConvert.DeserializeObject<DashboardDataViewModel>(json);
+                if (dash != null)
+                {
+                    dashboard.TotalCustomer = dash.TotalCustomer;
+                    dashboard.TotalWorkers = dash.TotalWorkers;
+                    dashboard.OngoingTasks = dash.OngoingTasks;
+                    dashboard.TotalPendingTasks = dash.TotalPendingTasks;
+                    dashboard.CanceledTasks = dash.CanceledTasks;
+                    dashboard.CompletedTasks = dash.CompletedTasks;
+                    Snackbar.Add("Dashboard data loaded successfully!", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Failed to load dashboard data.", Severity.Error);
+                }
+                // LastUpdated = DateTime.Now.ToString("hh:mm on MMMM dd, yyyy");
+                dashboard.LastUpdated = DateTime.Now.ToString("MMMM dd, yyyy");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("An error occurred while loading dashboard.", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task GetCities()
+    {
+        try
+        {
+            // Call the JavaScript function 'getCities'
+            var cities = await JSRuntime.InvokeAsync<string[]>("getCities");
+            Console.WriteLine("Cities: " + string.Join(", ", cities));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+    }
+
+    // private async Task GetFirebaseToken()
+    // {
+    //     try
+    //     {
+    //         // Call the JavaScript function 'requestFirebaseToken'
+    //         var token = await JSRuntime.InvokeAsync<string>("requestFirebaseToken");
+    //         Console.WriteLine("Firebase Token: " + token);
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine("Error: " + ex.Message);
+    //     }
+    // }
+}
+
+   <script type="module">
+    debugger
+    // Import Firebase functions
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
+  //  import { showNotification } from "./firebase-messaging.js"; // Ensure this path is correct
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyDdIoSEwlKnPoj0rpR6SCabM1inuSKg5Ts",
+        authDomain: "fieldops-65cc0.firebaseapp.com",
+        projectId: "fieldops-65cc0",
+        storageBucket: "fieldops-65cc0.appspot.com",
+        messagingSenderId: "410053741923",
+        appId: "1:410053741923:web:3733ff0f2d3792b05ad756",
+        measurementId: "G-HH7C1N9RKY"
+    };
+    // const firebaseConfig = {
+    //     apiKey: "AIzaSyCG7c1HiRrT8Gn5psRfz2RPxrQeTu9hIxo",
+    //     authDomain: "fieldopsadmin.firebaseapp.com",
+    //     projectId: "fieldopsadmin",
+    //     storageBucket: "fieldopsadmin.appspot.com",
+    //     messagingSenderId: "301269992365",
+    //     appId: "1:301269992365:web:8c8c5ef86bcd673d695724"
+    // };
+
+    // Initialize Firebase
+    console.log("Initializing Firebase app...");
+    const app = initializeApp(firebaseConfig);
+
+    // Initialize Firebase Cloud Messaging
+    const messaging = getMessaging(app);
+
+    // Request notification permission and get the token
+    async function requestPermissionAndGetToken(authToken) {
+        try {
+            console.log('Requesting notification permission...');
+            const permission = await Notification.requestPermission();
+
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+                const currentToken = await getToken(messaging, {
+                    //vapidKey: 'BL-C-9ppovAIjaBxyd_-SM-ndrPZ8ggB_6e5P_NSuCf4dU0Ptnht8GGISKk1lQEeSLnMaO81SNEW4YnUyLiWTA0'
+                    vapidKey: 'BDoCc2W4IOl4i0qQIc4fBs27cPTPhWbGQd5TGS8HpgNhdkruiI9mab9y6tw2UX1Vxknv_rKfWa5s3SuIBPaD37U'
+                });
+
+                if (currentToken) {
+                    console.log('FCM token retrieved: ' + currentToken);
+                    await sendTokenToServer(currentToken, authToken);
+                } else {
+                    console.log('No registration token available. Request permission again if necessary.');
+                }
+            } else {
+                console.log('Notification permission denied.');
+            }
+        } catch (err) {
+            console.error('Error requesting permission or retrieving token:', err);
+        }
+    }
+
+    // Function to send the token to the server
+    async function sendTokenToServer(token, authToken) {
+        debugger;
+        const apiUrl = 'https://localhost:44333/api/Admin/RegisterDevice?domainId=1';
+        //const apiUrl = 'https://mtr.fieldops.online/api/Admin/RegisterDevice?domainId=1';
+        
+
+        const data = {
+            DeviceToken: token,
+            DeviceType: "Web"
+        };
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + authToken
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                const responseData = await response.json();
+                console.log('Token successfully sent to server:', responseData);
+            } else {
+                throw new Error('Failed to send token to server: ' + response.statusText);
+            }
+        } catch (error) {
+            console.error('Error sending token to server:', error);
+        }
+    }
+
+    let authToken = sessionStorage.getItem('authToken');
+    if (authToken) {
+        authToken = authToken.replace(/^"+|"+$/g, '');
+        requestPermissionAndGetToken(authToken);
+    } else {
+        console.error('No auth token found. Ensure you are authenticated.');
+    }
+
+    // Handle incoming messages
+    onMessage(messaging, (payload) => {
+        console.log('Message received. ', payload);
+        
+        const { title, body } = payload.notification;
+        const taskType = payload.data.TaskType; 
+
+        switch (taskType) {
+            case 'TaskCreated':
+                showNotification("Task Created", body);
+                break;
+            case 'TaskUpdated':
+                showNotification("Task Updated", body);
+                break;
+            case 'TaskCompleted':
+                showNotification("Task Completed", body);
+                break;
+            default:
+                showNotification(title, body); 
+                break;
+        }
+        // Function to show notification in the popup
+        // function showNotification(title, body) {
+        //     const notification = {
+        //         title: title,
+        //         body: body,
+        //     };
+
+        //     // Call your Blazor method to update the notification list
+        //     DotNet.invokeMethodAsync('YourAssemblyName', 'AddNotification', notification)
+        //         .then(() => console.log('Notification added to Blazor component.'))
+        //         .catch(err => console.error('Error adding notification:', err));
+        // }
+
+    });
+</script>
+@* <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./firebase-messaging-sw.js')
+            .then((registration) => {
+                console.log('Service Worker registered with scope:', registration.scope);
+            })
+            .catch((err) => {
+                console.error('Service Worker registration failed:', err);
+            });
+    }
+</script> *@
+

@@ -1,0 +1,211 @@
+﻿@inject IDialogService DialogService
+<MudDialog MaxWidth="650px" FullWidth="true">
+    <DialogContent>
+        <div class="head-container mb-5">
+            <MudText Typo="Typo.h5" Align="Align.Start" Class="heading-txt mb-2">Transaction Details</MudText>
+            <MudButton OnClick="Cancel">
+                <img src="./images/Close.svg" alt="X" />
+            </MudButton>
+        </div>
+
+        <MudGrid>
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">User Name:</MudText>
+                    <div class="d-flex">
+                        <MudText class="after-text">Miguel Pieter</MudText>
+                        <MudLink Href="/profile" Class="profile-link">View Profile</MudLink>
+                    </div>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">User Type:</MudText>
+                    <MudText Class="after-text">Employee</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Transaction ID:</MudText>
+                    <MudText Class="after-text">2121212121</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Amount:</MudText>
+                    <MudText Class="after-text">$100.00</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Type:</MudText>
+                    <div class="d-flex">
+                        <MudText class="after-text">Task Payment</MudText>
+                        <MudLink OnClick="OpenTransactionDetailsPopup2" Class="profile-link">View Task</MudLink>
+                    </div>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Balance Type:</MudText>
+                    <MudText Class="after-text">Credit</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Date Time:</MudText>
+                    <MudText Class="after-text">July 12, 2024 10:59:00 AM</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Status:</MudText>
+                    <MudText Class="after-text" Style="color: #DCB012;">Pending</MudText>
+                </div>
+            </MudItem>
+        </MudGrid>
+        
+    <DialogActions class="btn-container">
+        <MudButton Class="cancel-btn" OnClick="CancelAction">Cancel</MudButton>
+        <MudButton Class="approve-btn" OnClick="ApproveAction">Approve</MudButton>
+    </DialogActions>
+    </DialogContent>
+
+</MudDialog>
+
+<style>
+    .head-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .heading-txt {
+        color:#000;
+        font-family: Inter;
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+    .text-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .before-text {
+        color:#000;
+        font-family: Inter;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .after-text {
+        color: #000;
+        font-family: Inter;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .profile-link {
+        color: #0074E3 !important;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: italic;
+        font-weight: 400;
+    }
+    /* button styles */
+    .btn-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 25px;
+    }
+    .cancel-btn {
+        display: flex;
+        height: 57px;
+        width:40%;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        border: 0.5px solid #555454;
+        background-color: #5A5A5A;
+        color: #FFF;
+    }
+    .cancel-btn:hover{
+        display: flex;
+        height: 57px;
+        width:40%;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        border: 0.5px solid #555454;
+        background-color: #5A5A5A;
+        color: #FFF;
+    }
+
+    .approve-btn {
+        display: flex;
+        height: 57px;
+        width: 40%;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        background-color: #0074E3;
+        color: #FFF;
+        border: none;
+    }
+    .approve-btn:hover{
+        display: flex;
+        height: 57px;
+        width: 40%;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        background-color: #0074E3;
+        color: #FFF;
+        border: none;
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void CancelAction()
+    {
+    }
+
+    private void ApproveAction()
+    {
+    }
+    private Task OpenTransactionDetailsPopup2()
+    {
+        this.Cancel();
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<TransactionDetailsPopupPending>("", options);
+    }
+}

@@ -1,0 +1,279 @@
+﻿@page "/paymentsettings"
+@inject IDialogService DialogService
+<MudContainer MaxWidth="MaxWidth.Large" Style="display: flex;   height: 100%; margin-top:55px;flex-direction: column;align-items: center;gap: 25px;flex-shrink: 0; display: flex;border-radius: 10px;background: #FFF; align-items: center;">
+    <MudContainer MaxWidth="MaxWidth.Large" Style="display: flex;height: 63px;padding: 20px 672px 19px 0px;align-items: center;flex-shrink: 0;align-self: stretch;border-radius: 8px;background: #FFF;">
+        <MudText Typo="Typo.h6" Style="color: var(--Black, #000);font-family: Inter;font-size: 20px;font-style: normal;line-height: normal;" Class="pl-2 d-flex align-items-center">
+            Payment Settings
+        </MudText>
+    </MudContainer>
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <MudPaper Class="payment-settings mb-5" Elevation="1" Square>
+
+            <MudItem md="3">
+                <div class="logo-container">
+                    <div class="logo">
+                        <img src="./Images/StripeLogo.svg" alt="Stripe" />
+                    </div>
+                </div>
+            </MudItem>
+
+            <MudItem md="6" Class="modes">
+                <div class="mode-item rounded-box">
+                    <span class="modes-txt">Production Mode</span>
+                    <div class="cont">
+                        <div class="toggle">
+                            <input type="checkbox" id="mode-toggle" class="toggle__input">
+                            <label for="mode-toggle" class="toggle__label"></label>
+                        </div>
+                    </div>
+                    <MudButton OnClick="OpenKeyMode">
+                        <img src="./Images/PaymentModeIcon.svg" alt="Stripe" Class="settings-icon" />
+                    </MudButton>
+                </div>
+                <div class="mode-item rounded-box">
+                    <span class="modes-txt">Testing Mode</span>
+                    <div class="cont">
+                        <div class="toggle">
+                            <input type="checkbox" id="mode-toggle1" class="toggle__input">
+                            <label for="mode-toggle1" class="toggle__label"></label>
+                        </div>
+                    </div>
+                    <MudButton OnClick="OpenKeyMode">
+                        <img src="./Images/PaymentModeIcon.svg" alt="Stripe" Class="settings-icon" />
+                    </MudButton>
+                </div>
+            </MudItem>
+
+            <MudItem md="3" Class="right-mode">
+                <div class="rounded-box right-switch ml-5">
+                    <span class="right-mode-text">Disabled</span>
+                    <div class="cont">
+                        <div class="toggle">
+                            <input type="checkbox" id="mode-toggle2" class="toggle__input">
+                            <label for="mode-toggle2" class="toggle__label"></label>
+                        </div>
+                    </div>
+                </div>
+            </MudItem>
+        </MudPaper>
+
+        <MudPaper Class="payment-settings enabled-section mt-5" Elevation="1" Square>
+            <MudItem md="3">
+                <div class="logo-container">
+                    <div class="logo d-flex">
+                        <img src="./Images/PaymentSquareLogo.png" alt="Square" />
+                        <img src="./Images/PaymentSquareTxt.png" alt="Square" />
+                    </div>
+                </div>
+            </MudItem>
+
+            <MudItem md="6" Class="modes">
+                <div class="mode-item rounded-box">
+                    <span class="modes-txt">Production Mode</span>
+                    @* <MudSwitch Class="custom-switch" T="bool" Checked="true" Color=Color.Success /> *@
+                    <div class="cont">
+                        <div class="toggle">
+                            <input type="checkbox" id="mode-toggle3" class="toggle__input">
+                            <label for="mode-toggle3" class="toggle__label"></label>
+                        </div>
+                    </div>
+                    <MudButton OnClick="OpenKeyMode">
+                        <img src="./Images/PaymentModeIcon.svg" alt="Square" Class="settings-icon" />
+                    </MudButton>
+                </div>
+                <div class="mode-item rounded-box">
+                    <span class="modes-txt">Testing Mode</span>
+                    @* <MudSwitch Class="custom-switch" T="bool" Checked="true" Color=Color.Success /> *@
+                    <div class="cont">
+                        <div class="toggle">
+                            <input type="checkbox" id="mode-toggle4" class="toggle__input">
+                            <label for="mode-toggle4" class="toggle__label"></label>
+                        </div>
+                    </div>
+                    <MudButton OnClick="OpenKeyMode">
+                        <img src="./Images/PaymentModeIcon.svg" alt="Square" Class="settings-icon" />
+                    </MudButton>
+                </div>
+            </MudItem>
+
+            <MudItem md="3" Class="right-mode">
+                <div class="rounded-box right-switch ml-5">
+                    <span class="right-mode-text">Enabled</span>
+                    @* <MudSwitch Class="custom-switch ml-5" T="bool" Checked="true" Color=Color.Success /> *@
+                    <div class="cont">
+                        <div class="toggle">
+                            <input type="checkbox" id="mode-toggle5" class="toggle__input">
+                            <label for="mode-toggle5" class="toggle__label"></label>
+                        </div>
+                    </div>
+                </div>
+            </MudItem>
+        </MudPaper>
+    </MudContainer>
+</MudContainer>
+<style>
+
+    .cont {
+        text-align: center;
+        margin-left: auto
+    }
+
+    .toggle {
+        position: relative;
+        display: inline-block;
+    }
+
+    .toggle__input {
+        display: none;
+    }
+
+    .toggle__label {
+        display: block;
+        width: 60px;
+        height: 30px;
+        background-color: #ccc;
+        border-radius: 99px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .toggle__input:checked + .toggle__label {
+        background-color: #1DC141;
+    }
+
+    .toggle__label::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 26px;
+        height: 26px;
+        background-color: #ffffff;
+        border-radius: 50%;
+        transition: left 0.3s ease;
+    }
+
+    .toggle__input:checked + .toggle__label::after {
+        left: 32px;
+    }
+
+    .dark-mode .toggle__label {
+        background-color: #000;
+    }
+    /**/
+    .payment-settings {
+        display: flex;
+        background-color: #f7f7f7;
+        border-radius: 12px;
+        border: 0.3px solid #000;
+        box-shadow: none !important;
+    }
+
+    .logo-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+        border-radius: 12px 14px 14px 12px;
+        padding: 10px;
+        height: 100%;
+        border-right: 0.3px solid #000;
+    }
+
+    .logo img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .enabled-section {
+        background-color: #0074E3;
+        color: white;
+    }
+
+    .modes {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .modes-txt {
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
+    .mode-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .rounded-box {
+        background-color: white;
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        border: 0.3px solid #000;
+    }
+
+    .right-mode {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .right-mode-txt {
+        color: #595959;
+        font-family: Inter;
+        font-size: 13.303px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
+    .right-switch {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+    }
+
+    .settings-icon {
+        font-size: 18px;
+        color: inherit;
+    }
+
+    .enabled-section .settings-icon,
+    .enabled-section span {
+        color: #000;
+    }
+
+    .mode-item .custom-switch {
+        margin-left: auto;
+    }
+</style>
+
+
+@code {
+    private bool stripeEnabled = false;
+    private bool stripeProdMode = false;
+    private bool stripeTestMode = false;
+    private bool squareEnabled = true;
+    private bool squareProdMode = true;
+    private bool squareTestMode = true;
+
+    private Task OpenKeyMode()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<PaymentSettingsPoup>("", options);
+    }
+}

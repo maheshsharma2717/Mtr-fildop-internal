@@ -1,0 +1,44 @@
+﻿
+.mud-main-content {
+    background-color: EFEFEF;
+}
+
+
+@media (max-width: 1400px) {
+    .custom-container {
+        overflow-x: auto;
+    }
+
+    .custom-table {
+        min-width: 920px;
+    }
+}
+
+@media (max-width: 1420px) {
+    .grid-rows-customers {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+}
+
+@media (max-width: 600px) {
+    .mud-table-cell {
+        display: table !important;
+        border: none;
+        padding: 14px 16px;
+        text-align: start !important;
+    }
+
+    .mud-icon-button {
+        padding: 1px !important;
+    }
+}
+
+@media (max-width: 668px) {
+    .logo-image {
+        height: 300px !important;
+    }
+}

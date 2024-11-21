@@ -1,0 +1,103 @@
+﻿<MudDialog MaxWidth="MaxWidth.Small" Class="dialog-container">
+
+    <DialogContent>
+        <div class="icon-container ">
+            <img src="./Images/Red-icon.svg" class="icon pb-2" />
+        </div>
+        <div class="content-container">
+            Are You Sure You Want To Duplicate This Service Request
+        </div>
+        <DialogActions class="btn-container">
+            <MudButton OnClick="Cancel" Class="cancel-btn">NO</MudButton>
+            <MudButton OnClick="Submit" class="yes-btn">YES</MudButton>
+        </DialogActions>
+    </DialogContent>
+</MudDialog>
+
+<style>
+    .mud-dialog-width-sm {
+        width: 395px;
+    }
+
+    .mud-dialog-title {
+        display: none;
+    }
+
+    .dialog-container {
+        padding: 15px 30px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .icon-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .content-container {
+        color: #313131;
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+
+    .btn-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 25px;
+    }
+
+    .cancel-btn {
+        width: 100px;
+        height: 40px;
+        background-color: #5A5A5A;
+        color: white;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+        .cancel-btn:hover {
+            width: 100px;
+            height: 40px;
+            background-color: #5A5A5A;
+            color: white;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+    .yes-btn {
+        width: 100px;
+        height: 40px;
+        background-color: #1DC141;
+        color: white;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+        .yes-btn:hover {
+            width: 100px;
+            height: 40px;
+            background-color: #1DC141;
+            color: white;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+</style>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+    private void Cancel() => MudDialog.Cancel();
+}

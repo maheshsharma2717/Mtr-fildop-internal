@@ -1,0 +1,271 @@
+﻿@page "/reviews"
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudItem xs="12" Class="mt-5 p-5">
+            <MudContainer Class="custom-container mb-5 p-5" Style="background-color:#fff; border:0.1px solid #cbcbcb; border-radius:10px;padding:10px 0;">
+                <MudCard Class="pa-4 md-ppr">
+                    <MudContainer Class="d-flex justify-content-between align-items-center h-con">
+                        <span Class="h-txt">Reviews</span>
+                        <span Align="Align.End" Class="h-rating">@($"Rating: {AverageRating.ToString("0.0")} ({TotalReviews} reviews)")</span>
+                    </MudContainer>
+
+                    @foreach (var review in PagedReviews)
+                    {
+                        <MudPaper Class="pa-3 md-ppr">
+                            <MudContainer Class="d-flex align-items-start justify-content-between">
+                                <div Class="aatar">
+                                    <img src="./Images/chat-user.jpg" class="avatar" />
+                                </div>
+                                <MudContainer Class="pl-3 flex-column">
+                                    <MudText Class="name-text">@review.UserName</MudText>
+                                        <MudText Class="date-text">@review.ReviewDate.ToString("MMMM dd, yyyy")</MudText>
+                                    </MudContainer>
+                                    <MudContainer Class="ml-auto d-flex align-items-center justify-end rating-section">
+                                        <img src="./Images/Star.svg" />
+                                        <MudText Class="rating-text">@review.Rating.ToString("0.0")</MudText>
+                                    </MudContainer>
+                                </MudContainer>
+                                <MudContainer Class="d-flex pl-2">
+                                    <MudContainer Class="spacer "></MudContainer>
+                                    <MudText Class="description-text">@review.Content</MudText>
+                                </MudContainer>
+                            </MudPaper>
+                    }
+
+                    @* <MudPagination Page="@CurrentPage" PageSize="PageSize" TotalPages="@TotalPages" OnPageChanged="OnPageChanged" /> *@
+                    <PagerContent>
+                        <MudGrid AlignItems="Center" Justify="Justify.Center">
+                            <MudItem>
+                                <div class="custom-pagination py-3">
+                                    <button @onclick="PreviousPage" disabled="@(_currentPage == 1)">
+                                        <img src="./Images/Chevron_Left_MD.svg" alt="Previous" class="pagination-icon" />
+                                    </button>
+                                    @for (int i = 1; i <= TotalPages; i++)
+                                    {
+                                        <button @onclick="() => GoToPage(i)" class="pagination-button @GetActiveClass(i)">
+                                            @i
+                                        </button>
+                                    }
+                                    <button @onclick="NextPage" disabled="@(_currentPage == TotalPages)">
+                                        <img src="./Images/Chevron_Right_MD.svg" alt="Next" class="pagination-icon" />
+                                    </button>
+                                </div>
+                            </MudItem>
+                        </MudGrid>
+                    </PagerContent>
+                </MudCard>
+            </MudContainer>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+<style>
+    .h-con {
+        border-bottom: 0.1px solid #cbcbcb;
+        padding-bottom: 20px;
+    }
+
+    .h-txt {
+        color: #000;
+        font-family: Inter;
+        font-size: 22px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .h-rating {
+        color: #000;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+    }
+
+    .md-ppr {
+        box-shadow: none !important;
+    }
+
+    .avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+    }
+
+    .spacer {
+        width: 130px;
+        margin: 1px;
+    }
+
+    .name-text {
+        color: #000;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-style: italic;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .date-text {
+        color: #000;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        margin-top: 8px;
+        line-height: normal;
+    }
+
+    .rating-text {
+        color: #000;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+        padding-left: 4px;
+    }
+
+    .description-text {
+        color: #000;
+        font-family: 'Inter', sans-serif;
+        font-size: 17px;
+        font-style: italic;
+        font-weight: 500;
+        line-height: 23px;
+    }
+
+    .d-flex {
+        display: flex;
+    }
+
+    .flex-column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .align-items-start {
+        align-items: flex-start;
+    }
+
+    .align-items-center {
+        align-items: center;
+    }
+
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .ml-auto {
+        margin-left: auto;
+    }
+
+    .pl-3 {
+        padding-left: 16px;
+    }
+    /*pagination*/
+
+    .custom-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .pagination-button {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #000;
+        background-color: transparent;
+        color: #000;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .active-page {
+        background-color: #0074E3;
+        color: #fff;
+        border: none;
+    }
+
+</style>
+
+@code {
+    // Review Model Class
+    public class Review
+    {
+        public string UserName { get; set; }
+        public DateTime ReviewDate { get; set; }
+        public string Content { get; set; }
+        public double Rating { get; set; }
+    }
+
+    private List<Review> Reviews { get; set; } = new List<Review>();
+    private List<Review> PagedReviews { get; set; } = new List<Review>();
+
+    private int _currentPage = 1;
+    private int PageSize = 10;
+
+    private int TotalPages => (int)Math.Ceiling((double)Reviews.Count / PageSize);
+
+    private double AverageRating => Reviews.Any() ? Reviews.Average(r => r.Rating) : 0;
+
+    private int TotalReviews => Reviews.Count;
+
+    protected override void OnInitialized()
+    {
+        Reviews = Enumerable.Range(1, 20).Select(i => new Review
+            {
+                UserName = $"Marvin McKinney",
+                ReviewDate = DateTime.Now.AddDays(-i),
+                Content = "Lorem ipsum dolor sit amet consecteturLorem ipsum dolor sit amet consecteturLorem ipsum dolor sit amet consecteturLorem ipsum dolor sit amet consecteturLorem ipsum dolor sit amet consectetur",
+                Rating = 4.5
+            }).ToList();
+
+        LoadPagedReviews();
+    }
+
+    private void LoadPagedReviews()
+    {
+        PagedReviews = Reviews.Skip((_currentPage - 1) * PageSize).Take(PageSize).ToList();
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber >= 1 && pageNumber <= TotalPages)
+        {
+            _currentPage = pageNumber;
+            LoadPagedReviews();
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (_currentPage > 1)
+        {
+            _currentPage--;
+            LoadPagedReviews();
+        }
+    }
+
+    private void NextPage()
+    {
+        if (_currentPage < TotalPages)
+        {
+            _currentPage++;
+            LoadPagedReviews();
+        }
+    }
+
+    private string GetActiveClass(int pageNumber)
+    {
+        return pageNumber == _currentPage ? "active-page" : "";
+    }
+ }
+

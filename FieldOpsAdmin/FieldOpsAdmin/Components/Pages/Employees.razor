@@ -1,0 +1,738 @@
+﻿ @page "/employees"
+@using FieldOpsAdmin.Models
+@using FieldOpsAdmin.Service
+@using Newtonsoft.Json
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudOverlay Visible="@isLoading" DarkBackground="true" ZIndex="9999">
+            <MudProgressCircular Color="Color.Tertiary" Indeterminate="true" />
+        </MudOverlay>
+        <MudItem xs="12" Class="mt-5">
+            <MudContainer Class="custom-container mb-5 p-5" Style="background-color:#fff; border:0.1px solid #cbcbcb; border-radius:10px;">
+                <MudContainer Class="mt-5">
+                    <MudGrid AlignItems="Center" Style="justify-content:space-between; width: calc(100% + 24px)!important;">
+                        <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                            <MudText Typo="Typo.h6" Class="pl-2 d-flex align-items-center header-txt">Employees</MudText>
+                        </MudItem>
+                        <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                            <div class="custom-select-wrapper">
+                                <select class="custom-select" @onchange="OnRowsPerPageChanged">
+                                    <option value="10">View Rows: 10</option>
+                                    <option value="100">View Rows: 100</option>
+                                    <option value="200">View Rows: 200</option>
+                                    <option value="300">View Rows: 300</option>
+                                    <option value="400">View Rows: 400</option>
+                                </select>
+                            </div>
+                        </MudItem>
+                        @*     <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                        <div class="search-container">
+                        <input type="text" placeholder="Search Employee" class="search-input-emp" @bind-value="_searchTerm" @bind-value:event="oninput" />
+                        <img src="./Images/Search.svg" alt="Search Icon" class="mud-icon" />
+                        </div>
+                        </MudItem> *@
+                        <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                            <div class="search-container">
+                                <input type="text" placeholder="Search Employee" class="search-input-emp" @oninput="SearchCustomers" />
+                                <img src="./Images/Search.svg" alt="Search Icon" class="mud-icon" />
+                            </div>
+                        </MudItem>
+
+                        <MudItem lg="3" xs="12" Class="d-flex  mb-3">
+                            <MudButton Variant="Variant.Filled" Class="add-btn" OnClick="OpenEmpDialogAsync">
+                                <img src="./Images/User_Add.svg" alt="Add Icon" class="mud-icon" />
+                                Add New Employee
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+
+                <MudContainer Class="custom-container">
+                    <MudTable Items="PaginatedMessages" Striped="false" Bordered="false" Class="custom-table mb-5 mt-5">
+                        <HeaderContent>
+                            <MudTh Class="text-center t-head sn-r" @onclick="SortBySN" SortDirection="@_snSortDirection" Style="width: 10%;">
+                                @if (_snSortDirection == SortDirection.Ascending)
+                                {
+                                    <span class="custom-svg">
+                                        <img src="./images/sorting.svg" alt="Sort Ascending" style="width: 12px;height: 18px;" />
+                                    </span>
+                                }
+                                else if (_snSortDirection == SortDirection.Descending)
+                                {
+                                    <span class="custom-svg">
+                                        <img src="./images/sorting.svg" alt="Sort Descending" style="transform: rotate(-180deg);width: 12px;height: 18px;" />
+                                    </span>
+                                }
+                                Id
+                            </MudTh>
+                            <MudTh Class="t-head" Style="width: 22%;">Name</MudTh>
+                            <MudTh Class="t-head" Style="width: 24%;">Phone Number</MudTh>
+                            <MudTh Class="t-head" Style="width: 13%;">Status</MudTh>
+                            <MudTh Class="t-head" Style="width: 15%;">Ratings</MudTh>
+                            <MudTh Class="t-head" Style="width: 15%;"></MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd ColSpan="6">
+                                <MudPaper Class="row-card" Elevation="0" Style="border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
+                                    <MudGrid Class="grid-rows">
+                                        <MudItem xs="1" Class="text-center grid-item" Style="width: 10%;">
+                                            @context.SN
+                                        </MudItem>
+                                        <MudItem xs="3" Class="text-center grid-item justify-start" Style="width: 30%;">
+                                            <MudAvatar Class="ml-3" Color="@GetAvatarColor(context.Name)" Size="Size.Medium">
+                                                @GetInitials(context.Name)
+                                            </MudAvatar>
+                                            <span Class="ml-3">@context.Name</span>
+                                        </MudItem>
+                                        <MudItem xs="3" Class="text-center grid-item" Style="width: 20%;">
+                                            @context.PhoneNumber
+                                        </MudItem>
+                                        <MudItem xs="2" Class="text-center grid-item" Style="width: 20%;">
+                                            <span class="@GetStatusClass(@context.Status)">
+                                                @context.Status
+                                            </span>
+                                        </MudItem>
+                                        <MudItem xs="1" Class="text-center grid-item" Style="width: 15%;">
+                                            <img src="./Images/Star.svg" class="mr-1" />
+                                            @context.Ratings
+                                        </MudItem>
+                                        <MudItem xs="2" Class="text-center grid-item" Style="width: 20%;">
+                                            <MudIconButton Class="btn-view" @onclick="() => viewDetails(context.SN)">
+                                                View Details
+                                            </MudIconButton>
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudPaper>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudContainer>
+                <PagerContent>
+                    <MudGrid AlignItems="Center" Justify="Justify.Center">
+                        <MudItem>
+                            <div class="custom-pagination py-3">
+                                <button @onclick="PreviousPage" disabled="@(currentPage == 1)">
+                                    <img src="./Images/Chevron_Left_MD.svg" alt="Previous" class="pagination-icon" />
+                                </button>
+                                @for (int i = 1; i <= TotalPages; i++)
+                                {
+                                    <button @onclick="() => GoToPage(i)" class="pagination-button @GetActiveClass(i)">
+                                        @i
+                                    </button>
+                                }
+                                <button @onclick="NextPage" disabled="@(currentPage == TotalPages)">
+                                    <img src="./Images/Chevron_Right_MD.svg" alt="Next" class="pagination-icon" />
+                                </button>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </PagerContent>
+
+            </MudContainer>
+        </MudItem>
+    </MudGrid>
+
+</MudContainer>
+<style>
+    .header-txt {
+        color: #000;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .add-btn {
+        display: flex;
+        padding: 10px;
+        justify-content: space-evenly;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 16px;
+        line-height: normal;
+        font-weight: 700;
+        background: #0074E3;
+        text-transform: capitalize;
+        width: 100% !important;
+    }
+
+        .add-btn:hover {
+            display: flex;
+            padding: 10px;
+            justify-content: space-evenly;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            color: #FFF;
+            font-family: Inter;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: normal;
+            background: #0074E3;
+            text-transform: capitalize;
+            width: 100% !important;
+        }
+
+    .mud-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .search-container {
+        display: flex;
+        padding: 10px 18px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        font-size: 14px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+        width: 100%;
+    }
+
+    .search-input-emp {
+        border: none;
+        outline: none;
+        flex-grow: 1;
+        background: transparent;
+        color: #8D8D8D;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        width: 100%;
+    }
+
+
+
+    .custom-select {
+        flex-shrink: 0;
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 0.2px solid #000;
+        background: #EFEFEF;
+        width: 100%;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+    }
+
+    /*table*/
+    .mud-table-root .mud-table-head {
+        background-color: #Efefef;
+    }
+
+    .t-head {
+        text-align: center;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+        color: #000 !important;
+    }
+
+    .text-center {
+        text-align: center;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        color: #000;
+    }
+
+    .active-page {
+        background-color: #0074e3 !important;
+        color: #fff !important;
+        border: none !important;
+    }
+
+    .status-inactive {
+        border-radius: 16px;
+        background: #FFB800;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-active {
+        color: #FFF;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 16px;
+        background: #4AD771;
+    }
+
+    .row-card {
+        border: 0.5px solid #767676;
+        border-radius: 10px;
+        padding: 15px;
+        background-color: white;
+    }
+
+    .action-container {
+        display: flex;
+        justify-content: space-around;
+        background: #f1f1f1;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    /*Mud Over wright and border */
+
+    .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
+        height: auto;
+        padding: 15px;
+    }
+
+    .mud-table-root .mud-table-body .mud-table-cell {
+        border-bottom: none;
+    }
+
+    .mud-table-root .mud-table-cell {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mud-grid-spacing-xs-6 > .grid-item {
+        padding-left: 24px;
+        padding-top: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .grid-rows {
+        justify-content: space-between !important;
+    }
+
+    .custom-container {
+        max-height: 100%;
+    }
+
+    .grid-rows > .mud-grid-item {
+        flex-basis: auto;
+    }
+
+    .btn-view {
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #0074E3;
+        color: white;
+        font-weight: 600;
+    }
+
+        .btn-view:hover {
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #0074E3;
+            color: white;
+            font-weight: 600;
+        }
+    /*pagination*/
+    .custom-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .pagination-button {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #000;
+        background-color: transparent;
+        color: #000;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+</style>
+@* @code {
+    private string _searchTerm;
+    public class Contact
+    {
+        public int SN { get; set; }
+        public string Name { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Status { get; set; }
+        public string Ratings { get; set; }
+    }
+
+    private List<Contact> contacts = new List<Contact>
+    {
+        new Contact { SN = 1, Name = "John Doe", PhoneNumber = "(405)456-7890", Status = "Active", Ratings ="5.0"},
+        new Contact { SN = 2, Name = "Jane Smith", PhoneNumber = "(987)654-3210", Status = "Inactive", Ratings = "5.0"}
+    };
+
+    private string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Active" => "status-active",
+            "Inactive" => "status-inactive",
+            _ => "status-default"
+        };
+    }
+    //search filter
+    private void SearchCustomers(ChangeEventArgs e)
+    {
+        _searchTerm = e.Value.ToString();
+    }
+    private Func<Contact, bool> CustomersFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchTerm))
+            return true;
+        return x.Name.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase)
+             || x.PhoneNumber.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase);
+    };
+    // Pagination logic
+    private int _rowsPerPage = 1;
+    private int currentPage = 1;
+    private int totalItems => contacts.Count;
+
+    public int TotalPages => (int)Math.Ceiling((double)totalItems / _rowsPerPage);
+
+    private IEnumerable<Contact> PaginatedMessages =>
+
+        contacts.Skip((currentPage - 1) * _rowsPerPage).Take(_rowsPerPage);
+
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < TotalPages)
+        {
+            currentPage++;
+        }
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        currentPage = pageNumber;
+    }
+
+    private void OnRowsPerPageChanged(ChangeEventArgs e)
+    {
+        _rowsPerPage = int.Parse(e.Value.ToString());
+        currentPage = 1;
+    }
+    private string GetActiveClass(int pageNumber)
+    {
+        return pageNumber == currentPage ? "active-page" : "";
+    }
+
+    //sorting
+    private SortDirection _snSortDirection = SortDirection.None;
+    private bool _isSortedAscending;
+
+    private void SortBySN()
+    {
+        if (_snSortDirection == SortDirection.None || _snSortDirection == SortDirection.Descending)
+        {
+            _isSortedAscending = true;
+            _snSortDirection = SortDirection.Ascending;
+            contacts = contacts.OrderBy(sr => sr.SN).ToList();
+        }
+        else
+        {
+            _isSortedAscending = false;
+            _snSortDirection = SortDirection.Descending;
+            contacts = contacts.OrderByDescending(sr => sr.SN).ToList();
+        }
+    }
+    //avtar
+
+    private string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+        var parts = name.Split(' ');
+        if (parts.Length == 1) return parts[0].Substring(0, 1).ToUpper();
+        return string.Join("", parts.Select(p => p[0])).ToUpper();
+    }
+    private MudBlazor.Color GetAvatarColor(string name)
+    {
+        var hash = name.GetHashCode();
+        var colors = new List<MudBlazor.Color>
+    {
+        MudBlazor.Color.Primary,
+        MudBlazor.Color.Secondary,
+        MudBlazor.Color.Success,
+        MudBlazor.Color.Info,
+        MudBlazor.Color.Warning,
+        MudBlazor.Color.Error,
+    };
+
+        int colorIndex = Math.Abs(hash % colors.Count);
+        return colors[colorIndex];
+    }
+    private Task OpenEmpDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<AddEmployee>("", options);
+    }
+}
+ *@
+@code {
+    @inject UserService userService;
+    private bool isLoading = false;
+    [Inject] ISnackbar Snackbar { get; set; }
+    private Task OpenEmpDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<AddEmployee>("", options);
+    }
+    private string _searchTerm = string.Empty;
+
+    private List<Contact> contacts = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            contacts = await GetEmployees();
+            StateHasChanged();
+        }
+    }
+
+    protected async Task<List<Contact>> GetEmployees()
+    {
+        isLoading = true;
+        StateHasChanged();
+        try
+        {
+            List<Contact> contacts = new();
+            var response = await userService.GetUsersByRole(3);
+
+            if (response.IsSuccess)
+            {
+                string json = JsonConvert.SerializeObject(response.Result);
+                List<UserDetailsViewModel> employees = JsonConvert.DeserializeObject<List<UserDetailsViewModel>>(json);
+                if (employees != null)
+                {
+                    foreach (var item in employees)
+                    {
+                        Contact contact = new()
+                            {
+                                Name = item.Name,
+                                PhoneNumber = item.PhoneNumber,
+                                SN = item.Id,
+                                //Ratings = item.Rating,
+                                Ratings= item.Rating ?? 0.0,
+                               // Status = item.IsActive ? "Active" : "Inactive",
+                                Status = item.IsActive ?? false ? "Active" : "Inactive",
+
+                            };
+                        contacts.Add(contact);
+                    }
+                    Snackbar.Add("Data Loaded Successfully!", Severity.Success);
+                }
+            }
+            else
+            {
+                Snackbar.Add(response.Message, Severity.Error);
+            }
+            return contacts;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load data: {ex.Message}", Severity.Error);
+            throw;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public class Contact
+    {
+        public int SN { get; set; }
+        public string Name { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Status { get; set; }
+        public double Ratings { get; set; }
+
+    }
+
+    // private List<Contact> contacts = new List<Contact>
+    // {
+    //     new Contact { SN = 1, Name = "John Doe", PhoneNumber = "(405)456-7890", Status = "Active", Ratings ="5.0"},
+    //     new Contact { SN = 2, Name = "John Doe", PhoneNumber = "(405)456-7890", Status = "Active", Ratings ="5.0"},
+    //     new Contact { SN = 3, Name = "Jane Smith", PhoneNumber = "(987)654-3210", Status = "Inactive", Ratings = "5.0"}
+    // };
+
+    private string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Active" => "status-active",
+            "Inactive" => "status-inactive",
+            _ => "status-default"
+        };
+    }
+    //selected dropdown
+    private void OnRowsPerPageChanged(ChangeEventArgs e)
+    {
+        _rowsPerPage = int.Parse(e.Value.ToString());
+        currentPage = 1;
+    }
+    // Search filter logic
+    private void SearchCustomers(ChangeEventArgs e)
+    {
+        _searchTerm = e.Value?.ToString() ?? string.Empty;
+    }
+
+    private IEnumerable<Contact> FilteredContacts =>
+        contacts.Where(CustomersFilter);
+
+    private Func<Contact, bool> CustomersFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchTerm))
+            return true;
+        return x.Name.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase)
+            || x.PhoneNumber.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase);
+    };
+
+    // Pagination logic
+    private int _rowsPerPage = 10;
+    private int currentPage = 1;
+    private int totalItems => FilteredContacts.Count();
+
+    public int TotalPages => (int)Math.Ceiling((double)totalItems / _rowsPerPage);
+
+    private IEnumerable<Contact> PaginatedMessages =>
+        FilteredContacts.Skip((currentPage - 1) * _rowsPerPage).Take(_rowsPerPage);
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < TotalPages)
+        {
+            currentPage++;
+        }
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        currentPage = pageNumber;
+    }
+
+    private string GetActiveClass(int pageNumber)
+    {
+        return pageNumber == currentPage ? "active-page" : "";
+    }
+
+    // Sorting logic
+    private SortDirection _snSortDirection = SortDirection.None;
+    private bool _isSortedAscending;
+
+    private void SortBySN()
+    {
+        if (_snSortDirection == SortDirection.None || _snSortDirection == SortDirection.Descending)
+        {
+            _isSortedAscending = true;
+            _snSortDirection = SortDirection.Ascending;
+            contacts = contacts.OrderBy(sr => sr.SN).ToList();
+        }
+        else
+        {
+            _isSortedAscending = false;
+            _snSortDirection = SortDirection.Descending;
+            contacts = contacts.OrderByDescending(sr => sr.SN).ToList();
+        }
+    }
+
+    // Avatar and other helper methods
+    private string GetInitials(string name)
+    {
+        string initials = string.Empty;
+        try
+        {
+            name = name.Trim();
+            if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+            var parts = name.Split(' ');
+            if (parts.Length == 1) return parts[0].Substring(0, 1).ToUpper();
+            initials = string.Join("", parts.Select(p => p[0])).ToUpper();
+            return initials;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    private MudBlazor.Color GetAvatarColor(string name)
+    {
+        var hash = name.GetHashCode();
+        var colors = new List<MudBlazor.Color>
+        {
+            MudBlazor.Color.Primary,
+            MudBlazor.Color.Secondary,
+            MudBlazor.Color.Success,
+            MudBlazor.Color.Info,
+            MudBlazor.Color.Warning,
+            MudBlazor.Color.Error,
+        };
+
+        int colorIndex = Math.Abs(hash % colors.Count);
+        return colors[colorIndex];
+    }
+    private void viewDetails(int id)
+    {
+        Navigation.NavigateTo($"/EmployeeDetails?id={id}");
+    }
+}

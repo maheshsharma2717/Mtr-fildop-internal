@@ -1,0 +1,509 @@
+﻿@page "/ServiceDetails"
+@using MudBlazor
+@using FieldOpsAdmin.Models
+@using FieldOpsAdmin.Service
+@using FieldOpsAdmin.Services
+@inject ApiService _apiService
+@inject GlobalServices _globalService
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+<MudContainer Class="" MaxWidth="MaxWidth.Large" Style="height: 100%; margin-top:45px">
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudCard>
+                <MudCardHeader>
+                    <MudGrid>
+                        <MudItem>
+                            <div class="img-cont">
+                                <img src="@serviceDetails?.CreatedBy?.ProfileUrl" alt="" class="category-icon" style="width: 38px; height: 38px; border-radius: 50%;" />
+                            </div>
+                        </MudItem>
+                        <MudItem>
+                            <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 13px;font-style: normal;font-weight: 700;line-height: 18px; ">
+                                @($"{serviceDetails?.CreatedBy?.Name ?? "N/A"}")
+
+                            </MudText>
+                            <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 12px;font-style: normal;font-weight: 500;line-height: 18px; /* 150% */">
+
+                                @($"{serviceDetails?.CreatedBy?.PhoneNumber ?? "N/A"}")
+                            </MudText>
+                        </MudItem>
+                        <MudItem>
+                            <div style="flex-grow: 1;"></div>
+                        </MudItem>
+                        <MudItem>
+                            <MudButton Class="frame-127">
+                                <img src="./Images/Chat.svg" alt="Dashboard Icon" style="width: 29px; height: 29px;margin-right: 8px" />
+                                <MudText Class="chat">Chat</MudText>
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardHeader>
+
+                <MudCardContent>
+                    <MudList T="string" Class="frame-108">
+                        <MudListItem>
+                            <MudGrid>
+                                <MudItem xs="6">
+                                    <MudText Class="List-text"><b>Address:</b></MudText>
+                                </MudItem>
+                                <MudItem xs="6" class="text-right">
+                                    <MudText Class="List-text">
+                                        <MudText Class="List-text">
+                                            @(string.IsNullOrWhiteSpace(serviceDetails?.Address) ? "N/A" : serviceDetails.Address)
+
+                                        </MudText>
+
+                                    </MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudListItem>
+                        <MudDivider />
+                        <MudListItem>
+                            <MudGrid>
+                                <MudItem xs="6">
+                                    <MudText Class="List-text"><b>Task Create:</b></MudText>
+                                </MudItem>
+                                <MudItem xs="6" class="text-right">
+                                    <MudText Class="List-text">
+                                        @(serviceDetails?.CreatedAt.ToString("MM/dd/yyyy") ?? "N/A")
+                                    </MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudListItem>
+                        <MudDivider />
+                        <MudListItem>
+                            <MudGrid>
+                                <MudItem xs="6">
+                                    <MudText Class="List-text"><b>Start Date:</b></MudText>
+                                </MudItem>
+                                <MudItem xs="6" class="text-right">
+                                    <MudText Class="List-text">
+                                        @(serviceDetails?.WorkStartTime.HasValue == true ? serviceDetails.WorkStartTime.Value.ToString("g") : "N/A")
+                                    </MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudListItem>
+                        <MudDivider />
+                        <MudListItem>
+                            <MudGrid>
+                                <MudItem xs="6">
+                                    <MudText Class="List-text"><b>Complete Date:</b></MudText>
+                                </MudItem>
+                                <MudItem xs="6" class="text-right">
+                                    <MudText Class="List-text">
+                                        @(serviceDetails?.WorkCompleteTime != null ? serviceDetails.WorkCompleteTime.Value.ToString("g") : "N/A")
+                                    </MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudListItem>
+                        <MudDivider />
+                        <MudListItem>
+                            <MudGrid>
+                                <MudItem xs="6">
+                                    <MudText Class="List-text"><b>Cancelled Date:</b></MudText>
+
+                                </MudItem>
+                                <MudItem xs="6" class="text-right">
+                                    <MudText Class="List-text">
+                                        <MudText Class="List-text">
+                                            @* @(serviceDetails?.CanceledTasks.ToString() ?? "N/A") *@
+                                        </MudText>
+                                    </MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudListItem>
+                        <MudDivider />
+                        @* <MudListItem>
+                        <MudGrid>
+                        <MudItem xs="6">
+                        <MudText Class="List-text"><b>Payment Method:</b></MudText>
+                        </MudItem>
+                        <MudItem xs="6" class="text-right">
+                        <MudText Class="List-text">
+                        @(serviceDetails?.CreatedBy?.PaymentMethod ?? "")
+                        </MudText>
+
+                        </MudItem>
+                        </MudGrid>
+                        </MudListItem> *@
+                        <MudDivider />
+                        @*   <MudListItem>
+                        <MudGrid>
+                        <MudItem xs="6">
+                        <MudText Class="List-text"><b>Payment Status:</b></MudText>
+                        </MudItem>
+                        <MudItem xs="6" class="text-right">
+                        <MudText Class="List-text">
+                        @(serviceDetails?.CreatedBy?.PaymentMethod ?? "N/A")
+
+                        </MudText><!-- Replace [Status] with actual status -->
+                        </MudItem>
+                        </MudGrid>
+                        </MudListItem> *@
+
+                    </MudList>
+                    <MudGrid>
+
+                        <MudItem xs="12" md="7">
+                            <MudButton Class="Button-mark-as-complete ">
+                                Mark As Complete
+                            </MudButton>
+                        </MudItem>
+                        <MudItem xs="12" md="5">
+                            <MudButton Class="Button-assign-task" OnClick="() => OpenAssignTask()">
+                                Assign Task
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                    <MudGrid>
+
+                        <MudItem xs="12" md="6">
+                            <MudIconButton Class="Button-edit-task" @onclick="() => viewDetails(serviceDetails.Id)">
+                                <img src="./Images/Actions _ Edit.svg" alt="Dashboard Icon" style="width: 20px; height: 20px;margin-right: 0px" />
+                                Edit
+                            </MudIconButton>
+                        </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudButton Class="Button-cancel-task" OnClick="OpenCancelDialogAsync">
+                                Cancel
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+
+                    <MudList T="string">
+                        <MudListItem>
+                            <MudGrid>
+                                <MudItem xs="12">
+                                    <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 15px;font-style: normal;font-weight: 600;line-height: normal;">
+                                        Service Provider
+                                    </MudText>
+                                </MudItem>
+                                <MudItem>
+                                    @* <MudAvatar Icon="@Icons.Material.Filled.Person" Size="Size.Large" /> *@
+                                    <div class="img-cont">
+                                        <img src="@serviceDetails?.AssignedTo?.ProfileUrl" alt="" class="category-icon" style="width: 38px; height: 38px; border-radius: 50%;" />
+                                    </div>
+                                </MudItem>
+                                <MudItem>
+                                    <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 16px;font-style: normal;font-weight: 700;line-height: 18px; /* 112.5% */">
+                                        @($"{serviceDetails?.AssignedTo?.Name ?? "N/A"}")
+                                    </MudText>
+                                    <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 13px;font-style: normal;font-weight: 500;line-height: 18px; /* 138.462% */">
+                                        @($"{serviceDetails?.AssignedTo?.PhoneNumber ?? "N/A"}")
+                                    </MudText>
+                                    <MudText Style="color: #032F59;font-family: Inter;font-size: 18px;font-style: normal;font-weight: 600;line-height: normal;">
+                                        <img src="./Images/Star 9.svg" alt="Dashboard Icon" style="width: 20px; height: 20px;margin-right: 0px" />
+                                        @* @($"{serviceDetails?.CreatedBy?.Rating ?? "N/A"}") *@
+                                        @($"{serviceDetails?.AssignedTo?.Rating.ToString() ?? "N/A"}")
+                                    </MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudListItem>
+                        <MudDivider />
+                        <MudListItem>
+
+                            <MudGrid>
+                                <MudItem xs="12">
+                                    <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 15px;font-style: normal;font-weight: 600;line-height: normal;">
+                                        Service Seeker
+                                    </MudText>
+                                </MudItem>
+                                <MudItem>
+                                    <div class="img-cont">
+                                        <img src="@serviceDetails?.CreatedBy?.ProfileUrl" alt="" class="category-icon" style="width: 38px; height: 38px; border-radius: 50%;" />
+                                    </div>
+                                    @* <MudAvatar Icon="@Icons.Material.Filled.Person" Size="Size.Large" /> *@
+                                </MudItem>
+                                <MudItem>
+                                    <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 16px;font-style: normal;font-weight: 700;line-height: 18px; /* 112.5% */">
+                                        @($"{serviceDetails?.CreatedBy?.Name ?? "N/A"}")
+                                    </MudText>
+                                    <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 13px;font-style: normal;font-weight: 500;line-height: 18px; /* 138.462% */">
+                                        @($"{serviceDetails?.CreatedBy?.PhoneNumber ?? "N/A"}")
+                                    </MudText>
+                                    <MudText Style="color: #032F59;font-family: Inter;font-size: 18px;font-style: normal;font-weight: 600;line-height: normal;">
+                                        <img src="./Images/Star 9.svg" alt="Dashboard Icon" style="width: 20px; height: 20px;margin-right: 0px" />
+                                           @($"{serviceDetails?.CreatedBy?.Rating.ToString() ?? "N/A"}")
+                                    </MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudListItem>
+                    </MudList>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="8">
+            <MudCard>
+                <MudCardHeader Style=" display: flex;align-items: center;justify-content: space-between;width: 100%;">
+                    <MudGrid>
+                        <MudItem>
+                            <MudText Align="Align.Left" Style="color: var(--Black, #000);font-family: Inter;font-size: 16px;font-style: normal;font-weight: 600; line-height: normal;">
+                                Budget
+                            </MudText>
+                        </MudItem>
+                        <MudItem>
+                            <MudText Class="List-text">
+                                @(serviceDetails == null || serviceDetails.Price <= 0 ? "0.00" : serviceDetails.Price.ToString("C2", System.Globalization.CultureInfo.CreateSpecificCulture("en-US")))
+                            </MudText>
+                        </MudItem>
+                    </MudGrid>
+                    @* <MudChip T="string" Variant="Variant.Text" Color="Color.Warning">@serviceDetails.Status</MudChip> *@
+                    <MudChip T="string" Variant="Variant.Filled" Color="@GetStatusColor(serviceDetails.Status)">
+                        @serviceDetails.Status
+                    </MudChip>
+                </MudCardHeader>
+                <MudCard Style="width:auto; margin:16px">
+                    <MudCardContent Style="margin:10px box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);display: flex; align-items: center; justify-content: space-between;width: 100%;">
+                        <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 16px;font-style: normal;font-weight: 500;line-height: normal;">
+                            <img src="./Images/suitcase.svg" alt="Dashboard Icon" style="width: 20px; height: 20px;margin-right: 10px;" /> @(serviceDetails?.Name ?? "")
+                        </MudText>
+                        <MudText Style="color: #444;font-family: Inter;font-size: 20px;font-style: normal;font-weight: 600;line-height: normal;">
+                            @(serviceDetails?.CategoryName ?? "")
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudCard>
+            <MudCard Style="margin-top:24px">
+                <MudCardContent>
+                    <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 17px;font-style: normal;font-weight: 700;line-height: normal;">
+                        Description
+                    </MudText>
+                    <div class="Line_1_1332"></div>
+                    <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 17px;font-style: normal;font-weight: 500;line-height: 23px;">
+                        @(serviceDetails?.Description ?? "")
+                    </MudText>
+                </MudCardContent>
+                <MudCardContent>
+                    <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 17px;font-style: normal;font-weight: 700;line-height: normal;">
+                        Attachments
+                    </MudText>
+                    <div class="Line_1_1332"></div>
+                    <MudList T="string">
+                        <MudListItem Class="small-cell">@serviceDetails.Documents</MudListItem>
+                        </MudList>
+                    </MudCardContent>
+                </MudCard>
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudCard Style="margin-top: 24px;">
+                            <MudCardHeader>
+                                <MudText Style="color: var(--Black, #000); font-family: Inter; font-size: 16px; font-style: normal; font-weight: 600; line-height: normal;">
+                                    Work Status Discussion
+                                </MudText>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <div style="max-height: 233px; overflow-y: auto;">
+                                    @if (taskStatus != null && taskStatus.Count > 0)
+                                {
+                                    @foreach (var status in taskStatus)
+                                    {
+                                        <MudPaper Class="d-flex align-items-start mt-2" Elevation="0">
+                                            <MudAvatar Size="Size.Large" Class="mr-2" Icon="Person" Color="Color.Primary" Style="background-color: #FFC107;" />
+                                            <div style="flex: 1;">
+                                                <div style="border-radius: 15px; border: 1px solid #E0E0E0; padding: 10px;">
+                                                    <MudText Class="work-status-text ">
+                                                        @status.Description
+                                                    </MudText>
+                                                </div>
+                                                <div style="text-align: right; margin-top: 5px;">
+                                                    <MudText Class="work-status-time-text">
+                                                        @status.UpdatedAt.ToString("g") 
+                                                    </MudText>
+                                                </div>
+                                            </div>
+                                        </MudPaper>
+                                    }
+                                }
+                                else
+                                {
+                                    <MudText>No work status available</MudText>
+                                }
+                            </div>
+                        </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudCard Style="margin-top:24px">
+                            <MudCardHeader>
+                                <MudText Style="color: var(--Black, #000);font-family: Inter;font-size: 16px;font-style: normal;font-weight: 600;line-height: normal;">
+                                    Work Status Discussion
+                                </MudText>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudTextField Style="margin-bottom:15px" T="string" Variant="Variant.Outlined" Text="@sampleText" Lines="5" />
+                                <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles">
+                                <ActivatorContent>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                    <MudButton Variant="Variant.Filled" Style="border-radius: 5px;border: 0.5px #797979; background:#FFFFFF; width:260px;height:37px">
+                                         
+                                            <img src="./Images/Attach.svg" alt="attach Icon" />
+
+                                            <MudText Style="color: #A1A1A1;font-family: Inter;font-size: 14px;font-style: normal;font-weight: 600;line-height: normal;">
+                                                Upload document here
+                                            </MudText>
+
+                                        </MudButton>
+                                        <img src="./Images/AddCircle.svg" alt="add Icon" />
+                                        </div>
+                                    </ActivatorContent>
+                                </MudFileUpload>
+                                @if (files != null)
+                            {
+                                <MudList T="string">
+
+                                    @foreach (var file in files)
+                                    {
+                                        <MudListItem Class="small-cell">
+                                            @file.Name <code>@file.Size bytes</code>
+                                        </MudListItem>
+
+                                    }
+                                </MudList>
+                            }
+                            <MudCardActions>
+                                <MudButton Style="width:100%;border-radius: 10px;border: 0.5px #9C9C9C;background: #0074E3;">
+                                    <MudText Style="color: #FFF;font-family: Inter;font-size: 14px;font-style: normal;font-weight: 700;line-height: normal ;">
+                                        Update Work Status
+                                    </MudText>
+                                </MudButton>
+                            </MudCardActions>
+                        </MudCardContent>
+
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+
+    [Inject] ISnackbar Snackbar { get; set; }
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+    private void UploadFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var file in files)
+        {
+            this.files.Add(file);
+
+        }
+    }
+
+    private void UploadFiles2(IBrowserFile file)
+    {
+        files.Add(file);
+    }
+    string sampleText = "";
+
+    public TaskViewModel serviceDetails = new TaskViewModel();
+
+    private List<TaskViewModel> taskStatus = new List<TaskViewModel>();
+    private int task_Id;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var uri = new Uri(NavigationManager.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var taskId = query["id"];
+            if (int.TryParse(taskId, out int id))
+            {
+                task_Id = id; // store task ID here
+                await getServiceByIdAsync(id);
+                await getViewedAsync(id);
+                await GetTaskStatusAsync(id);
+                StateHasChanged();
+            }
+        }
+    }
+
+    //status
+    private Color GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Requested" => Color.Info,
+            "Cancelled" => Color.Error,
+            "Completed" => Color.Success,
+            "Inprogress" => Color.Warning,
+            "Pending" => Color.Warning,
+            _ => Color.Default
+        };
+    }
+    //
+
+    public async Task getServiceByIdAsync(int id)
+    {
+        serviceDetails = await _apiService.MakeHttpGetRequest<TaskViewModel>($"Task/GetTaskById/{id}?domainId={_globalService.domainId}");
+
+    }
+    public async Task GetTaskStatusAsync(int id)
+    {
+        var taskStatus = await _apiService.MakeHttpGetRequest<List <TaskViewModel>>($"Task/GetTaskStatuses?taskId={id}&domainId={_globalService.domainId}");
+
+    }
+    public async Task getViewedAsync(int id)
+    {
+        try
+        {
+            var data = await _apiService.MakeHttpPutRequest<bool>($"Task/updatetaskviewedbyid/{id}?domainId={_globalService.domainId}", null);
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    private void viewDetails(int id)
+    {
+        NavigationManager.NavigateTo($"/EditService?id={id}");
+    }
+
+    private async Task OpenAssignTask()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var dialog = DialogService.Show<AssignTaskPopup>("Assign Task", new DialogParameters
+    {
+        { "TaskId", task_Id }
+    });
+
+        var result = await dialog.Result;
+
+        Snackbar.Add("Task assigned successfully!", Severity.Success);
+        await getServiceByIdAsync(task_Id);
+        StateHasChanged();
+    }
+
+    private async Task OpenCancelDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters
+    {
+        { "Message", "Are You Sure You Want To Cancel This Service Request?" },
+        { "ConfirmButtonColor", "#FF2C2C" },
+        { "CancelButtonColor", "#5A5A5A" }
+    };
+
+        var dialog = DialogService.Show<CancelPopup>("Cancel Action", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await getCancelTaskAsync(task_Id);
+
+            Snackbar.Add("Task Cancelled successfully!", Severity.Success);
+
+            NavigationManager.NavigateTo("/service");
+            //StateHasChanged();
+        }
+    }
+
+    public async Task getCancelTaskAsync(int task_Id)
+    {
+        serviceDetails = await _apiService.MakeHttpGetRequest<TaskViewModel>($"AdminTask/canceltask?taskId={task_Id}&domainId={_globalService.domainId}");
+    }
+}

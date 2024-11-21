@@ -1,0 +1,371 @@
+﻿ @page "/edit-recharge"
+ @inject IDialogService DialogService
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="wallet">
+            <MudPaper Class="pa-4" Style="max-width: 1300px; margin: auto;">
+                <div class="head-container mb-5">
+                    <MudText Typo="Typo.h5" Align="Align.Start" Class="heading-txt mb-2">Wallet Transaction Details</MudText>
+                    <MudButton OnClick="Cancel">
+                        <img src="./images/Close.svg" alt="X" />
+                    </MudButton>
+                </div>
+                <MudGrid>
+
+                    <MudItem md="6">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Enter Amount</span>
+                            <div class="amount-field-container">
+                                <img src="./images/dollar-icon.svg" class="dollar-icon" alt="Email Icon" />
+                                <input type="number" @bind="wallet.Amount" class="custom-input custom-input-amount" required />
+                            </div>
+                        </div>
+                    </MudItem>
+                    <MudItem md="6">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Type</span>
+                            @* <input type="text" @bind="wallet.Type" class="custom-input" placeholder="" /> *@
+                            <select @bind="wallet.Type" class="custom-select-recharge">
+                                <option value="Credit">Credit</option>
+                                <option value="Deposit">Deposit</option>
+                            </select>
+                        </div>
+                    </MudItem>
+                    <MudItem md="6">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Payment Method</span>
+                            @* <input type="text" @bind="wallet.PaymentMethod" class="custom-input" placeholder="" required /> *@
+                            <select @bind="wallet.PaymentMethod" class="custom-select-recharge">
+                                <option value="Stripe">Stripe</option>
+                                <option value="Online">Online Transfer</option>
+                            </select>
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="6">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Transaction ID</span>
+                            <div class="email-field-container">
+                                <input type="text" @bind="wallet.TransactionID" class="custom-input custom-input-email" placeholder="" required />
+                            </div>
+                        </div>
+                    </MudItem>
+
+
+                    <MudItem md="12">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Note</span>
+                            <div class="email-field-container">
+
+                                <textarea type="text" @bind="wallet.Note" class="custom-input custom-input-note" placeholder="" required />
+                            </div>
+                        </div>
+                    </MudItem>
+
+                    <MudItem xs="6" class="d-flex justify-center mt-4">
+                        <MudButton Variant="Variant.Filled" FullWidth="true" Class="cancelBtn" OnClick="Cancel">Close</MudButton>
+                    </MudItem>
+                    <MudItem xs="6" class="d-flex justify-center mt-4">
+                        <MudButton Variant="Variant.Filled" FullWidth="true" Class="AddBtn" OnClick="EditWalletRecharge">Edit</MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .blur {
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog-background {
+        background-color: transparent;
+    }
+
+    .dialog-background-title {
+        background: rgba(0, 0, 0, 0.5);
+        color: var(--mud-palette-white);
+    }
+
+    .dialog-background-surface {
+        background: rgba(255, 255, 255, 0.75);
+    }
+
+    .mud-dialog-width-sm {
+        max-width: 950px;
+    }
+
+    .head-container {
+        display: flex;
+        justify-content: space-between
+    }
+
+    .heading-txt {
+        color: #000;
+        font-family: Inter;
+        font-size: 25px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+    }
+
+    .avatar-container {
+        width: 147px !important;
+        height: 147px !important;
+        border: 0.1px solid #CBCBCB;
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        background: #D9D9D9;
+    }
+
+    .avatar-img {
+        object-fit: fill;
+        object-position: center;
+        width: 147px !important;
+        height: 147px !important;
+    }
+
+    .user-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .custom-field-container {
+        margin-bottom: 16px;
+    }
+
+    .custom-label {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-bottom: 4px;
+        color: black;
+    }
+
+    .custom-input {
+        width: 100%;
+        border-radius: 5px;
+        border: 0.5px solid #CBCBCB;
+        padding: 8px;
+        box-sizing: border-box;
+        /* height: 57px; */
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        align-self: stretch;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .custom-select-recharge {
+        width: 100%;
+        /* border-radius: 5px; */
+        border: 0.5px solid #CBCBCB;
+        padding: 8px;
+        box-sizing: border-box;
+        /* height: 57px; */
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        align-self: stretch;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        background: #ffffff;
+    }
+
+        .custom-select-recharge:focus {
+            border-color: #CBCBCB;
+            outline: none;
+        }
+
+        .custom-select-recharge option:disabled {
+            color: #888 !important;
+        }
+
+
+
+    .custom-input:focus {
+        border-color: #CBCBCB;
+        outline: none;
+    }
+
+    .custom-input option:disabled {
+        color: #888 !important;
+    }
+
+    .AddBtn {
+        display: flex;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        border: 0.5px #555454;
+        background: #0074E3;
+        color: #fff;
+    }
+
+    .cancelBtn {
+        display: flex;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        border: 0.5px #555454;
+        background: #555b60;
+        color: #fff;
+    }
+
+    .AddBtn:has(:hover) {
+        background: #0074c3;
+    }
+
+    .cancelBtn:has(:hover) {
+        background: #555E60;
+    }
+
+    .phone-input-container {
+        display: flex;
+        align-items: center;
+        border: 0.5px solid #CBCBCB;
+        border-radius: 5px;
+        padding: 8px;
+        box-sizing: border-box;
+        width: 100%;
+        height: 57px;
+    }
+
+    .custom-input-note {
+        height: 150px;
+    }
+    /*status*/
+    .ActiveBtnClass {
+        display: flex;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        background-color: #fff;
+        color: #000;
+        text-align: center;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        border: 0.5px solid #CBCBCB;
+        box-shadow: none;
+    }
+
+    .InactiveBtnClass {
+        display: flex;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        background-color: #fff;
+        color: #000;
+        text-align: center;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        border: 0.5px solid #CBCBCB;
+        box-shadow: none;
+    }
+
+    .amount-field-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+
+    .custom-input-amount {
+        padding-left: 40px;
+    }
+
+    .dollar-icon {
+        position: absolute;
+        left: 10px;
+        color: #888;
+    }
+
+</style>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private WalletModel wallet = new WalletModel(100, "Deposit", "Stripe", "100399AN37", "Charge Wallet With Card");
+
+    private Task EditWalletRecharge()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<EditWalletRecharge>("", options);
+    }
+
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    public class WalletModel
+    {
+        public decimal Amount { get; set; }
+        public string Type { get; set; }
+        public string PaymentMethod { get; set; }
+        public string TransactionID { get; set; }
+        public string Note { get; set; }
+
+        public WalletModel(decimal amount, string type, string paymentMethod, string transactionID, string note)
+        {
+            Amount = amount;
+            Type = type;
+            PaymentMethod = paymentMethod;
+            TransactionID = transactionID;
+            Note = note;
+        }
+
+    }
+
+    [Inject] IJSRuntime JS { get; set; }
+
+    private async Task TriggerFileUpload()
+    {
+        await JS.InvokeVoidAsync("triggerFileInputClick", "fileInput");
+    }
+}
+
+
+
+

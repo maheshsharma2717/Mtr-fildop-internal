@@ -1,0 +1,191 @@
+﻿
+<MudDialog MaxWidth="650px" FullWidth="true">
+    <DialogContent>
+        <div class="head-container mb-5">
+            <MudText Typo="Typo.h5" Align="Align.Start" Class="heading-txt mb-2">Transaction Details</MudText>
+            <MudButton OnClick="Cancel">
+                <img src="./images/Close.svg" alt="X" />
+            </MudButton>
+        </div>
+
+        <MudGrid>
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">User Name:</MudText>
+                    <div class="d-flex">
+                        <MudText class="after-text">Miguel Pieter</MudText>
+                        <MudLink Href="/profile" Class="profile-link">View Profile</MudLink>
+                    </div>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">User Type:</MudText>
+                    <MudText Class="after-text">Employee</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Transaction ID:</MudText>
+                    <MudText Class="after-text">2121212121</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Amount:</MudText>
+                    <MudText Class="after-text">$100.00</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Type:</MudText>
+                    <div class="d-flex">
+                        <MudText class="after-text">Withdraw</MudText>
+                    </div>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Balance Type:</MudText>
+                    <MudText Class="after-text">Debit</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Date Time:</MudText>
+                    <MudText Class="after-text">July 12, 2024 10:59:00 AM</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Status:</MudText>
+                    <MudText Class="after-text" Style="color: #4AD771;">Completed</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Bank Name:</MudText>
+                    <MudText Class="after-text">Bank Of America</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Account Holder Name:</MudText>
+                    <MudText Class="after-text">Miguel Pieter</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Account Number:</MudText>
+                    <MudText Class="after-text">291999199222</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Routing Number:</MudText>
+                    <MudText Class="after-text">291999199222</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Account Type:</MudText>
+                    <MudText Class="after-text">Checking</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Pay By:</MudText>
+                    <MudText Class="after-text">Wire Transfer</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Transfer Time:</MudText>
+                    <MudText Class="after-text">July 12, 2024 12:12:00 AM</MudText>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12">
+                <div class="text-container">
+                    <MudText Class="before-text">Note:</MudText>
+                    <MudText Class="after-text">Transfer is completed</MudText>
+                </div>
+            </MudItem>
+
+        </MudGrid>
+
+    </DialogContent>
+</MudDialog>
+
+<style>
+    .head-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .heading-txt {
+        color: #000;
+        font-family: Inter;
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+    .text-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .before-text {
+        color: #000;
+        font-family: Inter;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .after-text {
+        color: #000;
+        font-family: Inter;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .profile-link {
+        color: #0074E3 !important;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: italic;
+        font-weight: 400;
+    }
+
+
+</style>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void CancelAction()
+    {
+    }
+
+}

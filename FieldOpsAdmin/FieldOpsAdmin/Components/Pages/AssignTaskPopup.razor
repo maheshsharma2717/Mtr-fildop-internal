@@ -1,0 +1,396 @@
+﻿@inject NavigationManager Navigation
+@using FieldOpsAdmin.Services
+@inject ApiService _apiService
+@inject GlobalServices _globalService
+
+<MudContainer>
+    <MudDialog Style="max-width: 750px; width: 100%; padding:20px; padding-top:0">
+        <TitleContent>
+            <div class="close-btn-container">
+                <MudButton OnClick="CloseDialog">
+                    <img src="./images/Close.svg" alt="X" />
+                </MudButton>
+            </div>
+
+            <div class="head-container mb-5">
+                <MudText Typo="Typo.h5" Align="Align.Center" Class="heading-txt">Assign Task</MudText>
+            </div>
+        </TitleContent>
+
+        <DialogContent>
+            <div class="task-container mb-3">
+                <MudText Typo="Typo.h6" Class="task-label">Task Assign To</MudText>
+                <MudItem>
+                    <div class="search-box">
+                        @* <input type="text" @bind="searchTerm" placeholder="Search Employee" class="search-input" @oninput="SearchEmployees" /> *@
+                        @* <MudButton OnClick="SearchEmployees">  <img src="./Images/Search.svg" alt="Search Icon" class="search-icon" /></MudButton> *@
+                        <input type="text" @bind="searchTerm" placeholder="Search Employee" class="search-input" />
+
+                        <MudButton OnClick="SearchEmployees">
+                            <img src="./Images/Search.svg" alt="Search Icon" class="search-icon" />
+                        </MudButton>
+                    </div>
+                </MudItem>
+            </div>
+
+            <MudItem>
+                @if (isLoading)
+                {
+                    <MudProgressCircular Indeterminate="true" />
+                }
+                else if (filteredEmployees.Count > 0)
+                {
+                    @foreach (var employee in filteredEmployees)
+                    {
+                        <MudItem Class="employee-item">
+                            <img src="@(!string.IsNullOrEmpty(employee.ImageUrl) ? employee.ImageUrl : "./Images/Add-User.svg")" alt="Profile Image" class="profile-img" />
+                            <div class="employee-details">
+                                <MudText Typo="Typo.subtitle1" Class="mb-1 emp-name">@employee.Name</MudText>
+                                    <MudText Typo="Typo.caption" Class="emp-mail">@employee.Email</MudText>
+                                </div>
+
+                                <div class="employee-rating">
+                                    <img src="./Images/Star.svg" />
+                                    <MudText Typo="Typo.subtitle1" Class="ml-1 rating-txt">@employee.Rating</MudText>
+                                </div>
+
+                                <MudButton Variant="Variant.Filled" Size="Size.Small" OnClick="() => AssignTaskToEmployee(employee)" Class="assign-task-btn">Assign Task</MudButton>
+                            </MudItem>
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.subtitle1">No employees found.</MudText>
+                }
+            </MudItem>
+        </DialogContent>
+    </MudDialog>
+</MudContainer>
+@* 
+@code {
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int TaskId { get; set; }
+    private List<Employee> employees = new List<Employee>();
+    private string searchTerm { get; set; } = string.Empty;
+    private bool isLoading = false;
+
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    // Filter both Name and Email
+    private List<Employee> filteredEmployees => employees
+        .Where(e => string.IsNullOrWhiteSpace(searchTerm) ||
+                    e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    e.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEmployees();
+    }
+
+    private async Task LoadEmployees()
+    {
+        isLoading = true;
+        try
+        {
+            employees = await _apiService.MakeHttpGetRequest<List<Employee>>($"User/GetUsersByRole/3?domainId={_globalService.domainId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching employees: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    // No need for search logic here, filteredEmployees will automatically handle it.
+    private void SearchEmployees(ChangeEventArgs e)
+    {
+        searchTerm = e.Value.ToString().ToLower();
+        StateHasChanged();
+    }
+
+    private async Task AssignTaskToEmployee(Employee employee)
+    {
+        try
+        {
+            var assignUrl = $"Task/AssignTask?taskId={TaskId}&assignTo={employee.Id}&domainId={_globalService.domainId}";
+            var response = await _apiService.MakeHttpPostRequest<Employee>(assignUrl, null);
+
+            if (response)
+            {
+                MudDialog.Close(DialogResult.Ok(employee));
+                Snackbar.Add("Task assigned successfully!", Severity.Success);
+            }
+            else
+            {
+                Console.WriteLine($"Failed to assign task: {response}");
+                Snackbar.Add("Failed to assign task.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error assigning task: {ex.Message}");
+            Snackbar.Add("An error occurred while assigning task.", Severity.Error);
+        }
+    }
+
+    private void CloseDialog()
+    {
+        MudDialog.Cancel();
+    }
+
+    public class Employee
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string ImageUrl { get; set; }
+        public double Rating { get; set; }
+    }
+} *@
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int TaskId { get; set; }
+    private List<Employee> employees = new List<Employee>();
+    private string searchTerm { get; set; } = string.Empty;
+    private bool isLoading = false;
+
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    // Store the filtered results
+    private List<Employee> filteredEmployees = new List<Employee>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEmployees();
+    }
+
+    private async Task LoadEmployees()
+    {
+        isLoading = true;
+        try
+        {
+            employees = await _apiService.MakeHttpGetRequest<List<Employee>>($"User/GetUsersByRole/3?domainId={_globalService.domainId}");
+            // Initialize filteredEmployees to all employees at load
+            filteredEmployees = employees;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching employees: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SearchEmployees()
+    {
+        // Update filteredEmployees based on the searchTerm when the button is clicked
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredEmployees = employees; // Show all employees if search term is empty
+        }
+        else
+        {
+            filteredEmployees = employees
+                .Where(e => e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                             e.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        StateHasChanged(); // Refresh the UI
+    }
+
+    private async Task AssignTaskToEmployee(Employee employee)
+    {
+        try
+        {
+            var assignUrl = $"Task/AssignTask?taskId={TaskId}&assignTo={employee.Id}&domainId={_globalService.domainId}";
+            var response = await _apiService.MakeHttpPostRequest<Employee>(assignUrl, null);
+
+            if (response)
+            {
+                MudDialog.Close(DialogResult.Ok(employee));
+                Snackbar.Add("Task assigned successfully!", Severity.Success);
+            }
+            else
+            {
+                Console.WriteLine($"Failed to assign task: {response}");
+                Snackbar.Add("Failed to assign task.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error assigning task: {ex.Message}");
+            Snackbar.Add("An error occurred while assigning task.", Severity.Error);
+        }
+    }
+
+    private void CloseDialog()
+    {
+        MudDialog.Cancel();
+    }
+
+    public class Employee
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string ImageUrl { get; set; }
+        public double Rating { get; set; }
+    }
+}
+
+<style>
+    .close-btn-container {
+        display: flex;
+        justify-content: end;
+        width: 100%;
+    }
+
+    .heading-txt {
+        font-family: Inter;
+        font-size: 20px;
+        font-weight: 700;
+        color: #000;
+    }
+
+    .task-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .task-label {
+        font-family: Inter;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .search-box {
+        display: flex;
+        border: 0.5px solid #000;
+        border-radius: 8px;
+        height: 45px;
+        padding: 10px 18px;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .search-input {
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+    }
+
+    /* Employee item layout */
+    .employee-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #ddd;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .employee-details {
+        display: flex;
+        flex-direction: column;
+        padding-left: 10px;
+        margin-right: auto;
+    }
+
+    .emp-name {
+        font-family: Inter;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        color: #000;
+    }
+
+    .emp-mail {
+        color: #595959;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .employee-rating {
+        display: flex;
+        align-items: center;
+        color: #000;
+        margin-right: 20px;
+        font-family: Inter;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .rating-txt {
+        font-family: Inter;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        color: #000;
+    }
+
+    .assign-task-btn {
+        background-color: #0074E3;
+        color: white;
+        display: flex;
+        height: 43px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        border-radius: 5px;
+        margin-right: 5px;
+        text-transform: capitalize;
+    }
+
+        .assign-task-btn:hover {
+            background-color: #0074E3;
+            color: white;
+            display: flex;
+            height: 43px;
+            padding: 10px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            border-radius: 5px;
+            margin-right: 5px;
+            text-transform: capitalize;
+        }
+
+    .search-input {
+        border: none;
+        outline: none;
+        width: 100%;
+    }
+
+    .profile-img{
+        width:60px;
+        height:60px;
+    }
+</style>
+
+

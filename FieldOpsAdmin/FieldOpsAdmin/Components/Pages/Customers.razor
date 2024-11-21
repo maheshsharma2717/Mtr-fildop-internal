@@ -1,0 +1,582 @@
+﻿@page "/customers"
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+    @using FieldOpsAdmin.Services
+    @inject ApiService _apiService;
+    @inject GlobalServices _globalService;
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudOverlay Visible="@spinner" DarkBackground="true" ZIndex="9999">
+            <MudProgressCircular Color="Color.Tertiary" Indeterminate="true" />
+        </MudOverlay>
+        <MudItem xs="12" Class="mt-5">
+            <MudContainer Class="custom-container mb-5" Style="background-color:#fff; border:0.1px solid #cbcbcb; border-radius:10px;padding:0">
+                <MudContainer Class="mt-5">
+                    <MudGrid AlignItems="Center" Style="justify-content:space-between; width: width: calc(100% + 24px)!important;">
+                        <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                            <MudText Typo="Typo.h6" Class="pl-2 d-flex align-items-center">Customers</MudText>
+                        </MudItem>
+                        <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                            <div class="custom-select-wrapper">
+                                <select class="custom-select" @onchange="OnRowsPerPageChange">
+                                    <option value="100">View Rows: 100</option>
+                                    <option value="200">View Rows: 300</option>
+                                    <option value="400">View Rows: 400</option>
+                                    <option value="500">View Rows: 500</option>
+                                    <option value="600">View Rows: 600</option>
+                                </select>
+                            </div>
+                        </MudItem>
+                        <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                            <div class="search-container">
+                                <input type="text" placeholder="Search Customer" class="search-input" @oninput="SearchCustomers" />
+                                <img src="./Images/Search.svg" alt="Search Icon" class="mud-icon" />
+                            </div>
+                        </MudItem>
+                        <MudItem lg="3" xs="12" Class="d-flex  mb-3">
+                            <MudButton Variant="Variant.Filled" OnClick="OpenCustDialogAsync" Class="add-btn">
+                                <img src="./Images/User_Add.svg" alt="Add Icon" class="mud-icon" />
+                                Add New Customer
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+
+                <MudContainer Class="custom-container">
+                    <MudTable Items="PagedCustomer" Filter="CustomersFilter" Striped="false" Bordered="false" Class="custom-table mb-5 mt-5">
+                        <HeaderContent>
+                            <MudTh Class="text-center t-head sn-r" @onclick="SortBySN" SortDirection="@_snSortDirection" Style="width: 10%;">
+                                @if (_snSortDirection == SortDirection.Ascending)
+                                {
+                                    <span class="custom-svg">
+                                        <img src="./images/sorting.svg" alt="Sort Ascending" style="width: 12px;height: 18px;" />
+                                    </span>
+                                }
+                                else if (_snSortDirection == SortDirection.Descending)
+                                {
+                                    <span class="custom-svg">
+                                        <img src="./images/sorting.svg" alt="Sort Descending" style="transform: rotate(-180deg);width: 12px;height: 18px;" />
+                                    </span>
+                                }
+                                SN
+                            </MudTh>
+                            <MudTh Class="t-head text-center" Style="width: 20%;">
+                                Name
+                            </MudTh>
+                            <MudTh Class="t-head text-center" Style="width: 20%;">
+                                Email
+                            </MudTh>
+                            <MudTh Class="t-head" Style="width: 14%;text-align:end;">
+                                Phone Number
+                            </MudTh>
+                            <MudTh Class="t-head text-center" Style="width: 15%;">
+                                Ratings
+                            </MudTh>
+                            <MudTh Class="t-head text-center action-r " Style="width: 10%;">
+                            </MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd ColSpan="6">
+                                <div class="row-card">
+                                    <MudGrid Class="grid-rows-customers">
+                                        <MudItem xs="1" md="1" Class="text-center td-text" Style="width: 10%;">
+                                            @context.SN
+                                        </MudItem>
+                                        <MudItem xs="3" md="3" Class="d-flex td-text" Style="width: 20%; align-items: center; gap:25px">
+                                            <MudAvatar Color="@GetAvatarColor(context.Name)" Size="Size.Medium">
+                                                @GetInitials(context.Name)
+                                            </MudAvatar>
+                                            <span class="ml-2 name-align td-text">@context.Name</span>
+                                        </MudItem>
+                                       @*  <MudItem xs="3" md="3" Class="text-center td-text" Style="width: 25%;">
+                                            @context.Email
+                                        </MudItem> *@
+                                        @* <MudItem xs="3" md="3" Class="text-center td-text" Style="width: 25%;">
+                                            @TruncateText(context.Email)
+                                        </MudItem> *@
+                                            <MudItem xs="3" md="3" Class="text-center td-text" Style="width: 25%;">
+                                            <MudTooltip Class="text-center td-text" Text="@context.Email">
+                                              @TruncateEmail(context.Email)
+                                            </MudTooltip>
+                                            </MudItem>
+
+                                        <MudItem xs="2" md="2" Class="d-flex td-text" Style="width: 20%;">
+                                            @context.PhoneNumber
+                                        </MudItem>
+                                        <MudItem xs="1" md="1" Class="d-flex justify-content-center align-items-center" Style="width: 15%;">
+                                            <img src="./Images/Star.svg" />
+                                            <MudText Typo="Typo.subtitle1" Class="ml-1 rating-txt td-text">@context.Rating</MudText>
+                                            </MudItem>
+                                            <MudItem xs="1" md="1" Class="text-center" Style="width: 10%;">
+
+                                                <MudIconButton Class="btn-view" @onclick="() => viewDetails(context.Id)">
+                                                    View Details
+                                                </MudIconButton>
+                                            </MudItem>
+                                        </MudGrid>
+                                    </div>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudContainer>
+
+                    <PagerContent>
+                        <MudGrid AlignItems="Center" Justify="Justify.Center">
+                            <MudItem>
+                                <div class="custom-pagination py-3">
+                                    <button @onclick="PreviousPage">
+                                        <img src="./Images/Chevron_Left_MD.svg" alt="Previous" class="pagination-icon" />
+                                    </button>
+                                    @for (int i = 1; i <= TotalPages; i++)
+                                {
+                                    <button @onclick="() => GoToPage(i)" class="pagination-button @GetActiveClass(i)">
+                                        @i
+                                    </button>
+                                }
+                                <button @onclick="NextPage">
+                                    <img src="./Images/Chevron_Right_MD.svg" alt="Next" class="pagination-icon" />
+                                </button>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </PagerContent>
+            </MudContainer>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<style>
+    /*head*/
+    .add-btn {
+        display: flex;
+        padding: 10px;
+        justify-content: space-evenly;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 14px;
+        line-height: normal;
+        background: #0074E3;
+        text-transform: capitalize;
+        width: 100%;
+    }
+
+        .add-btn:hover {
+            display: flex;
+            padding: 10px;
+            justify-content: space-evenly;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            color: #FFF;
+            font-family: Inter;
+            font-size: 14px;
+            line-height: normal;
+            background: #0074E3;
+            text-transform: capitalize;
+        }
+
+    .mud-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .search-container {
+        display: flex;
+        padding: 10px 18px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        font-size: 14px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+        width: 100%;
+    }
+
+    .search-input {
+        border: none;
+        outline: none;
+        flex-grow: 1;
+        background: transparent;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .search-icon {
+        font-size: 20px;
+        color: #000;
+    }
+
+    .custom-select {
+        flex-shrink: 0;
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+        font-size: 14px;
+        width: 100%
+    }
+
+    .custom-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .pagination-button {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #000;
+        background-color: transparent;
+        color: #000;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .active-page {
+        background-color: #0074e3;
+        color: #fff;
+        border: none;
+    }
+
+    .mud-table-root .mud-table-head {
+        background-color: #EFEFEF;
+        font-size: 18px;
+        font-weight: 800;
+        text-align: center;
+        color: #000;
+    }
+
+    td.mud-table-cell {
+        border-bottom: none;
+    }
+
+    .t-head {
+        text-align: center;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+        color: #000 !important;
+    }
+
+    .customer-rating {
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-table .mud-table-root .mud-table-body .mud-table-cell {
+        padding: 10px 0;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .custom-table {
+        box-shadow: none;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .custom-container {
+        max-height: 100%;
+    }
+
+    .row-card {
+        border: 1px solid #767676;
+        border-radius: 10px;
+        padding: 15px;
+        background-color: white;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .grid-rows-customers {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .name-align {
+        display: inline-block;
+        margin-left: 8px;
+    }
+
+    .btn-view {
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #0074E3;
+        color: white;
+        font-weight: 600;
+    }
+
+        .btn-view:hover {
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #0074E3;
+            color: white;
+            font-weight: 600;
+        }
+
+    .customer-rating {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .td-text {
+        color: #000;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+    }
+
+    .sn-r {
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+    }
+
+    .action-r {
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+    }
+
+</style>
+
+@code {
+    [Inject] private CustomerEventService CustomerEventService { get; set; }
+    private bool spinner = false;
+    private string _searchTerm;
+    private int _rowsPerPage = 100;
+    public List<CustomerDto> AllCustomer = new List<CustomerDto>();
+    public List<Customer> NewCustomers = new List<Customer>();
+
+    private SortDirection _snSortDirection = SortDirection.None;
+    private bool _isSortedAscending;
+
+    [Inject] ISnackbar Snackbar { get; set; }
+    private List<Customer> PagedCustomer => NewCustomers
+        .Where(CustomersFilter)
+        .Skip((currentPage - 1) * _rowsPerPage)
+        .Take(_rowsPerPage)
+        .ToList();
+
+
+//Elep
+    private string TruncateEmail(string email, int maxLength = 18)
+    {
+        if (string.IsNullOrEmpty(email)) return email;
+
+        return email.Length > maxLength
+            ? email.Substring(0, maxLength) + "..."
+            : email;
+    }
+
+   
+    private void OnRowsPerPageChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var rowsPerPage))
+        {
+            _rowsPerPage = rowsPerPage;
+            TotalPages = (int)Math.Ceiling((double)NewCustomers.Count / _rowsPerPage);
+        }
+    }
+
+    private void SortBySN()
+    {
+
+        if (_snSortDirection == SortDirection.None || _snSortDirection == SortDirection.Descending)
+        {
+            _isSortedAscending = true;
+            _snSortDirection = SortDirection.Ascending;
+            NewCustomers = NewCustomers.OrderBy(sr => sr.SN).ToList();
+        }
+        else
+        {
+            _isSortedAscending = false;
+            _snSortDirection = SortDirection.Descending;
+            NewCustomers = NewCustomers.OrderByDescending(sr => sr.SN).ToList();
+        }
+    }
+
+    private void SearchCustomers(ChangeEventArgs e)
+    {
+        _searchTerm = e.Value.ToString();
+    }
+    private Func<Customer, bool> CustomersFilter => x =>
+     {
+     if (string.IsNullOrWhiteSpace(_searchTerm))
+         return true;
+     return x.Name.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase)
+         || x.Email.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase);
+     };
+
+    public class Customer
+    {
+        public int SN { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Rating { get; set; }
+    }
+
+    private int currentPage = 1;
+    private int totalPages = 1;
+
+    public int TotalPages
+    {
+        get => totalPages;
+        set
+        {
+            if (totalPages != value)
+            {
+                totalPages = value;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < TotalPages)
+        {
+            currentPage++;
+        }
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber > 0 && pageNumber <= TotalPages)
+        {
+            currentPage = pageNumber;
+        }
+    }
+
+    private string GetActiveClass(int pageNumber)
+    {
+        return pageNumber == currentPage ? "active-page" : "";
+    }
+
+    protected override void OnInitialized()
+    {
+        TotalPages = (int)Math.Ceiling((double)NewCustomers.Count / _rowsPerPage);
+    }
+
+    private string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+        var parts = name.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return string.Empty;
+        if (parts.Length == 1) return parts[0].Substring(0, 1).ToUpper();
+        return string.Join("", parts.Select(p => p[0].ToString().ToUpper()));
+    }
+
+    private MudBlazor.Color GetAvatarColor(string name)
+    {
+        var hash = name.GetHashCode();
+        var colors = new List<MudBlazor.Color>
+        {
+            MudBlazor.Color.Primary,
+            MudBlazor.Color.Secondary,
+            MudBlazor.Color.Success,
+            MudBlazor.Color.Info,
+            MudBlazor.Color.Warning,
+            MudBlazor.Color.Error,
+        };
+
+        int colorIndex = Math.Abs(hash % colors.Count);
+        return colors[colorIndex];
+    }
+
+    private Task OpenCustDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        return DialogService.ShowAsync<AddNewCustomer>("", options);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            spinner = true;
+            await getAllCustomers(); 
+            spinner = false; 
+            StateHasChanged(); 
+        }
+    }
+
+    private void viewDetails(int id)
+    {
+        Navigation.NavigateTo($"/CustomerDetails?id={id}");
+    }
+
+    public async Task getAllCustomers()
+    {
+        spinner = true;
+        AllCustomer = await _apiService.MakeHttpGetRequest<List<CustomerDto>>($"Customers/getAllCustomer?domainId={_globalService.domainId}");
+        if (AllCustomer != null)
+        {
+            NewCustomers = AllCustomer.Select((c, index) => new Customer
+                {
+                    SN = index + 1,
+                    Id = c.Id,
+                    Name = $"{c.FirstName} {c.LastName}",
+                    Email = c.Email,
+                    PhoneNumber = c.PhoneNumber,
+                    Rating = c.Rating
+                }).ToList();
+            spinner = false;
+            TotalPages = (int)Math.Ceiling((double)NewCustomers.Count / _rowsPerPage);
+        }
+        else
+        {
+            Console.WriteLine("No customer found");
+            spinner = false;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CustomerEventService.OnCustomerAdded += HandleCustomerAdded;
+
+        await getAllCustomers();
+    }
+
+    private async void HandleCustomerAdded()
+    {
+        await getAllCustomers();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        CustomerEventService.OnCustomerAdded -= HandleCustomerAdded;
+    }
+}

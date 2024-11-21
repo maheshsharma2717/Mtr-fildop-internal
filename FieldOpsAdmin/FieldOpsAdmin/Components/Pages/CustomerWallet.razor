@@ -1,0 +1,469 @@
+﻿@page "/CustomerWallet"
+@inject IDialogService DialogService
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudItem xs="12" Class="mt-5">
+            <MudContainer Class="custom-container mb-5 p-5" Style="background-color:#fff; border:0.1px solid #cbcbcb; border-radius:10px;">
+                <MudContainer Class="mt-5">
+                    <MudGrid AlignItems="Center" Style="justify-content:space-between; width: width: calc(100% + 24px)!important;">
+                        <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                            <MudText Typo="Typo.h6" Class="pl-2 d-flex align-items-center">Wallet History</MudText>
+                        </MudItem>
+                        <MudItem lg="2" md="12" xs="12" Class="mb-3">
+                            <div class="custom-select-wrapper">
+                                <select class="custom-select" @onchange="OnRowsPerPageChange">
+                                    <option value="6">View Rows: 6</option>
+                                    <option value="10">View Rows: 10</option>
+                                    <option value="25">View Rows: 25</option>
+                                    <option value="50">View Rows: 50</option>
+                                    <option value="100">View Rows: 100</option>
+                                </select>
+                            </div>
+                        </MudItem>
+                        <MudItem lg="4" md="12" xs="12" Class="mb-3">
+                            <div class="search-container">
+                                <input type="text" placeholder="Search Service" class="search-input" @bind="_searchTerm" />
+                                <img src="./Images/Search.svg" alt="Search Icon" class="mud-icon" />
+                            </div>
+                        </MudItem>
+
+                        <MudItem lg="3" xs="12" Class="d-flex  mb-3">
+                            <MudButton Variant="Variant.Filled" OnClick="AddRecharge" Class="add-btn">
+                                <img src="./Images/wallet-icon-white.svg" alt="Add Icon" class="mud-icon mr-2" />
+                                Add Recharge Wallet
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+                <MudContainer Class="custom-container">
+                    <MudTable Items="PagedServiceRequests" Filter="ServiceRequestFilter" Striped="false" Bordered="false" Class="custom-table mb-5 mt-5">
+                        <HeaderContent>
+                            <MudTh Class="t-head" Style="width: 15%;">Trans. ID</MudTh>
+                            <MudTh Class="t-head" Style="width: 15%;">Pay Method</MudTh>
+                            <MudTh Class="t-head" Style="width: 15%;">Date</MudTh>
+                            <MudTh Class="t-head" Style="width: 15%;">Amount</MudTh>
+                            <MudTh Class="t-head" Style="width: 10%;">Type</MudTh>
+                            <MudTh Class="t-head" Style="width: 17%;">Action</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd ColSpan="8">
+                                <MudPaper Class="row-card" Elevation="0">
+                                    <MudGrid Class="grid-rows">
+                                        <MudItem xs="1" Class="text-center grid-item ">
+                                            @context.TransactionID
+                                        </MudItem>
+                                        <MudItem xs="3" Class="text-center grid-item">
+                                            @context.PayMethod
+                                        </MudItem>
+                                        <MudItem xs="2" Class="text-center grid-item">
+                                            @context.DateTime.ToString("MMMM dd yyyy")
+                                        </MudItem>
+                                        <MudItem xs="2" Class="text-center grid-item">
+                                            @context.Amount
+                                        </MudItem>
+
+                                        <MudItem xs="2" Class="text-center grid-item">
+                                            @context.Type
+                                        </MudItem>
+                                        <MudItem xs="2" Class="text-center grid-item">
+                                            <div class="action-container">
+                                                <MudIconButton OnClick="EditRecharge">
+                                                    <img src="./Images/edit-data.svg" style="width: 24px; height: 24px;" />
+                                                </MudIconButton>
+                                                <MudIconButton OnClick="ViewWalletRecharge">
+                                                    <img src="./Images/EditAction.svg" alt="Eye Icon" style="width: 24px; height: 24px;" />
+                                                </MudIconButton>
+
+                                            </div>
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudPaper>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudContainer>
+                <PagerContent>
+                    <MudGrid AlignItems="Center" Justify="Justify.Center">
+                        <MudItem>
+                            <div class="custom-pagination py-3">
+                                <button @onclick="PreviousPage">
+                                    <img src="./Images/Chevron_Left_MD.svg" alt="Previous" class="pagination-icon" />
+                                </button>
+                                @for (int i = 1; i <= TotalPages; i++)
+                                {
+                                    <button @onclick="() => GoToPage(i)" class="pagination-button @GetActiveClass(i)">
+                                        @i
+                                    </button>
+                                }
+                                <button @onclick="NextPage">
+                                    <img src="./Images/Chevron_Right_MD.svg" alt="Next" class="pagination-icon" />
+                                </button>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </PagerContent>
+            </MudContainer>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<style>
+    /*head*/
+
+    .add-btn {
+        display: flex;
+        padding: 10px;
+        justify-content: space-evenly;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 14px;
+        line-height: normal;
+        background: #0074E3;
+        text-transform: capitalize;
+    }
+
+        .add-btn:hover {
+            display: flex;
+            padding: 10px;
+            justify-content: space-evenly;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            color: #FFF;
+            font-family: Inter;
+            font-size: 14px;
+            line-height: normal;
+            background: #0074E3;
+            text-transform: capitalize;
+        }
+
+    .mud-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .search-container {
+        display: flex;
+        padding: 10px 18px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        font-size: 14px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+    }
+
+    .search-input {
+        border: none;
+        outline: none;
+        flex-grow: 1;
+        background: transparent;
+        font-size: 14px;
+    }
+
+    .search-icon {
+        font-size: 20px;
+        color: #000;
+    }
+
+    .custom-select {
+        flex-shrink: 0;
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+        font-size: 14px;
+    }
+
+    /*table*/
+    .mud-table-root .mud-table-head {
+        background-color: #Efefef;
+    }
+
+    .t-head {
+        text-align: center;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+        color: #000 !important;
+    }
+
+    .text-center {
+        text-align: center;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        color: #000;
+    }
+
+    /*pagination*/
+
+    .custom-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .pagination-button {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #000;
+        background-color: transparent;
+        color: #000;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .active-page {
+        background-color: #0074e3;
+        color: #fff;
+        border: none;
+    }
+
+    .row-card {
+        border: 0.5px solid #767676;
+        border-radius: 10px;
+        padding: 15px;
+        background-color: white;
+    }
+
+    .action-container {
+        display: flex;
+        justify-content: space-around;
+        background: #f1f1f1;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    /*Mud Over wright and border */
+
+    .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
+        height: auto;
+        padding: 15px;
+    }
+
+    .mud-table-root .mud-table-body .mud-table-cell {
+        border-bottom: none;
+    }
+
+    .mud-table-root .mud-table-cell {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mud-grid-spacing-xs-6 > .grid-item {
+        padding-left: 24px;
+        padding-top: 24px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .grid-rows {
+        width: calc(100% + -12px) !important;
+        margin-left: 15px;
+        margin-top: -24px;
+    }
+
+    .custom-container {
+        max-height: 100%;
+    }
+
+    }
+</style>
+@code {
+    public string PageTitle { get; set; } = "Customer Details";
+    private string _searchTerm;
+    private int _rowsPerPage = 6;
+    private List<WalletHistory> ServiceRequests = new()
+    {
+        new WalletHistory { TransactionID = "112223212", PayMethod = "Stripe Card", Amount = "$ 100.00", DateTime = new DateTime(2024, 7, 12), Type = "Credit"},
+        new WalletHistory { TransactionID = "112223212", PayMethod = "Stripe Card", Amount = "$ 100.00", DateTime = new DateTime(2024, 7, 12), Type = "Credit" },
+        new WalletHistory { TransactionID = "112223212", PayMethod = "Stripe Card", Amount = "$ 100.00", DateTime = new DateTime(2024, 7, 12), Type = "Credit"},
+        new WalletHistory { TransactionID = "112223212", PayMethod = "Stripe Card", Amount = "$ 100.00", DateTime = new DateTime(2024, 7, 12), Type = "Credit" },
+        new WalletHistory { TransactionID = "112223212", PayMethod = "Stripe Card", Amount = "$ 100.00", DateTime = new DateTime(2024, 7, 12), Type = "Credit"},
+        new WalletHistory { TransactionID = "112223212", PayMethod = "Stripe Card", Amount = "$ 100.00", DateTime = new DateTime(2024, 7, 12), Type = "Credit"},
+        new WalletHistory { TransactionID = "112223212", PayMethod = "Stripe Card", Amount = "$ 100.00", DateTime = new DateTime(2024, 7, 12), Type = "Credit"}
+    };
+
+    private SortDirection _snSortDirection = SortDirection.None;
+    private bool _isSortedAscending;
+
+    private List<WalletHistory> PagedServiceRequests => ServiceRequests
+        .Where(ServiceRequestFilter)
+        .Skip((currentPage - 1) * _rowsPerPage)
+        .Take(_rowsPerPage)
+        .ToList();
+
+    private void OnRowsPerPageChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var rowsPerPage))
+        {
+            _rowsPerPage = rowsPerPage;
+            TotalPages = (int)Math.Ceiling((double)ServiceRequests.Count / _rowsPerPage);
+        }
+    }
+
+    private void SortBySN()
+    {
+        if (_snSortDirection == SortDirection.None || _snSortDirection == SortDirection.Descending)
+        {
+            _isSortedAscending = true;
+            _snSortDirection = SortDirection.Ascending;
+            ServiceRequests = ServiceRequests.OrderBy(sr => sr.TransactionID).ToList();
+        }
+        else
+        {
+            _isSortedAscending = false;
+            _snSortDirection = SortDirection.Descending;
+            ServiceRequests = ServiceRequests.OrderByDescending(sr => sr.TransactionID).ToList();
+        }
+    }
+
+    private Func<WalletHistory, bool> ServiceRequestFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchTerm))
+            return true;
+        return x.TransactionID.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase);
+    };
+
+    private Task AddRecharge()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<AddWalletRecharge>("", options);
+    }
+
+    private Task ViewWalletRecharge()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<WalletRechargeDetails>("", options);
+    }
+
+    private Task EditRecharge()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<EditWalletRecharge>("", options);
+    }
+
+    public class WalletHistory
+    {
+        public string TransactionID { get; set; }
+        public string PayMethod { get; set; }
+        public string Amount { get; set; }
+        public DateTime DateTime { get; set; }
+        public string Type { get; set; }
+    }
+
+    private int currentPage = 1;
+    private int totalPages = 1;
+
+    public int TotalPages
+    {
+        get => totalPages;
+        set
+        {
+            if (totalPages != value)
+            {
+                totalPages = value;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < TotalPages)
+        {
+            currentPage++;
+        }
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber > 0 && pageNumber <= TotalPages)
+        {
+            currentPage = pageNumber;
+        }
+    }
+
+    private string GetActiveClass(int pageNumber)
+    {
+        return pageNumber == currentPage ? "active-page" : "";
+    }
+
+    protected override void OnInitialized()
+    {
+        TotalPages = (int)Math.Ceiling((double)ServiceRequests.Count / _rowsPerPage);
+    }
+
+
+
+    private Task OpenDuplicateDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<DuplicatePopUp>("Simple Dialog", options);
+    }
+    private Task OpenCancelDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<CancelPopup>("Simple Dialog", options);
+    }
+    private Task OpenTaskDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<AssignTaskPopup>("", options);
+    }
+
+    private async Task ShowConfirmationDialog()
+    {
+        // var parameters = new DialogParameters
+        // {
+        //     { nameof(MudDialog.), "./Images/Warning-icon.svg" },
+        //     { nameof(ConfirmationDialog.Message), "Are you sure you want to delete this item?" },
+        //     { nameof(ConfirmationDialog.ConfirmButtonText), "Delete" },
+        //     { nameof(ConfirmationDialog.CancelButtonText), "Cancel" },
+        //     { nameof(ConfirmationDialog.ConfirmButtonColor), "#d9534f" },
+        //     { nameof(ConfirmationDialog.CancelButtonColor), "#5bc0de" }
+        // };
+
+        // var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        // var dialog = DialogService.Show<ConfirmationDialog>("Confirmation", parameters, options);
+        // var result = await dialog.Result;
+
+        // if (!result.Cancelled)
+        // {
+        //     // Handle the confirmation (e.g., delete the item)
+        // }
+    }
+
+}
+

@@ -1,0 +1,1143 @@
+﻿@page "/CustomerDetails"
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+@using FieldOpsAdmin.Services
+@inject ApiService _apiService
+@inject GlobalServices _globalService
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudItem xs="12" Class="mt-5">
+            <MudContainer Class="custom-container mb-5 p-5" Style="background-color:#fff;padding-bottom: 20px;border-radius:8px;">
+                <MudContainer Class="mt-5">
+                    <MudGrid Class="title-customer-details">
+                        <MudItem Class="mb-3">
+                            <MudText Typo="Typo.h6" Class="pl-2 d-flex align-items-center title-customer-txt">Customer Information</MudText>
+                        </MudItem>
+
+                        <MudItem Class="d-flex justify-end mb-3">
+                            <MudButton Variant="Variant.Filled" Class="edit-customerdetail-btn" OnClick="OpenEditCustomerForm">
+                                <img src="./Images/edit-customer-info.svg" alt="Add Icon" class="mud-icon" />
+                                Edit
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+                <MudContainer Class="mt-4">
+                    <MudPaper Class="pa-4" Style="max-width: auto; margin: auto; box-shadow: none;">
+                        <MudGrid>
+                            <MudItem xs="12" lg="12" class="d-flex mt-2 user-container">
+                                <span class="avatar-container">
+                                    <img src="@AvatarImageSrc" alt="Avatar Image" class="avatar-img" />
+                                </span>
+                                <MudItem xs="12" lg="4">
+                                    <div class="custom-field-container">
+                                        <span class="custom-label">First Name</span>
+                                        <input type="text" @bind="_customer.FirstName" class="custom-input" placeholder="First Name" required disabled="true" />
+                                    </div>
+                                </MudItem>
+                                <MudItem xs="12" lg="4">
+                                    <div class="custom-field-container">
+                                        <span class="custom-label">Middle Name (Optional)</span>
+                                        <input type="text" @bind="_customer.MiddleName" class="custom-input" placeholder="Middle Name" disabled="true" />
+                                    </div>
+                                </MudItem>
+                            </MudItem>
+
+                            <MudItem xs="12" md="6">
+                                <div class="custom-field-container">
+                                    <span class="custom-label">Last Name</span>
+                                    <input type="text" @bind="_customer.LastName" class="custom-input" placeholder="Last Name" required disabled="true" />
+                                </div>
+                            </MudItem>
+
+                            <MudItem xs="12" md="6">
+                                <div class="custom-field-container">
+                                    <span class="custom-label">Email</span>
+                                    <div class="email-field-container">
+                                        <img src="./images/Mail.svg" class="email-icon" alt="Email Icon" />
+                                        <input type="email" @bind="_customer.Email" class="custom-input custom-input-email" placeholder="Email" required disabled="true" />
+                                    </div>
+                                </div>
+                            </MudItem>
+
+                           @*  <MudItem xs="12" md="6">
+                                <div class="custom-field-container">
+                                    <span class="custom-label">Phone Number</span>
+                                    <div class="phone-input-container" style=" background-color: #EFEFEF4D;">
+                                        <img src="@selectedFlag" alt="Country Flag" class="flag-icon" />
+                                        <select class="country-code-select" @bind=_customer.CountryCode >
+                                          
+                                        </select>
+                                        <input type="text" @bind="_customer.PhoneNumber" class="phone-number-input" placeholder="(239) 555-0108" required disabled="true" />
+                                    </div>
+                                </div>
+                            </MudItem> *@
+                            <MudItem xs="12" md="6">
+                                <div class="custom-field-container">
+                                    <span class="custom-label">Phone Number</span>
+                                    <div class="phone-input-container" style="background-color: #EFEFEF4D;">
+                                        <img src="@selectedFlag" alt="Country Flag" class="flag-icon" />
+                                        <select class="country-code-select" @bind="_customer.CountryCode" disabled="true">
+                                            <option value="@_customer.CountryCode">@_customer.CountryCode</option>
+                                        </select>
+                                        <input type="text" @bind="_customer.PhoneNumber" class="phone-number-input" placeholder="(239) 555-0108" required disabled="true" />
+                                    </div>
+                                </div>
+                            </MudItem>
+
+                            <MudItem xs="12" md="6">
+                                <div class="custom-field-container custom-field-container-password">
+                                    <span class="custom-label">Password</span>
+                                    <div class="password-field-container">
+                                        <input type="@passwordInputType" @bind="_customer.Password" class="custom-input custom-input-password" placeholder="Password" required disabled="true" />
+                                        <MudIconButton OnClick="TogglePasswordVisibility" Class="password-toggle-button" Disabled="true">
+                                            <i class="material-icons mr-3">@((isPasswordVisible ? "visibility_off" : "visibility"))</i>
+                                        </MudIconButton>
+                                    </div>
+                                </div>
+                            </MudItem>
+
+                            <MudItem xs="12" md="6">
+                                <div class="custom-field-container custom-field-container-password">
+                                    <span class="custom-label">Confirm Password</span>
+                                    <div class="password-field-container">
+                                        <input type="@confirmPasswordInputType" @bind="_customer.ConfirmPassword" class="custom-input" placeholder="Confirm Password" required disabled="true" />
+                                        <MudIconButton OnClick="ToggleConfirmPasswordVisibility" Class="password-toggle-button" Disabled="true">
+                                            <i class="material-icons mr-3">@((isConfirmPasswordVisible ? "visibility_off" : "visibility"))</i>
+                                        </MudIconButton>
+                                    </div>
+                                </div>
+                            </MudItem>
+
+                            <MudItem xs="12" md="6">
+                                <div class="custom-field-container">
+                                    <span class="custom-label">Status</span>
+                                    <div class="status-field-container">
+                                        <MudButton Variant="Variant.Filled"
+                                                   FullWidth="true"
+                                                   Class="@( _customer.IsOnline ? "ActiveBtnClass" : "InactiveBtnClass" )"
+                                                   Disabled="false">
+                                            @(_customer.IsOnline ? "Active" : "Inactive")
+                                        </MudButton>
+                                    </div>
+                                </div>
+                            </MudItem>
+
+                        </MudGrid>
+                    </MudPaper>
+                </MudContainer>
+
+            </MudContainer>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-3">
+    <MudContainer Class="custom-container mb-5 p-5" Style="background-color:#fff;padding: 20px;border-radius:8px;">
+        <MudGrid Spacing="3">
+            <MudItem xs="12" sm="6" lg="3">
+                <MudPaper Class="custom-card service-card">
+                    <MudGrid>
+                        <MudItem xs="12" Class="top-row">
+                            <div class="icon-wrapper">
+                                <img src="./Images/customer-card-serviceRq.svg" class="icon-image" />
+                            </div>
+                            <div class="top-right">
+                                <h2 class="count-text">20304</h2>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12" Class="bottom-row">
+                            <div class="bottom-left">
+                                <span class="description">Service Requests</span>
+                            </div>
+                            <MudLink Href="/service" class="bottom-right">
+                                <a href="/CustomerService">
+                                    <img src="./Images/NextArrowGreen.svg" class="arrow-image" />
+                                </a>
+                            </MudLink>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" lg="3">
+                <MudPaper Class="custom-card wallet-card">
+                    <MudGrid>
+                        <MudItem xs="12" Class="top-row">
+                            <div class="icon-wrapper">
+                                <img src="./Images/wallet-icon.svg" class="icon-image" />
+                            </div>
+                            <div class="top-right">
+                                <h2 class="count-text">$10.00</h2>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12" Class="bottom-row">
+                            <div class="bottom-left">
+                                <span class="description">Wallet Balance</span>
+                            </div>
+                            <div class="bottom-right">
+                                <a href="/CustomerWallet">
+                                    <img src="./Images/NextArrowBlue.svg" class="arrow-image" />
+                                </a>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" lg="3">
+                <MudPaper Class="custom-card chat-card">
+                    <MudGrid>
+                        <MudItem xs="12" Class="top-row">
+                            <div class="icon-wrapper">
+                                <img src="./Images/chat-icon.svg" class="icon-image" />
+                            </div>
+                            <div class="top-right">
+                                <h2 class="count-text">20304</h2>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12" Class="bottom-row">
+                            <div class="bottom-left">
+                                <span class="description">Chat List</span>
+                            </div>
+                            <MudLink Href="/ChatList" class="bottom-right">
+                                <img src="./Images/NextArrowViolet.svg" class="arrow-image" />
+                            </MudLink>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" lg="3">
+                <MudPaper Class="custom-card reviews-card">
+                    <MudGrid>
+                        <MudItem xs="12" Class="top-row">
+                            <div class="icon-wrapper">
+                                <img src="./Images/reviews-icon.svg" class="icon-image" />
+                            </div>
+                            <div class="top-right mr-5">
+                                <h2 class="count-text mr-5">4.5</h2>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12" Class="bottom-row">
+                            <div class="bottom-left">
+                                <span class="description">Reviews Rating</span>
+                            </div>
+                            <MudLink Href="/reviews" class="bottom-right">
+                                <img src="./Images/NextArrowGolden.svg" class="arrow-image" />
+                            </MudLink>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+</MudContainer>
+<MudOverlay Visible="@isLoading" DarkBackground="true" ZIndex="9999">
+    <MudProgressCircular Color="Color.Tertiary" Indeterminate="true" />
+</MudOverlay>
+<style>
+    .title-customer-details {
+        display: flex;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .title-customer-txt {
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .edit-customerdetail-btn {
+        display: flex;
+        padding: 10px;
+        width: 107px;
+        height: 45px;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        line-height: normal;
+        background: #0074E3 !important;
+        text-transform: capitalize;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+        .edit-customerdetail-btn:hover {
+            display: flex;
+            padding: 10px;
+            width: 107px;
+            height: 45px;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            line-height: normal;
+            background: #0074E3 !important;
+            text-transform: capitalize;
+            color: #FFF;
+            font-family: Inter;
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+        }
+
+    .btn-icon {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+    }
+
+    .avatar-container {
+        width: 147px !important;
+        height: 147px !important;
+        border: 0.1px solid #CBCBCB;
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        background: #D9D9D9;
+    }
+
+    .avatar-img {
+        object-fit: fill;
+        object-position: center;
+        width: 147px !important;
+        height: 147px !important;
+    }
+
+    .user-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .custom-field-container {
+        margin-bottom: 16px;
+    }
+
+    .custom-label {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-bottom: 14px;
+        color: #000;
+    }
+
+    .custom-input {
+        width: 100%;
+        border-radius: 5px;
+        border: 0.5px solid #CBCBCB;
+        padding: 8px;
+        box-sizing: border-box;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        align-self: stretch;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .custom-select {
+        width: 100%;
+        border-radius: 5px;
+        border: 0.5px solid #CBCBCB;
+        padding: 8px;
+        box-sizing: border-box;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        align-self: stretch;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+        .custom-select:focus {
+            border-color: #CBCBCB;
+            outline: none;
+        }
+
+        .custom-select option:disabled {
+            color: #888 !important;
+        }
+
+    .AddBtn {
+        display: flex;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        border: 0.5px #555454;
+        background: #0074E3;
+        color: #fff;
+    }
+
+        .AddBtn:has(:hover) {
+            background: #fff;
+        }
+
+    .ActiveBtnClass {
+        display: flex;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        background-color: #fff;
+        color: #000;
+        text-align: center;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        border: 0.5px solid #CBCBCB;
+        box-shadow: none;
+    }
+
+    .InactiveBtnClass {
+        display: flex;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        background-color: #fff;
+        color: #000;
+        text-align: center;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        border: 0.5px solid #CBCBCB;
+        box-shadow: none;
+    }
+
+    .phone-input-container {
+        display: flex;
+        align-items: center;
+        border: 0.5px solid #CBCBCB;
+        border-radius: 5px;
+        padding: 8px;
+        box-sizing: border-box;
+        width: 100%;
+        height: 57px;
+    }
+
+    .flag-icon {
+        width: 24px;
+        height: 16px;
+        margin-right: 8px;
+    }
+
+    .country-code-select {
+        border: none;
+        font-size: 16px;
+        font-weight: 600;
+        background-color: transparent;
+        appearance: none;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        margin-right: 8px;
+    }
+
+    .phone-number-input {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        font-weight: 600;
+        color: #000;
+        font-family: Inter;
+        background-color:transparent;
+    }
+
+        .phone-number-input::placeholder {
+            color: #CBCBCB;
+        }
+
+    .phone-input-container:focus-within {
+        border-color: #000;
+    }
+
+    /* password*/
+    .custom-field-container-password {
+        position: relative;
+    }
+
+    .password-field-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-input-password {
+        flex: 1;
+        padding-right: 20px !important;
+    }
+
+    .password-toggle-button {
+        position: absolute;
+        right: 0;
+        padding: 0;
+        height: 100%;
+    }
+    /*email*/
+    .email-field-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+
+    .email-icon {
+        position: absolute;
+        left: 10px;
+        color: #888;
+    }
+
+    .custom-input-email {
+        padding-left: 40px;
+    }
+
+    /*bottom container*/
+
+    .custom-card {
+        padding: 16px;
+        border-radius: 12px;
+        width: 100%;
+    }
+
+    .top-row, .bottom-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background-color: white;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .icon-image {
+        width: 36px;
+        height: 36px;
+    }
+
+    .count-text {
+        font-size: 36px;
+        color: #343434;
+        margin-right: 20px;
+    }
+
+    .bottom-left {
+        display: flex;
+        align-items: center;
+    }
+
+    .description {
+        font-size: 16px;
+        color: #343434;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+    }
+
+    .bottom-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .arrow-image {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Individual Card Styles */
+    .service-card {
+        background-color: #ECFEEF;
+    }
+
+    .wallet-card {
+        background-color: #D8E8FF;
+    }
+
+    .chat-card {
+        background-color: #F1ECFE;
+    }
+
+    .reviews-card {
+        background-color: #FDF6DD;
+    }
+
+    .ActiveBtnClass {
+        background-color: #077ef0;
+        color: #fff;
+    }
+
+        .ActiveBtnClass:hover {
+            background-color: #077ef0 !important;
+            color: #fff;
+        }
+
+    .InactiveBtnClass {
+        background-color: #efefef !important;
+        color: #000;
+    }
+
+        .InactiveBtnClass :hover {
+            background-color: #efefef !important;
+            color: #000;
+        }
+
+</style>
+@code {
+    //spinner
+    private bool isLoading = false;
+    public CustomerDto _customer = new CustomerDto();
+
+    private bool IsOnline { get; set; } = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isLoading = true; 
+            StateHasChanged(); 
+
+            var uri = new Uri(Navigation.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var customerId = query["id"];
+
+            if (int.TryParse(customerId, out int id))
+            {
+                await GetCustomerById(id); 
+                UpdateFlagAndPhoneMask(_customer.CountryCode); 
+            }
+
+            isLoading = false; 
+            StateHasChanged(); 
+        }
+    }
+
+    public async Task GetCustomerById(int id)
+    {
+        try
+        {
+            isLoading = true; 
+            _customer = await _apiService.MakeHttpGetRequest<CustomerDto>($"Customers/getCustomerById?customerId={id}&domainId={_globalService.domainId}");
+            if (_customer != null)
+            {
+                AvatarImageSrc = string.IsNullOrEmpty(_customer.ProfileUrl) ? "./Images/Add-User.svg" : _customer.ProfileUrl;
+                IsImageUploaded = !string.IsNullOrEmpty(_customer.ProfileUrl);
+            }
+        }
+        finally
+        {
+            isLoading = false; 
+        }
+    }
+
+
+    private async Task OpenEditCustomerForm()
+    {
+        var parameters = new DialogParameters
+        {
+            { "Customer", _customer }
+        };
+
+
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var dialog = DialogService.Show<EditCustomer>("Edit Customer", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var updatedCustomer = result.Data as CustomerDto;
+
+            if (updatedCustomer != null)
+            {
+                _customer = updatedCustomer;
+                await UpdateCustomer(_customer);
+            }
+        }
+    }
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    private async Task UpdateCustomer(CustomerDto customer)
+    {
+        try
+        {
+            isLoading = true;
+            var response = await _apiService.MakeHttpPostRequest<CustomerDto>($"Customers/AddOrUpdateCustomers?domainId={_globalService.domainId}", customer);
+
+            if (response)
+            {
+                Snackbar.Add("Customer updated successfully!", Severity.Success);
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+            else
+            {
+                Snackbar.Add("Failed to update customer.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Image and File Upload Logic
+    private string AvatarImageSrc { get; set; } = "./Images/Add-User.svg";
+    private bool IsImageUploaded { get; set; } = false;
+
+    [Inject] IJSRuntime JS { get; set; }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using var memoryStream = new MemoryStream();
+            await file.OpenReadStream().CopyToAsync(memoryStream);
+            var base64 = Convert.ToBase64String(memoryStream.ToArray());
+            AvatarImageSrc = $"data:{file.ContentType};base64,{base64}";
+            IsImageUploaded = true;
+        }
+    }
+
+    private async Task TriggerFileUpload()
+    {
+        await JS.InvokeVoidAsync("triggerFileInputClick", "fileInput");
+    }
+
+    private void RemoveImage()
+    {
+        AvatarImageSrc = "./Images/Add-User.svg";
+        IsImageUploaded = false;
+    }
+
+    // Password Toggle Visibility Logic
+    private string passwordInputType = "password";
+    private bool isPasswordVisible = false;
+
+    private string confirmPasswordInputType = "password";
+    private bool isConfirmPasswordVisible = false;
+
+    private void TogglePasswordVisibility()
+    {
+        isPasswordVisible = !isPasswordVisible;
+        passwordInputType = isPasswordVisible ? "text" : "password";
+    }
+
+    private void ToggleConfirmPasswordVisibility()
+    {
+        isConfirmPasswordVisible = !isConfirmPasswordVisible;
+        confirmPasswordInputType = isConfirmPasswordVisible ? "text" : "password";
+    }
+
+    // Country code selection and flag
+    private string selectedFlag = "./images/usa.jpg";
+
+    private string phoneMask = "(000) 000-0000";
+
+    private void UpdateFlagAndPhoneMask(string countryCode)
+    {
+        switch (countryCode)
+        {
+            case "+1":
+                selectedFlag = "./images/usa.jpg";
+                phoneMask = "(000) 000-0000";
+                break;
+
+            case "+7":
+                selectedFlag = "./images/Russia.jpg";
+                phoneMask = "000-000-0000";
+                break;
+            case "+30":
+                selectedFlag = "./images/Greece.png";
+                phoneMask = "0000 000 000";
+                break;
+            case "+31":
+                selectedFlag = "./images/Netherlands.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+32":
+                selectedFlag = "./images/Belgium.png";
+                phoneMask = "000 00 00 00";
+                break;
+            case "+33":
+                selectedFlag = "./images/France.png";
+                phoneMask = "00 00 00 00 00";
+                break;
+            case "+34":
+                selectedFlag = "./images/Spain.jpg";
+                phoneMask = "000 00 00 00";
+                break;
+            case "+36":
+                selectedFlag = "./images/Hungary.png";
+                phoneMask = "00 000 0000";
+                break;
+            case "+39":
+                selectedFlag = "./images/Italy.jpg";
+                phoneMask = "000 000 0000";
+                break;
+            case "+40":
+                selectedFlag = "./images/Romania.jpg";
+                phoneMask = "0000 000 000";
+                break;
+            case "+41":
+                selectedFlag = "./images/Switzerland.jpg";
+                phoneMask = "00 000 00 00";
+                break;
+            case "+43":
+                selectedFlag = "./images/Austria.png";
+                phoneMask = "0 000 000 000";
+                break;
+            case "+44":
+                selectedFlag = "./images/UnitedKingdom.jpg";
+                phoneMask = "0000 000 000";
+                break;
+            case "+45":
+                selectedFlag = "./images/Denmark.png";
+                phoneMask = "00 00 00 00";
+                break;
+            case "+46":
+                selectedFlag = "./images/Sweden.jpg";
+                phoneMask = "00-000 00 00";
+                break;
+            case "+47":
+                selectedFlag = "./images/Norway.jpg";
+                phoneMask = "00 00 00 00";
+                break;
+            case "+48":
+                selectedFlag = "./images/Poland.jpg";
+                phoneMask = "00 000 00 00";
+                break;
+            case "+49":
+                selectedFlag = "./images/Germany.png";
+                phoneMask = "0 000 000 000";
+                break;
+            case "+55":
+                selectedFlag = "./images/Brazil.png";
+                phoneMask = "(00) 00000-0000";
+                break;
+            case "+57":
+                selectedFlag = "./images/Colombia.png";
+                phoneMask = "(000) 000-0000";
+                break;
+            case "+61":
+                selectedFlag = "./images/Australia.png";
+                phoneMask = "(00) 0000 0000";
+                break;
+            case "+90":
+                selectedFlag = "./images/Turkey.jpg";
+                phoneMask = "(00) 0000 0000";
+                break;
+            case "+91":
+                selectedFlag = "./images/India.png";
+                phoneMask = "00000-00000";
+                break;
+            case "+92":
+                selectedFlag = "./images/Pakistan.jpg";
+                phoneMask = "0000-0000000";
+                break;
+            case "+98":
+                selectedFlag = "./images/Iran.png";
+                phoneMask = "00-0000-0000";
+                break;
+            case "+351":
+                selectedFlag = "./images/Portugal.jpg";
+                phoneMask = "00 0000 0000";
+                break;
+            case "+352":
+                selectedFlag = "./images/Luxembourg.jpg";
+                phoneMask = "00 000 00 00";
+                break;
+            case "+353":
+                selectedFlag = "./images/Ireland.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+354":
+                selectedFlag = "./images/Iceland.jpg";
+                phoneMask = "000 0000";
+                break;
+            case "+355":
+                selectedFlag = "./images/Albania.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+356":
+                selectedFlag = "./images/MaltaFlag.jpg";
+                phoneMask = "00 0000 0000";
+                break;
+            case "+357":
+                selectedFlag = "./images/Cyprus.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+358":
+                selectedFlag = "./images/Finland.png";
+                phoneMask = "000 0000";
+                break;
+            case "+359":
+                selectedFlag = "./images/Bulgaria.jpg";
+                phoneMask = "00 000 000";
+                break;
+            case "+370":
+                selectedFlag = "./images/Lithuania.jpg";
+                phoneMask = "000 0000";
+                break;
+            case "+371":
+                selectedFlag = "./images/Latvia.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+372":
+                selectedFlag = "./images/Estonia.jpg";
+                phoneMask = "000 0000";
+                break;
+            case "+373":
+                selectedFlag = "./images/Moldova.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+374":
+                selectedFlag = "./images/Armenia.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+375":
+                selectedFlag = "./images/Belarus.jpg";
+                phoneMask = "00 000 00 00";
+                break;
+            case "+376":
+                selectedFlag = "./images/Andorra.jpg";
+                phoneMask = "000 000";
+                break;
+            case "+377":
+                selectedFlag = "./images/Monaco.jpg";
+                phoneMask = "00 00 00 00";
+                break;
+            case "+378":
+                selectedFlag = "./images/SanMarino.jpg";
+                phoneMask = "0 000 0000";
+                break;
+            case "+380":
+                selectedFlag = "./images/Ukraine.jpg";
+                phoneMask = "00 000 00 00";
+                break;
+            case "+381":
+                selectedFlag = "./images/Serbia.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+382":
+                selectedFlag = "./images/Montenegro.jpg";
+                phoneMask = "00 000 000";
+                break;
+            case "+383":
+                selectedFlag = "./images/Kosovo.jpg";
+                phoneMask = "00 000 000";
+                break;
+            case "+385":
+                selectedFlag = "./images/Croatia.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+386":
+                selectedFlag = "./images/Slovenia.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+387":
+                selectedFlag = "./images/Bosnia.jpg";
+                phoneMask = "00 000 000";
+                break;
+            case "+389":
+                selectedFlag = "./images/NorthMacedonia.jpg";
+                phoneMask = "0 000 0000";
+                break;
+            case "+420":
+                selectedFlag = "./images/CzechRepublic.jpg";
+                phoneMask = "00 000 000";
+                break;
+            case "+421":
+                selectedFlag = "./images/Slovakia.jpg";
+                phoneMask = "00 000 000";
+                break;
+            case "+423":
+                selectedFlag = "./images/Liechtenstein.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+880":
+                selectedFlag = "./images/Bangladesh.png";
+                phoneMask = "0000 000 0000";
+                break;
+            case "+964":
+                selectedFlag = "./images/Iraq.png";
+                phoneMask = "00 000 0000";
+                break;
+            case "+994":
+                selectedFlag = "./images/Azerbaijan.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+995":
+                selectedFlag = "./images/Georgia.jpg";
+                phoneMask = "000 00 00";
+                break;
+            case "+213":
+                selectedFlag = "./images/Algeria.png";
+                phoneMask = "00 000 00 00";
+                break;
+            case "+226":
+                selectedFlag = "./images/BurkinaFaso.png";
+                phoneMask = "00 00 00 00";
+                break;
+            case "+237":
+                selectedFlag = "./images/Cameroon.png";
+                phoneMask = "0000 000 000";
+                break;
+            case "+242":
+                selectedFlag = "./images/CongoRepublic.png";
+                phoneMask = "00 000 0000";
+                break;
+            case "+243":
+                selectedFlag = "./images/CongoDemocratic.jpg";
+                phoneMask = "00 000 000 000";
+                break;
+            case "+225":
+                selectedFlag = "./images/CotedIvoire.png";
+                phoneMask = "00 00 00 00 00";
+                break;
+            case "+509":
+                selectedFlag = "./images/Haiti.png";
+                phoneMask = "00 00 00 00";
+                break;
+            case "+62":
+                selectedFlag = "./images/Indonesia.png";
+                phoneMask = "0000-0000-0000";
+                break;
+            case "+972":
+                selectedFlag = "./images/Israel.png";
+                phoneMask = "000-000-0000";
+                break;
+            case "+81":
+                selectedFlag = "./images/Japan.png";
+                phoneMask = "000-0000-0000";
+                break;
+            case "+82":
+                selectedFlag = "./images/SouthKorea.png";
+                phoneMask = "00-0000-0000";
+                break;
+            case "+254":
+                selectedFlag = "./images/Kenya.png";
+                phoneMask = "0000 000 000";
+                break;
+            case "+218":
+                selectedFlag = "./images/Libya.png";
+                phoneMask = "00 000 0000";
+                break;
+            case "+261":
+                selectedFlag = "./images/Madagascar.png";
+                phoneMask = "00 00 000 00";
+                break;
+            case "+60":
+                selectedFlag = "./images/Malaysia.png";
+                phoneMask = "00-0000 0000";
+                break;
+            case "+234":
+                selectedFlag = "./images/Nigeria.png";
+                phoneMask = "0000 000 0000";
+                break;
+            case "+63":
+                selectedFlag = "./images/Philippines.png";
+                phoneMask = "0000 000 0000";
+                break;
+            case "+974":
+                selectedFlag = "./images/Qatar.png";
+                phoneMask = "0000 0000";
+                break;
+            case "+966":
+                selectedFlag = "./images/SaudiArabia.png";
+                phoneMask = "0000 0000";
+                break;
+            case "+221":
+                selectedFlag = "./images/Senegal.png";
+                phoneMask = "00 00 000 00";
+                break;
+            case "+27":
+                selectedFlag = "./images/SouthAfrica.png";
+                phoneMask = "00 000 0000";
+                break;
+            case "+94":
+                selectedFlag = "./images/SriLanka.png";
+                phoneMask = "00 000 0000";
+                break;
+            case "+255":
+                selectedFlag = "./images/Tanzania.jpg";
+                phoneMask = "00 000 0000";
+                break;
+            case "+216":
+                selectedFlag = "./images/Tunisia.png";
+                phoneMask = "00 000 000";
+                break;
+            case "+256":
+                selectedFlag = "./images/Uganda.pnd";
+                phoneMask = "000 000 0000";
+                break;
+            case "+971":
+                selectedFlag = "./images/UAE.png";
+                phoneMask = "00 000 0000";
+                break;
+            case "+84":
+                selectedFlag = "./images/Vietnam.png";
+                phoneMask = "00 0000 0000";
+                break;
+            case "+260":
+                selectedFlag = "./images/Zambia.png";
+                phoneMask = "00 000 0000";
+                break;
+            case "+263":
+                selectedFlag = "./images/Zimbabwe.png";
+                phoneMask = "00 000 0000";
+                break;
+            default:
+                selectedFlag = "./images/usa.jpg";
+                phoneMask = "(000) 000-0000";
+                break;
+        }
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,468 @@
+﻿@page "/BankAccounts"
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+    @using FieldOpsAdmin.Services
+    @inject ApiService _apiService;
+    @inject GlobalServices _globalService;
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudItem xs="12" Class="mt-5">
+            <MudContainer Class="custom-container mb-5 p-5" Style="background-color:#fff; border:0.1px solid #cbcbcb; border-radius:10px;">
+                <MudContainer Class="mt-5">
+                    <MudGrid AlignItems="Center" Style="justify-content:space-between; width: width: calc(100% + 24px)!important;">
+                        <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                            <MudText Typo="Typo.h6" Class="pl-2 d-flex align-items-center">Bank Accounts</MudText>
+                        </MudItem>
+                        <MudItem lg="2" md="12" xs="12" Class="mb-3">
+                            <div class="custom-select-wrapper">
+                                <select class="custom-select" @onchange="OnRowsPerPageChange">
+                                    <option value="6">View Rows: 6</option>
+                                    <option value="100">View Rows: 100</option>
+                                    <option value="200">View Rows: 200</option>
+                                    <option value="300">View Rows: 300</option>
+                                    <option value="400">View Rows: 400</option>
+                                </select>
+                            </div>
+                        </MudItem>
+                        <MudItem lg="4" md="12" xs="12" Class="mb-3">
+                            <div class="search-container">
+                                <input type="text" placeholder="Search Bank" class="search-input" @bind-value="_searchTerm" @bind-value:event="oninput" />
+                                <img src="./Images/Search.svg" alt="Search Icon" class="mud-icon" />
+                            </div>
+                        </MudItem>
+                        <MudItem lg="3" xs="12" Class="d-flex mb-3">
+                            <MudButton Variant="Variant.Filled" Class="add-btn" OnClick="() => OpenAddNewBankAccount(false,null,null)">
+                                <img src="./Images/bank-btn.svg" alt="Add Icon" class="mud-icon" />
+                                Add Bank Account
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+
+                <MudContainer Class="custom-container">
+                    <MudTable Items="PagedServiceRequests" Filter="bankAccountsFilter" Striped="false" Bordered="false" Class="custom-table mb-5 mt-5">
+                        <HeaderContent>
+                            <MudTh Class="t-head" Style="width: 25%;">Bank Name</MudTh>
+                            <MudTh Class="t-head" Style="width: 20%;">Account Number</MudTh>
+                            <MudTh Class="t-head" Style="width: 20%;text-align:start;">Routing Number</MudTh>
+                            <MudTh Class="t-head" Style="width: 15%;text-align:start;">Status</MudTh>
+                            <MudTh Class="t-head" Style="width: 15%;text-align:start;">Action</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd ColSpan="8">
+                                <MudPaper Class="row-card" Elevation="0">
+                                    <MudGrid Class="grid-rows">
+                                        <MudItem xs="3" Class="text-center grid-item" Style="width: 30%;">
+                                            @context.BankName
+                                        </MudItem>
+                                        <MudItem xs="2" Class="text-center grid-item" Style="width: 20%;">
+                                            @context.AccountNumber
+                                        </MudItem>
+                                        <MudItem xs="2" Class="text-center grid-item" Style="width: 20%;">
+                                            @context.RoutingNumber
+                                        </MudItem>
+                                        <MudItem xs="2" Class="text-center grid-item" Style="width: 15%;">
+                                            <span class="@GetStatusClass(@context.IsActive)">
+                                                @GetStatusText(@context.IsActive)
+                                            </span>
+                                        </MudItem>
+
+                                        <MudItem xs="2" Class="text-center grid-item" Style="width: 15%;">
+                                            <div class="action-container">
+                                                <MudIconButton OnClick="() => OpenAddNewBankAccount(true, context.UserId, context.BankId)">
+                                                    <img src="./Images/bank-action-edit.svg" alt="Edit Icon" style="width: 28.109px; height: 30px;" />
+                                                </MudIconButton>
+                                                <MudIconButton OnClick="() => OpenAddNewBankAccount(true, context.UserId, context.BankId)">
+                                                    <img src="./Images/EditAction.svg" alt="Eye Icon" style="width: 40.895px; height: 30px;" />
+                                                </MudIconButton>
+                                            </div>
+                                        </MudItem>
+
+                                    </MudGrid>
+                                </MudPaper>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudContainer>
+                <PagerContent>
+                    <MudGrid AlignItems="Center" Justify="Justify.Center">
+                        <MudItem>
+                            <div class="custom-pagination py-3">
+                                <button @onclick="PreviousPage">
+                                    <img src="./Images/Chevron_Left_MD.svg" alt="Previous" class="pagination-icon" />
+                                </button>
+                                @for (int i = 1; i <= TotalPages; i++)
+                                {
+                                    <button @onclick="() => GoToPage(i)" class="pagination-button @GetActiveClass(i)">
+                                        @i
+                                    </button>
+                                }
+                                <button @onclick="NextPage">
+                                    <img src="./Images/Chevron_Right_MD.svg" alt="Next" class="pagination-icon" />
+                                </button>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </PagerContent>
+            </MudContainer>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<style>
+    /*head*/
+    .add-btn {
+        display: flex;
+        padding: 10px;
+        justify-content: space-evenly;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 16px;
+        line-height: normal;
+        font-weight: 700;
+        background: #0074E3;
+        text-transform: capitalize;
+        width: 100% !important;
+    }
+
+        .add-btn:hover {
+            display: flex;
+            padding: 10px;
+            justify-content: space-evenly;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            color: #FFF;
+            font-family: Inter;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: normal;
+            background: #0074E3;
+            text-transform: capitalize;
+            width: 100% !important;
+        }
+
+    .mud-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .search-container {
+        display: flex;
+        padding: 10px 18px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        font-size: 14px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+        width: 100%;
+    }
+
+    .search-input {
+        border: none;
+        outline: none;
+        flex-grow: 1;
+        background: transparent;
+        font-size: 14px;
+    }
+
+    .search-icon {
+        font-size: 20px;
+        color: #000;
+    }
+
+    .custom-select {
+        flex-shrink: 0;
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+        font-size: 14px;
+    }
+
+    /*table*/
+    .mud-table-root .mud-table-head {
+        background-color: #Efefef;
+    }
+
+    .t-head {
+        text-align: center;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+        color: #000 !important;
+    }
+
+    .text-center {
+        text-align: center;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        color: #000;
+    }
+
+    .active-page {
+        background-color: #0074e3 !important;
+        color: #fff !important;
+        border: none !important;
+    }
+
+    .status-pending {
+        border-radius: 16px;
+        background: #DCB012;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-active {
+        color: #FFF;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 16px;
+        background: #4AD771;
+    }
+
+    .row-card {
+        border: 0.5px solid #767676;
+        border-radius: 10px;
+        padding: 15px;
+        background-color: white;
+    }
+
+    .action-container {
+        display: flex;
+        justify-content: space-around;
+        background: #f1f1f1;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    /*Mud Over wright and border */
+    .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
+        height: auto;
+        padding: 15px;
+    }
+
+    .mud-table-root .mud-table-body .mud-table-cell {
+        border-bottom: none;
+    }
+
+    .mud-table-root .mud-table-cell {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mud-grid-spacing-xs-6 > .grid-item {
+        padding-left: 24px;
+        padding-top: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .grid-rows {
+        justify-content: space-between !important;
+    }
+
+    .custom-container {
+        max-height: 100%;
+    }
+    /*pagination*/
+
+    .custom-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .pagination-button {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #000;
+        background-color: transparent;
+        color: #000;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    /*bank grid */
+    .grid-rows > .mud-grid-item {
+        flex-basis: auto;
+    }
+</style>
+@code {
+    private string _searchTerm;
+    private int _rowsPerPage = 6;
+    public List<BankAccount> bankAccounts = new List<BankAccount>();
+    private bool spinner = false;
+    private bool isEditMode = false;
+
+    private List<BankAccount> PagedServiceRequests => bankAccounts
+        .Where(bankAccountsFilter)
+        .Skip((currentPage - 1) * _rowsPerPage)
+        .Take(_rowsPerPage)
+        .ToList();
+    private string GetStatusClass(bool isActive)
+    {
+        return isActive ? "status-active" : "status-pending";
+    }
+
+    private string GetStatusText(bool isActive)
+    {
+        return isActive ? "Active" : "Pending";
+    }
+
+
+    private Func<BankAccount, bool> bankAccountsFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchTerm))
+            return true;
+        return x.BankName.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase);
+    };
+
+    public class BankAccount
+    {
+        public int UserId { get; set; }
+        public string BankName { get; set; }
+        public string AccountNumber { get; set; }
+        public string RoutingNumber { get; set; }
+        public int? BankId { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    private int currentPage = 1;
+    private int totalPages = 1;
+
+    public int TotalPages
+    {
+        get => totalPages;
+        set
+        {
+            if (totalPages != value)
+            {
+                totalPages = value;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private string GetActiveClass(int pageNumber)
+    {
+        return pageNumber == currentPage ? "active-page" : "";
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber > 0 && pageNumber <= TotalPages)
+        {
+            currentPage = pageNumber;
+            StateHasChanged();
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            StateHasChanged();
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < TotalPages)
+        {
+            currentPage++;
+            StateHasChanged();
+        }
+    }
+
+    private void OnRowsPerPageChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var rowsPerPage))
+        {
+            _rowsPerPage = rowsPerPage;
+            TotalPages = (int)Math.Ceiling((double)bankAccounts.Count / _rowsPerPage);
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetAllBankAccounts()
+    {
+        spinner = true;
+        bankAccounts = await _apiService.MakeHttpGetRequest<List<BankAccount>>($"Bank/GetAllWorkerBanks?domainId={_globalService.domainId}");
+        spinner = false;
+
+        if (bankAccounts != null)
+        {
+            TotalPages = (int)Math.Ceiling((double)bankAccounts.Count / _rowsPerPage);
+            StateHasChanged();
+        }
+        else
+        {
+            Console.WriteLine("No bank accounts found");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllBankAccounts();
+    }
+
+    private Func<BankAccount, bool> ServiceRequestFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchTerm))
+            return true;
+        return x.BankName.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase)
+            || x.AccountNumber.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase)
+            || x.RoutingNumber.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase);
+    };
+    private async Task OpenAddNewBankAccount(bool isEdit, int? userId, int? bankId)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters
+            {
+                ["IsEdit"] = isEdit,
+                ["UserId"] = userId,
+                ["BankId"] = bankId
+            };
+
+        await DialogService.ShowAsync<AddNewBankAccount>("Add/Edit Bank Account", parameters, options);
+    }
+
+}

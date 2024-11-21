@@ -1,0 +1,357 @@
+﻿@page "/ChatList"
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-5">
+    <MudPaper Style="border-radius: 10px; border: 1px solid #fff; padding:30px;">
+        <MudItem class="header-div">
+            <MudText Typo="Typo.h6" Class="chat-list-txt">Chat List</MudText>
+            <div class="search-container mr-5">
+                <input type="text" placeholder="Search Chat" class="search-input" />
+                <img src="./Images/Search.svg" alt="Search Icon" class="mud-icon" />
+            </div>
+        </MudItem>
+
+        <MudGrid>
+            <MudItem xs="12" md="12" lg="5">
+                @foreach (var chat in chatList)
+                {
+                    <MudCard Class="chat-item" Style="cursor: pointer; margin-bottom: 10px;" @onclick="() => SelectChat(chat)">
+                        <MudContainer AlignItems="Center" Class="d-flex ">
+                            <MudItem xs="3" Class="align-center d-flex">
+                                <img src="@chat.Avatar" class="rounded-avatar-chat" />
+                            </MudItem>
+                            <MudItem xs="6" Style="display: flex; flex-direction: column;">
+                                <MudText Typo="Typo.subtitle1" Class="chat-user-name">@chat.Name</MudText>
+                                    <MudText Typo="Typo.body2" Class="chat-user-lstmsg">@chat.LastMessage</MudText>
+                                </MudItem>
+                                <MudItem xs="2" Align="Right">
+                                    <MudText Typo="Typo.caption" Class="chat-user-list-time-stamp">@chat.Timestamp</MudText>
+                                </MudItem>
+                            </MudContainer>
+                        </MudCard>
+                }
+            </MudItem>
+            <MudItem xs="12" md="12" lg="7">
+                <MudContainer>
+                    <!-- Chat Header -->
+                    <MudContainer class="chat-header">
+                        <MudItem xs="2" Style="position: relative;">
+                            <img src="@selectedChat.Avatar" class="rounded-avatar" />
+                            <span class="online-dot"></span> 
+                        </MudItem>
+                        <MudItem xs="8" class="chat-header-name-div">
+                            <MudText class="chat-header-name" Typo="Typo.h6">@selectedChat.Name</MudText>
+                                <MudText Typo="Typo.body2">Online</MudText>
+                            </MudItem>
+                        </MudContainer>
+
+                        <!-- Chat Messages -->
+                        <div class="chat-messages">
+                            @foreach (var message in selectedChat.Messages)
+                        {
+                            <div class="message-container @(message.IsSent ? "sent-message-container" : "received-message-container")">
+                                <MudPaper Class="@GetMessageClass(message)" Style="padding: 10px; margin-bottom: 5px;" Elevation="0">
+                                    <MudText>@message.Content</MudText>
+                                    </MudPaper>
+                                    <MudText Typo="Typo.caption" Class="timestamp">@message.Timestamp</MudText>
+                                </div>
+                        }
+                    </div>
+                    <!-- Chat Input -->
+                    <MudContainer Class="chat-input-con" Style="display:none;">
+                        <MudItem xs="10">
+                            <MudTextField T="string" Placeholder="Type a message..." FullWidth="true" />
+                        </MudItem>
+                        <MudItem xs="2" Align="Right">
+                            <MudIconButton Icon="@Icons.Material.Filled.Send" />
+                        </MudItem>
+                    </MudContainer>
+                </MudContainer>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+<style>
+    .header-div {
+        display: flex;
+        align-items: center;
+        padding-bottom: 16px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .chat-item {
+        padding: 10px;
+        transition: background-color 0.3s ease;
+        border-radius: 10px;
+        border: 0.5px solid #000;
+        background: #fff;
+    }
+
+        .chat-item:active {
+            padding: 10px;
+            transition: background-color 0.3s ease;
+            border-radius: 10px;
+            border: 1px solid #000;
+            background: rgba(216, 232, 255, 0.62);
+        }
+
+    .active-chat {
+        background-color: #e3f2fd;
+    }
+
+    .chat-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .chat-list-txt {
+        white-space: nowrap;
+        margin-right: 16px;
+        color: #000;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .search-container {
+        display: flex;
+        padding: 10px 18px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        font-size: 14px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+    }
+
+    .search-input {
+        border: none;
+        outline: none;
+        flex-grow: 1;
+        background: transparent;
+        font-size: 14px;
+    }
+
+    .search-icon {
+        font-size: 20px;
+        color: #000;
+    }
+
+    .chat-user-list-time-stamp {
+        color: rgba(0, 0, 0, 0.50);
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        white-space: nowrap;
+    }
+
+    .chat-user-name {
+        color: #000;
+        font-family: Inter;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .chat-user-lstmsg {
+        color: rgba(0, 0, 0, 0.75);
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+    }
+    /*container */
+    .message-container {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+
+    .sent-message-container {
+        align-self: flex-end;
+        text-align: right;
+    }
+
+    .received-message-container {
+        align-self: flex-start;
+        text-align: left;
+    }
+
+    .sent-message {
+        background-color: #1A66FF;
+        color: white;
+        border-radius: 15px 15px 0 15px;
+        word-wrap: break-word;
+        max-width: 70%;
+        margin-left: auto;
+    }
+
+    .received-message {
+        background-color: #fff;
+        color: black;
+        border-radius: 15px 15px 15px 0;
+        word-wrap: break-word;
+        border: 1px solid #e0e0e0;
+        max-width: 70%;
+        margin-right: auto;
+    }
+
+    .timestamp {
+        color: #999;
+        font-size: 0.8rem;
+        margin-top: 2px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .sent-message-container .timestamp {
+        align-self: flex-end;
+    }
+
+    .received-message-container .timestamp {
+        align-self: flex-start;
+    }
+
+
+    /*chat input con*/
+    .chat-input-con {
+        display: flex;
+        background-color: #D8E8FF;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px
+    }
+    /*chat messages*/
+    .chat-messages {
+        padding: 16px;
+        overflow-y: auto;
+        background-color: #D8E8FF;
+    }
+    /*chat-header*/
+    .chat-header {
+        padding: 15px;
+        background-color: #D8E8FF;
+        display: flex;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        gap: 10px;
+        border-bottom: 0.3px solid #eaeef5;
+    }
+
+    .chat-header-name {
+        color: #000;
+        font-family: inter;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .chat-header-name-div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .rounded-avatar-chat {
+        border-radius: 50%;
+        height: 50px;
+        width: 50px;
+        position: relative;
+        box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    }
+
+    .rounded-avatar {
+        border-radius: 50%;
+        height: 70px;
+        width: 70px;
+        position: relative;
+        border-radius: radius-none, 75px;
+        box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    }
+
+    .online-dot {
+        position: absolute;
+        bottom: 5px;
+        right: 22px;
+        height: 15px;
+        width: 15px;
+        background-color: #00FF75;
+        border-radius: 50%;
+        border: 2px solid white;
+        stroke-width: 1.5px;
+        stroke: #FFF;
+        filter: drop-shadow(10px 10px 10px rgba(0, 0, 0, 0.25));
+    }
+
+</style>
+
+@code {
+    private string GetMessageClass(Message message)
+    {
+        return message.IsSent ? "sent-message" : "received-message";
+    }
+    private List<Chat> chatList = new List<Chat>
+    {
+        new Chat { Name = "Raghav", Avatar = "./Images/chat-img.jpg", LastMessage = "Dinner?", Timestamp = "Today, 8:56pm" },
+        new Chat { Name = "Arun", Avatar = "./Images/chat-img.jpg", LastMessage = "Dinner?", Timestamp = "Today, 8:56pm" },
+        new Chat { Name = "Denis", Avatar = "./Images/chat-img.jpg", LastMessage = "Dinner?", Timestamp = "Today, 8:56pm" },
+        new Chat { Name = "Vabi", Avatar = "./Images/chat-img.jpg", LastMessage = "Dinner?", Timestamp = "Today, 8:56pm" },
+    };
+
+    private Chat selectedChat = new Chat
+        {
+            Name = "Swathi",
+            Avatar = "./Images/chat-user.jpg",
+            Messages = new List<Message>
+        {
+            new Message { Content = "Hey There!", Timestamp = "Today, 2:01pm", IsSent = false },
+            new Message { Content = "How are you doing?", Timestamp = "Today, 2:02pm", IsSent = false },
+            new Message { Content = "Hello...", Timestamp = "Today, 2:12pm", IsSent = true },
+            new Message { Content = "I am good and how about you?", Timestamp = "Today, 2:12pm", IsSent = true },
+            new Message { Content = "I am doing well. Can we meet up tomorrow?", Timestamp = "Today, 2:13pm", IsSent = false },
+            new Message { Content = "Sure!", Timestamp = "Today, 2:14pm", IsSent = true }
+        }
+        };
+
+    private void SelectChat(Chat chat)
+    {
+        selectedChat = chat;
+    }
+
+    public class Chat
+    {
+        public string Name { get; set; }
+        public string Avatar { get; set; }
+        public string LastMessage { get; set; }
+        public string Timestamp { get; set; }
+        public List<Message> Messages { get; set; }
+    }
+
+    public class Message
+    {
+        public string Content { get; set; }
+        public string Timestamp { get; set; }
+        public bool IsSent { get; set; }
+    }
+    private string newMessage = string.Empty;
+
+    private void SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(newMessage))
+        {
+            selectedChat.Messages.Add(new Message
+                {
+                    Content = newMessage,
+                    Timestamp = DateTime.Now.ToString("g"),
+                    IsSent = true
+                });
+
+            newMessage = string.Empty;
+        }
+    }
+}

@@ -1,0 +1,376 @@
+﻿
+<style>
+    html {
+        background-color: #efefef;
+    }
+
+    .body-adjuster {
+        margin-top: 40px;
+        margin-bottom: 60px;
+        background-color: #efefef;
+    }
+
+    .mud-toolbar.mud-toolbar-gutters.mud-toolbar-appbar {
+        width: 100%;
+    }
+
+    .app-bar {
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        padding-right: 10px;
+        justify-content: space-between;
+        background-color: white;
+        padding: 18px 12px 18px 11px;
+    }
+
+    .search-containerMain {
+        border: 1px solid #A7A7A7;
+        border-radius: 5px;
+        display: flex;
+        padding: 11.5px 14px;
+        justify-content: end;
+        margin: 0 3rem;
+    }
+
+    .profile-container {
+        display: flex;
+        align-items: center;
+        margin-left: 20px;
+    }
+
+    .profile-info-main {
+        margin-left: 10px;
+        color: black;
+    }
+
+    .page-title-txt {
+        color: #000;
+        font-family: Inter;
+        font-size: 32px;
+        font-weight: 500;
+        line-height: normal;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .admin-mail {
+        color: #000;
+        font-size: 12px;
+    }
+
+    .admin-txt {
+        color: #000;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .initials-avatar {
+        background-color: #077EF0;
+        color: #fff;
+    }
+    /*loguot*/
+    .mud-typography-body1 {
+        display: flex !important;
+        gap: 10px !important;
+    }
+
+        .mud-typography-body1:hover {
+            color: #077ef0;
+        }
+</style>
+
+ @inherits LayoutComponentBase
+@using FieldOpsAdmin.Services
+@using Blazored.SessionStorage
+@using Blazored.LocalStorage;
+@using FieldOpsAdmin.Components.Model
+@using FieldOpsAdmin.Service
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout Style="background-color:#efefef;min-height:100vh">
+    @if (!IsLoginPage)
+    {
+        <MudAppBar Elevation="0" Class="app-bar">
+            <MudText Typo="Typo.h6" Class="page-title-txt">@PageTitle</MudText>
+                <MudSpacer />
+                <MudItem>
+                    <div class="search-containerMain">
+                        <input type="text" placeholder="Search Service" class="search-input" />
+                        <img src="./Images/Search.svg" alt="Search Icon" class="mud-icon" />
+                    </div>
+                </MudItem>
+               @*  <div class="mx-3">
+                    <img src="./Images/Bell_Notification.svg" />
+                </div> *@
+                <div style="position: relative;">
+                    <MudIconButton @onclick="TogglePopover" id="notificationButton">
+                        <img src="./Images/Bell_Notification.svg" style="cursor: pointer; width: 30px; height: 30px;" />
+                    </MudIconButton>
+
+                    <MudPopover Open="@isPopoverOpen" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Anchor="#notificationButton">
+                        <MudPaper>
+                            <MudList T="string">
+                                @if (notifications.Count > 0)
+                            {
+                                @foreach (var notification in notifications)
+                                {
+                                    <MudListItem>@notification</MudListItem>
+                                }
+                            }
+                            else
+                            {
+                                <MudListItem>No new notifications</MudListItem>
+                            }
+                        </MudList>
+                    </MudPaper>
+                </MudPopover>
+            </div>
+              @*   <div class="mx-3">
+    <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Default" OnClick="ToggleNotificationPopup" />
+</div>
+
+<MudPopover Open="@isNotificationPopupOpen" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+    <MudPaper Class="p-2" MaxWidth="300px">
+        @if (notifications?.Count > 0)
+        {
+            <MudList T="string">
+                @foreach (var notification in notifications)
+                {
+                    <MudListItem>
+                        <MudText>@notification</MudText>
+                        asdfgh
+                        sdfgh   
+                    </MudListItem>
+                }
+            </MudList>
+        }
+        else
+        {
+            <MudText>No notifications</MudText>
+        }
+    </MudPaper>
+</MudPopover> *@
+            @if (UserData != null)
+            {
+                <div class="profile-container">
+                    <MudMenu>
+                        <ActivatorContent>
+                            <MudAvatar Class="initials-avatar" Size="Size.Medium">
+                                @GetInitials(UserData.Name)
+                            </MudAvatar>
+                        </ActivatorContent>
+                        <ChildContent>
+                            <MudMenuItem @onclick="OpenProfile">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" /> Profile
+                            </MudMenuItem>
+                            <MudMenuItem @onclick="Logout" Class="d-flex">
+                                <MudIcon Icon="@Icons.Material.Filled.ExitToApp" /> Logout
+                            </MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                    <div class="profile-info-main">
+                        <MudText Typo="Typo.body1" Class="admin-txt">@UserData.Name</MudText>
+                            <MudText Typo="Typo.caption" Class="admin-mail">@UserData.Email</MudText>
+                        </div>
+                    </div>
+            }
+        </MudAppBar>
+    }
+
+    @if (!IsLoginPage)
+    {
+        <MudDrawer @bind-Open="@_drawerOpen" Width="360px">
+            <NavMenu />
+        </MudDrawer>
+    }
+
+    <MudMainContent Style="background-color:#efefef;">
+        @if (isLoading)
+        {
+            <MudProgressCircular Indeterminate="true" />
+        }
+        else
+        {
+            <div class="body-adjuster">
+                @Body
+            </div>
+        }
+    </MudMainContent>
+</MudLayout>
+
+<style>
+    html {
+        background-color: #efefef;
+    }
+    /* Add your custom styles here */
+</style>
+
+@code {
+    MudMenu menu;
+    private bool _drawerOpen = true;
+    private bool isLoading = true;
+    private LoggedInUserDto UserData;
+    private string PageTitle { get; set; }
+
+    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] ISessionStorageService _sessionStorage { get; set; }
+    [Inject] ILocalStorageService localStorage { get; set; }
+    [Inject] ApiService _apiService { get; set; }
+    [Inject] GlobalServices _globalService { get; set; }
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    private bool IsLoginPage => NavigationManager.Uri.Contains("login");
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await _sessionStorage.GetItemAsync<string>("authToken");
+            var userDataJson = await localStorage.GetItemAsync<string>("loggedInUserData");
+
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userDataJson))
+            {
+                // Redirect to login if token or user data is missing
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+
+            try
+            {
+                // Deserialize user data
+                UserData = System.Text.Json.JsonSerializer.Deserialize<LoggedInUserDto>(userDataJson);
+
+                if (UserData != null)
+                {
+                    _globalService.domainId = UserData.DomainId;
+                    SetPageTitle(NavigationManager.Uri);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deserializing user data: {ex.Message}");
+            }
+
+            NavigationManager.LocationChanged += OnLocationChanged;
+
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadUserDataAndSetTitle()
+    {
+        var token = await _sessionStorage.GetItemAsync<string>("authToken");
+        var userData = await localStorage.GetItemAsync<string>("loggedInUserData");
+
+        if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userData))
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        SetPageTitle(NavigationManager.Uri);
+    }
+
+    private void SetPageTitle(string uri)
+    {
+        var route = NavigationManager.ToBaseRelativePath(uri);
+
+        if (route.Contains("service")) PageTitle = "Service Bookings";
+        else if (route.Contains("ServiceCategories")) PageTitle = "Service Categories";
+        else if (route.Contains("ServiceDetails")) PageTitle = "Service Details";
+        else if (route.Contains("customers")) PageTitle = "Customers";
+        else if (route.Contains("CustomerDetails")) PageTitle = "Customer Details";
+        else if (route.Contains("BankAccounts")) PageTitle = "Bank Accounts";
+        else if (route.Contains("transactions")) PageTitle = "Transactions";
+        else if (route.Contains("notifications")) PageTitle = "All Notifications";
+        else if (route.Contains("employees")) PageTitle = "Employees";
+        else PageTitle = "Dashboard";
+    }
+
+    private void OpenProfile() => NavigationManager.NavigateTo("/profile");
+
+    private async void Logout()
+    {
+        await localStorage.RemoveItemAsync("loggedInUserData");
+        await localStorage.RemoveItemAsync("domainId");
+        await localStorage.RemoveItemAsync("username");
+
+        _globalService.domainId = 0;
+        _globalService.loggedInUserData = null;
+
+        Snackbar.Add("Logged out successfully!", Severity.Success);
+        NavigationManager.NavigateTo("/");
+    }
+
+    private string GetInitials(string name)
+    {
+        var words = name.Split(' ');
+        return string.Concat(words.Select(w => w[0])).ToUpper();
+    }
+
+    private async Task<LoggedInUserDto> GetUserDataAsync()
+    {
+        var userJson = await localStorage.GetItemAsync<string>("loggedInUserData");
+        if (!string.IsNullOrEmpty(userJson))
+        {
+            try
+            {
+                return System.Text.Json.JsonSerializer.Deserialize<LoggedInUserDto>(userJson);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deserializing user data: {ex.Message}");
+            }
+        }
+        return null;
+    }
+
+    private void OnLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        SetPageTitle(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose() => NavigationManager.LocationChanged -= OnLocationChanged;
+
+    // Notification
+  
+    // private bool isNotificationPopupOpen = false;
+
+    //     private List<Notification> notifications = new List<Notification>();
+
+    //     protected override void OnInitialized()
+    //     {
+    //         notifications = NotificationService.GetNotifications();
+    //     }
+
+    //     public void AddNotification(string title, string body)
+    //     {
+    //         var notification = new Notification(title, body);
+    //         NotificationService.AddNotification(notification);
+    //         notifications = NotificationService.GetNotifications(); // Refresh the notification list
+    //     }
+    // private void ToggleNotificationPopup()
+    // {
+    //     isNotificationPopupOpen = !isNotificationPopupOpen;
+    // }
+    private List<string> notifications = new List<string>
+    {
+        "You have a new message",
+        "Your task was updated",
+        "Reminder: Meeting at 10 AM"
+    };
+     private bool isPopoverOpen = false;
+    private void TogglePopover()
+    {
+        isPopoverOpen = !isPopoverOpen;
+    }
+}

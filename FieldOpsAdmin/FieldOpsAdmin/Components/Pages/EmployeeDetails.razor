@@ -1,0 +1,757 @@
+﻿@page "/EmployeeDetails"
+@using FieldOpsAdmin.Components.Model
+@using FieldOpsAdmin.Models
+@using FieldOpsAdmin.Models.Dto
+@using FieldOpsAdmin.Service
+@using Newtonsoft.Json
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudItem xs="12" Class="mt-5">
+            <MudContainer Class="custom-container mb-5" Style="background-color:#fff;border-radius:8px;padding:0">
+                <MudContainer Class="employee-card" Elevation="2">
+                    <MudGrid>
+                        <MudItem xs="12" lg="3">
+                            <MudPaper Class="image-back-div">
+                                <MudPaper Class="image-placeholder">
+                                    <div class="image-content">
+                                        <img src="@AvatarImageSrc" alt="Profile Picture" class="profile-image" />
+                                    </div>
+                                </MudPaper>
+                                <br />
+                                <MudText Typo="Typo.subtitle1" Class="txt-image">
+                                    @_employee.Name
+                                </MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="12" lg="8">
+                            <div class="details">
+                                <MudText Class="employee-info-text">
+                                    <div class="employee-info-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 18 19" fill="none">
+                                            <path d="M13.5 9.5H11.25M15.75 6.5H2.25M13.5 12.5H11.25M9.75 14.75C9.46635 13.4662 8.23102 12.5 6.75 12.5C5.27446 12.5 4.04276 13.4591 3.75318 14.7358M3.75318 14.7358C3.98832 14.75 4.27797 14.75 4.65 14.75H13.35C14.1901 14.75 14.6102 14.75 14.931 14.5865C15.2132 14.4427 15.4427 14.2132 15.5865 13.931C15.75 13.6102 15.75 13.1901 15.75 12.35V6.65C15.75 5.80992 15.75 5.38988 15.5865 5.06902C15.4427 4.78677 15.2132 4.5573 14.931 4.41349C14.6102 4.25 14.1901 4.25 13.35 4.25H4.65C3.80992 4.25 3.38988 4.25 3.06902 4.41349C2.78677 4.5573 2.5573 4.78677 2.41349 5.06902C2.25 5.38988 2.25 5.80992 2.25 6.65V12.35C2.25 13.1901 2.25 13.6102 2.41349 13.931C2.5573 14.2132 2.78677 14.4427 3.06902 14.5865C3.24779 14.6776 3.45734 14.7179 3.75318 14.7358ZM6.75 9.5H6.7575M7.5 9.5C7.5 9.91422 7.16421 10.25 6.75 10.25C6.33579 10.25 6 9.91422 6 9.5C6 9.08578 6.33579 8.75 6.75 8.75C7.16421 8.75 7.5 9.08578 7.5 9.5Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <div class="employee-info-label">
+                                            Employee ID
+                                        </div>
+                                    </div>
+                                    <span class="employee-info-detail">@_employee.Id</span>
+                                </MudText>
+
+                                <MudText Class="employee-info-text">
+                                    <div class="employee-info-container">
+                                        <MudIcon Icon="@Icons.Material.Filled.Email" />
+                                        <div class="employee-info-label">
+                                            Email
+                                        </div>
+                                    </div>
+                                    <span class="employee-info-detail">@_employee.Email</span>
+                                </MudText>
+
+                                <MudText Class="employee-info-text">
+                                    <div class="employee-info-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19" fill="none">
+                                            <path d="M11.8125 2C12.7444 2 13.5 2.75552 13.5 3.6875V15.3125C13.5 16.2444 12.7444 17 11.8125 17H6.1875C5.25552 17 4.5 16.2444 4.5 15.3125V3.6875C4.5 2.75552 5.25552 2 6.1875 2H11.8125ZM9.9375 14H8.0625C7.75185 14 7.5 14.2518 7.5 14.5625C7.5 14.8731 7.75185 15.125 8.0625 15.125H9.9375C10.2481 15.125 10.5 14.8731 10.5 14.5625C10.5 14.2518 10.2481 14 9.9375 14Z" fill="black" />
+                                        </svg>
+                                        <div class="employee-info-label">
+                                            Phone No
+                                        </div>
+                                    </div>
+                                    <span class="employee-info-detail">@_employee.PhoneNumber</span>
+                                </MudText>
+
+                                <MudText Class="employee-info-text">
+                                    <div class="employee-info-container">
+                                        <MudIcon Icon="@Icons.Material.Filled.LocationOn" />
+                                        <div class="employee-info-label">
+                                            Address
+                                        </div>
+                                    </div>
+                                    <span class="employee-info-detail">@_employee.FormattedAddress@* 4517 Washington Ave. Manchester, Kentucky 39495 *@</span>
+                                </MudText>
+                                <MudGrid>
+                                    <MudItem xs="12" lg="4">
+                                        <div class="info-title">Status</div>
+                                        @*   <span class="@GetStatusClass(@_employee.Status)">
+                                        @_employee.Status
+                                        </span> *@@* 
+                                        <MudText Color="@GetColor(@_employee.IsActive)" Class="info-text">@GetStatus(@_employee.IsActive)</MudText> *@
+                                        <MudText Color="@(_employee.IsActive.HasValue ? GetColor(_employee.IsActive.Value) : MudBlazor.Color.Default)" Class="info-text">
+                                            @(_employee.IsActive.HasValue ? GetStatus(_employee.IsActive.Value) : "Unknown Status")
+                                        </MudText>
+
+
+                                    </MudItem>
+                                    <MudItem xs="12" lg="4">
+                                        <div class="info-title">Experience</div>
+                                        <MudText Class="info-text">@_employee.YearOfExperience</MudText>
+                                    </MudItem>
+                                    <MudItem xs="12" lg="4">
+                                        <div class="info-title">Category</div>
+                                        <MudText Class="info-text">@_employee.ServiceCategory</MudText>
+                                    </MudItem>
+                                </MudGrid>
+                            </div>
+                        </MudItem>
+
+                        <MudItem xs="12" lg="1" Class="d-flex justify-end mb-3">
+                            <MudButton Variant="Variant.Filled" Class="edit-emp-btn" Disabled="@isLoading" OnClick="OpenEditEmployee">
+                                <img src="./Images/edit-customer-info.svg" alt="Add Icon" class="mud-icon" />
+                                Edit
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+            </MudContainer>
+
+            <!-- card -->
+            <MudOverlay Visible="@isLoading" DarkBackground="true" ZIndex="9999">
+                <MudProgressCircular Color="Color.Tertiary" Indeterminate="true" />
+            </MudOverlay>
+            <MudContainer Class="custom-container mb-5 p-5" Style="background-color:#fff;padding: 20px;border-radius:8px;">
+                <MudGrid Spacing="3">
+                    <MudItem xs="12" sm="6" md="6" lg="3">
+                        <MudPaper Class="custom-card  card-total-balance">
+                            <MudGrid>
+                                <MudItem xs="12" Class="top-row">
+                                    <div class="icon-wrapper">
+                                        <img src="./Images/transactions-available-balance.svg" class="icon-image" />
+                                    </div>
+                                    <div class="top-right">
+                                        <h2 class="count-text">@_employee.TotalMoneySpent</h2>
+                                    </div>
+                                </MudItem>
+                                <MudItem xs="12" Class="bottom-row">
+                                    <div class="bottom-left">
+                                        <span class="description">Total Earning</span>
+                                    </div>
+                                    <div class="bottom-right">
+                                        <MudLink href="/transactions">
+                                            <img src="./Images/NextArrowBlue.svg" class="arrow-image" alt="Go to Transactions" />
+                                        </MudLink>
+                                    </div>
+
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6" md="6" lg="3">
+                        <MudPaper Class="custom-card  card-pending-earning">
+                            <MudGrid>
+                                <MudItem xs="12" Class="top-row">
+                                    <div class="icon-wrapper">
+                                        <img src="./Images/emp-pending-tasks.svg" class="icon-image" />
+                                    </div>
+                                    <div class="top-right">
+                                        <h2 class="count-text">@_employee.PendingTasks</h2>
+                                    </div>
+                                </MudItem>
+                                <MudItem xs="12" Class="bottom-row">
+                                    <div class="bottom-left">
+                                        <span class="description">Pending Tasks</span>
+                                    </div>
+                                    <div class="bottom-right">
+                                        <MudLink Href="/emp-pending-task">
+                                            <img src="./Images/NextArrowGolden.svg" class="arrow-image" />
+                                        </MudLink>
+                                    </div>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6" md="6" lg="3">
+                        <MudPaper Class="custom-card  card-ongoing-tasks">
+                            <MudGrid>
+                                <MudItem xs="12" Class="top-row">
+                                    <div class="icon-wrapper">
+                                        <img src="./Images/emp-onging-task.svg" class="icon-image" />
+                                    </div>
+                                    <div class="top-right">
+                                        <h2 class="count-text">@_employee.OngoingTasks</h2>
+                                    </div>
+                                </MudItem>
+                                <MudItem xs="12" Class="bottom-row">
+                                    <div class="bottom-left">
+                                        <span class="description">Ongoing Tasks</span>
+                                    </div>
+                                    <div class="bottom-right">
+                                        <MudLink Href="/emp-ongoing-task">
+                                            <img src="./Images/NextArrowViolet.svg" class="arrow-image" />
+                                        </MudLink>
+                                    </div>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6" md="6" lg="3">
+                        <MudPaper Class="custom-card  card-completed-task">
+                            <MudGrid>
+                                <MudItem xs="12" Class="top-row">
+                                    <div class="icon-wrapper">
+                                        <img src="./Images/emp-completed-task.svg" class="icon-image" />
+                                    </div>
+                                    <div class="top-right">
+                                        <h2 class="count-text">@_employee.TotalServiceDelivered</h2>
+                                    </div>
+                                </MudItem>
+                                <MudItem xs="12" Class="bottom-row">
+                                    <div class="bottom-left">
+                                        <div class="description">Completed Tasks</div>
+                                    </div>
+                                    <div class="bottom-right">
+                                        <MudLink Href="/emp-completed-task">
+                                            <img src="./Images/NextArrowGreen.svg" class="arrow-image" />
+                                        </MudLink>
+                                    </div>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6" md="6" lg="3">
+                        <MudPaper Class="custom-card  card-cancelled-task mb-2">
+                            <MudGrid>
+                                <MudItem xs="12" Class="top-row">
+                                    <div class="icon-wrapper">
+                                        <img src="./Images/emp-cancelled-task.svg" class="icon-image" />
+                                    </div>
+                                    <div class="top-right">
+                                        <h2 class="count-text">@_employee.CanceledTasks</h2>
+                                    </div>
+                                </MudItem>
+                                <MudItem xs="12" Class="bottom-row">
+                                    <div class="bottom-left">
+                                        <div class="description">Cancelled Tasks</div>
+                                    </div>
+                                    <div class="bottom-right">
+                                        <MudLink Href="/emp-cancel-task">
+                                            <img src="./Images/NextArrowRed.svg" class="arrow-image" />
+                                        </MudLink>
+                                    </div>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6" md="6" lg="3">
+                        <MudPaper Class="custom-card  card-bank">
+                            <MudGrid>
+                                <MudItem xs="12" Class="top-row">
+                                    <div class="icon-wrapper">
+                                        <img src="./Images/emp-bank-accounts.svg" class="icon-image" style="height:29px !important;width:27px !important; " />
+                                    </div>
+                                    <div class="top-right">
+                                        <h2 class="count-text">@_employee.TotalBankAccounts</h2>
+                                    </div>
+                                </MudItem>
+                                <MudItem xs="12" Class="bottom-row">
+                                    <div class="bottom-left">
+                                        <div class="description">Bank Accounts</div>
+                                    </div>
+                                    <div class="bottom-right">
+                                        <MudLink Href="/BankAccounts">
+                                            <img src="./Images/NextArrowLightGreen.svg" class="arrow-image" />
+                                        </MudLink>
+                                    </div>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6" md="6" lg="3">
+                        <MudPaper Class="custom-card  card-reviews-rating">
+                            <MudGrid>
+                                <MudItem xs="12" Class="top-row">
+                                    <div class="icon-wrapper">
+                                        <img src="./Images/emp-rating.svg" class="icon-image" style="height:29px !important; " />
+                                    </div>
+                                    <div class="top-right">
+                                        <h2 class="count-text">@_employee.Rating</h2>
+                                    </div>
+                                </MudItem>
+                                <MudItem xs="12" Class="bottom-row">
+                                    <div class="bottom-left">
+                                        <span class="description">Reviews Rating</span>
+                                    </div>
+                                    <MudLink Href="/reviews" class="bottom-right">
+                                        <img src="./Images/NextArrowGray.svg" class="arrow-image" />
+                                    </MudLink>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6" md="6" lg="3">
+                        <MudPaper Class="custom-card card-chat-list">
+                            <MudGrid>
+                                <MudItem xs="12" Class="top-row">
+                                    <div class="icon-wrapper">
+                                        <img src="./Images/emp-chat.svg" class="icon-image" style="height:29px !important; " />
+                                    </div>
+                                    <div class="top-right">
+                                        <h2 class="count-text">20304</h2>
+                                    </div>
+                                </MudItem>
+                                <MudItem xs="12" Class="bottom-row">
+                                    <div class="bottom-left">
+                                        <span class="description">Chat List</span>
+                                    </div>
+                                    <div class="bottom-right">
+                                        <MudLink Href="/ChatList">
+                                            <img src="./Images/NextArrowGolden.svg" class="arrow-image" />
+                                        </MudLink>
+                                    </div>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudContainer>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<style>
+    .employee-card {
+        padding: 24px;
+        margin: auto;
+    }
+
+    .image-back-div {
+        background-color: #DBECFD;
+        border-radius: 10px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 220px;
+    }
+
+    .image-placeholder {
+        background-color: #f0f0f0;
+        height: 200px;
+        width: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .image-content {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-image {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .txt-image {
+        text-align: center;
+        color: #0074E3;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 18px;
+    }
+
+    .details {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .employee-info-text {
+        color: #000;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: normal;
+        margin-bottom: 20px;
+    }
+
+    .employee-info-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .employee-info-label {
+        margin-left: 8px;
+    }
+
+    .employee-info-detail {
+        font-family: 'Inter', sans-serif;
+        font-size: 17px;
+        font-weight: 600;
+        line-height: normal;
+        color: #000;
+        margin-top: 8px;
+        display: block;
+        margin-top:0;
+    }
+
+    .info-title {
+        color: var(--Black, #000);
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-bottom: 8px;
+    }
+
+    .info-text {
+        color: #030303;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .edit-emp-btn {
+        display: flex;
+        justify-content: space-around;
+        padding: 10px;
+        width: 107px;
+        height: 45px;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        line-height: normal;
+        background: #0074E3 !important;
+        text-transform: capitalize;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+        .edit-emp-btn:hover {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            width: 107px;
+            height: 45px;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            line-height: normal;
+            background: #0074E3 !important;
+            text-transform: capitalize;
+            color: #FFF;
+            font-family: Inter;
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+        }
+
+    /*card*/
+    .custom-container {
+        padding: 20px;
+    }
+
+    .custom-card {
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #fff;
+    }
+
+    .icon-wrapper {
+        margin-right: 10px;
+        padding: 15px;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .count-text {
+        color: #343434;
+        font-family: Inter;
+        font-size: 32px;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .description {
+        color: #343434;
+        font-family: Inter;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: normal;
+    }
+
+    .bottom-right img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .top-row, .bottom-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .bottom-left {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .card-total-balance {
+        background-color: #D8E8FF;
+    }
+
+    .card-pending-earning {
+        background-color: #FDF6DD;
+    }
+
+    .card-ongoing-tasks {
+        background-color: #F1ECFE;
+    }
+
+    .card-completed-task {
+        background-color: #ECFEEF;
+    }
+
+    .card-cancelled-task {
+        background-color: #FEECEC;
+    }
+
+    .card-bank {
+        background-color: #ECFEFC;
+    }
+
+    .card-reviews-rating {
+        background-color: #E9E9E9;
+    }
+
+    .card-chat-list {
+        background-color: #FFFDD8;
+    }
+
+    .status-inactive {
+        border-radius: 16px;
+        background: #FFB800;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-active {
+        color: #FFF;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 16px;
+        background: #4AD771;
+    }
+
+</style>
+@code {
+    @inject UserService _userService;
+    private bool isLoading = false;
+
+    // Image and File Upload Logic
+    private string AvatarImageSrc { get; set; } = "./Images/Add-User.svg";
+    private bool IsImageUploaded { get; set; } = false;
+
+    UserDetailsViewModel _employee = new();
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var uri = new Uri(Navigation.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var customerId = query["id"];
+            if (int.TryParse(customerId, out int id))
+            {
+                await GetEmployeeById(id);
+                StateHasChanged();
+            }
+        }
+    }
+
+    public async Task GetEmployeeById(int id)
+    {
+        isLoading = true;
+        StateHasChanged();
+        try
+        {
+            var response = await _userService.GetUserDetailsByUserId(id);
+            if (response.IsSuccess)
+            {
+                string json = JsonConvert.SerializeObject(response.Result);
+                _employee = JsonConvert.DeserializeObject<UserDetailsViewModel>(json);
+                Snackbar.Add("Employee data loaded", Severity.Success);
+
+                AvatarImageSrc = string.IsNullOrEmpty(_employee.ProfileUrl) ? "./Images/Add-User.svg" : _employee.ProfileUrl;
+            }
+            else
+            {
+                Snackbar.Add("Failed to load Employee", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+
+            Snackbar.Add("Error occurred while loading Employee.", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    private string GetStatus(bool isOnline)
+    {
+        return isOnline switch
+        {
+            false => "InActive",
+            true => "Active",
+        };
+    }
+    private MudBlazor.Color GetColor(bool isOnline)
+    {
+        return isOnline switch
+        {
+            false => Color.Warning,
+            true => Color.Success,
+        };
+    }
+    private async Task OpenEditEmployee()
+    {
+        // EmployeeDto employee = new()
+        // {
+        //     Address = "";
+        // };
+        try
+        {
+
+            var parameters = new DialogParameters
+            {
+                { "Employee", _employee }
+            };
+
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+
+            var dialog = DialogService.Show<EditEmployeePopup>("Edit Employee", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var updatedCustomer = result.Data as UserDetailsViewModel;
+
+                if (updatedCustomer != null)
+                {
+                    _employee = updatedCustomer;
+
+                    await UpdateEmployee(_employee);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+        // var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        // return DialogService.ShowAsync<EditEmployeePopup>("", options);
+    }
+    [Inject] ISnackbar Snackbar { get; set; }
+    private async Task UpdateEmployee(UserDetailsViewModel employee)
+    {
+        isLoading = true;
+        StateHasChanged();
+        try
+        {
+            employee.RoleId = 3;
+             
+            var data = new Dictionary<string, string>
+            {
+                {"Id", employee.Id.ToString()},
+                {"FirstName" , employee.FirstName},
+                {"MiddleName" , employee.MiddleName },
+                {"LastName" , employee.LastName },
+                {"Email" , employee.Email },
+                {"PhoneNumber" , employee.PhoneNumber },
+                {"RoleId" , "3" },
+                {"YearOfExperience" , employee.YearOfExperience.ToString() },
+                {"Address" , employee.FormattedAddress },
+                { "Password" , employee.Password },
+                {"ConfirmPassword" , employee.ConfirmPassword },
+                {"ServiceCategoryId" , employee.ServiceCategoryId.ToString() },
+                {"ProfileUrl", employee.ProfileUrl},
+                {"IsActive",employee.IsActive.ToString()},
+                { "StreetAddress" , employee.StreetAddress },
+                { "City" , employee.City },
+                { "State" , employee.State },
+                { "Country" , employee.Country },
+                { "PostalCode" , employee.PostalCode },
+
+            };
+
+
+            var response = await _userService.UpdateUser(data);
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Employee updated successfully!", Severity.Success);
+                await GetEmployeeById(employee.Id);
+            }
+            else
+            {
+                Snackbar.Add("Failed to update Employee.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,530 @@
+﻿@layout LoginLayout
+@page "/"
+@using FieldOpsAdmin.Components.Layout
+@using FieldOpsAdmin.Services
+@inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="py-5" Style="background-color:#0074E3;">
+    <MudGrid Class="pt-0">
+        <MudItem xs="12" sm="12" md="6" Class="pt-0">
+            <MudPaper Class="logo-container mt-5" Elevation="0">
+                <div class="logo-section">
+                    <div>
+                        <MudText Typo="Typo.h3" Class="branding-text py-5" Align="Align.Center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="92" height="77" viewBox="0 0 92 77" fill="none">
+                                <path d="M68.3725 76.5593L68.1426 41.852L51.5934 69.6638H40.2542L23.705 43.0012V76.5593H0.336914V0.402344H14.2812C18.7249 0.402344 22.7856 2.70086 25.0841 6.45508L46.1537 40.9326L67.07 5.76551C69.062 2.47099 72.663 0.402344 76.4938 0.402344H91.3575L91.5873 76.5593H68.3725Z" fill="white" />
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="71" height="77" viewBox="0 0 71 77" fill="none">
+                                <path d="M22.8828 20.3227H0.587402V10.5157C0.587402 4.92273 5.10779 0.402344 10.7008 0.402344H70.8449V20.3227H48.5494V76.5593H22.8828V20.3227Z" fill="white" />
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="74" height="77" viewBox="0 0 74 77" fill="none">
+                                <path d="M33.4834 57.4051H30.1122C28.1202 57.4051 26.5113 59.0141 26.5113 61.0061V76.5593H0.844727V0.402344H37.4675C44.5162 0.402344 50.6455 1.55159 55.8555 3.85009C61.0654 6.14859 65.1261 9.51975 67.9609 13.8869C70.7957 18.254 72.1748 23.3107 72.1748 29.1336C72.1748 34.5734 70.9489 39.3236 68.4972 43.3843C66.0455 47.445 62.4445 50.6629 57.8475 53.038L73.8604 76.5593H46.4316L33.4834 57.4051ZM43.6734 22.6212C41.9112 21.0888 39.3062 20.2461 35.8585 20.2461H26.5113V38.0977H35.8585C39.3062 38.0977 41.9112 37.3316 43.6734 35.7226C45.4356 34.1903 46.2784 31.9684 46.2784 29.1336C46.2784 26.2988 45.4356 24.1535 43.6734 22.6212Z" fill="white" />
+                            </svg>
+                            <br />
+                            <span class="h-span">SOFTWARE INCORPORATED</span>
+                        </MudText>
+                    </div>
+                    <div class="image-container">
+                        <img src="/Images/LoginLogo.svg" alt="FieldOps Logo" class="logo-image" />
+                    </div>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="12" md="6" Class="pt-0">
+            <MudPaper Class="login-container" Elevation="2" Style="margin: auto;">
+                <MudText Typo="Typo.h5" Align="Align.Center" Class="my-5 login-txt">MTR Login</MudText>
+                <MudForm @ref="form" Validation="true">
+
+                    <MudItem md="12">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Company ID</span>
+                            <div class="input-with-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none" class="input-icon">
+                                    <path d="M13.75 3.75C13.75 3.41848 13.6183 3.10054 13.3839 2.86612C13.1495 2.6317 12.8315 2.5 12.5 2.5H3.75C3.41848 2.5 3.10054 2.6317 2.86612 2.86612C2.6317 3.10054 2.5 3.41848 2.5 3.75V27.5H13.75V3.75ZM11.25 22.5H5V20H11.25V22.5ZM11.25 17.5H5V15H11.25V17.5ZM11.25 12.5H5V10H11.25V12.5ZM11.25 7.5H5V5H11.25V7.5ZM26.25 10H17.5C17.1685 10 16.8505 10.1317 16.6161 10.3661C16.3817 10.6005 16.25 10.9185 16.25 11.25V27.5H27.5V11.25C27.5 10.9185 27.3683 10.6005 27.1339 10.3661C26.8995 10.1317 26.5815 10 26.25 10ZM21.25 25H18.75V22.5H21.25V25ZM21.25 20H18.75V17.5H21.25V20ZM21.25 15H18.75V12.5H21.25V15ZM25 25H22.5V22.5H25V25ZM25 20H22.5V17.5H25V20ZM25 15H22.5V12.5H25V15Z" fill="#0074E3" />
+                                </svg>
+                                <input type="text" class="custom-input" @bind="domainId" placeholder="Company ID" required />
+                                @if (!string.IsNullOrWhiteSpace(companyIdError))
+                                {
+                                    <i class="material-icons">error</i>
+                                }
+                            </div>
+
+                            <div style="height:20px"><span class="error-text">@companyIdError</span> </div>
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="12">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Username</span>
+                            <div class="input-with-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none" class="input-icon">
+                                    <path d="M15 2.5C13.3585 2.5 11.733 2.82332 10.2165 3.45151C8.69989 4.07969 7.3219 5.00043 6.16117 6.16117C3.81696 8.50537 2.5 11.6848 2.5 15C2.5 18.3152 3.81696 21.4946 6.16117 23.8388C7.3219 24.9996 8.69989 25.9203 10.2165 26.5485C11.733 27.1767 13.3585 27.5 15 27.5C18.3152 27.5 21.4946 26.183 23.8388 23.8388C26.183 21.4946 27.5 18.3152 27.5 15C27.5 13.3585 27.1767 11.733 26.5485 10.2165C25.9203 8.69989 24.9996 7.3219 23.8388 6.16117C22.6781 5.00043 21.3001 4.07969 19.7835 3.45151C18.267 2.82332 16.6415 2.5 15 2.5ZM8.8375 22.85C9.375 21.725 12.65 20.625 15 20.625C17.35 20.625 20.625 21.725 21.1625 22.85C19.4117 24.245 17.2386 25.0032 15 25C12.675 25 10.5375 24.2 8.8375 22.85ZM22.95 21.0375C21.1625 18.8625 16.825 18.125 15 18.125C13.175 18.125 8.8375 18.8625 7.05 21.0375C5.72023 19.3058 4.99958 17.1834 5 15C5 9.4875 9.4875 5 15 5C20.5125 5 25 9.4875 25 15C25 17.275 24.225 19.375 22.95 21.0375ZM15 7.5C12.575 7.5 10.625 9.45 10.625 11.875C10.625 14.3 12.575 16.25 15 16.25C17.425 16.25 19.375 14.3 19.375 11.875C19.375 9.45 17.425 7.5 15 7.5ZM15 13.75C14.5027 13.75 14.0258 13.5525 13.6742 13.2008C13.3225 12.8492 13.125 12.3723 13.125 11.875C13.125 11.3777 13.3225 10.9008 13.6742 10.5492C14.0258 10.1975 14.5027 10 15 10C15.4973 10 15.9742 10.1975 16.3258 10.5492C16.6775 10.9008 16.875 11.3777 16.875 11.875C16.875 12.3723 16.6775 12.8492 16.3258 13.2008C15.9742 13.5525 15.4973 13.75 15 13.75Z" fill="#0074E3" />
+                                </svg>
+                                <input type="text" class="custom-input" @bind="username" placeholder="Username" required />
+                                @if (!string.IsNullOrWhiteSpace(usernameError))
+                                {
+                                    <i class="material-icons">error</i>
+                                }
+                            </div>
+                            <div style="height:20px"> <span class="error-text">@usernameError</span></div>
+
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="12">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Password</span>
+                            <div class="input-with-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="30" viewBox="0 0 28 30" fill="none" class="input-icon">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.12516 12.5688V10C6.12516 7.76224 6.95485 5.61613 8.4317 4.03379C9.90855 2.45145 11.9116 1.5625 14.0002 1.5625C16.0887 1.5625 18.0918 2.45145 19.5686 4.03379C21.0455 5.61613 21.8752 7.76224 21.8752 10V12.5688C23.176 12.6725 24.0218 12.935 24.6413 13.5987C25.6668 14.6962 25.6668 16.465 25.6668 20C25.6668 23.535 25.6668 25.3038 24.6413 26.4013C23.617 27.5 21.9662 27.5 18.6668 27.5H9.3335C6.03416 27.5 4.38333 27.5 3.359 26.4013C2.3335 25.3038 2.3335 23.535 2.3335 20C2.3335 16.465 2.3335 14.6962 3.359 13.5987C3.97733 12.935 4.82433 12.6725 6.12516 12.5688ZM7.87516 10C7.87516 8.25952 8.52047 6.59032 9.66913 5.35961C10.8178 4.1289 12.3757 3.4375 14.0002 3.4375C15.6246 3.4375 17.1825 4.1289 18.3312 5.35961C19.4799 6.59032 20.1252 8.25952 20.1252 10V12.505C19.6783 12.5 19.193 12.5 18.6668 12.5H9.3335C8.80616 12.5 8.322 12.5 7.87516 12.505V10ZM9.3335 21.25C9.64292 21.25 9.93966 21.1183 10.1585 20.8839C10.3772 20.6495 10.5002 20.3315 10.5002 20C10.5002 19.6685 10.3772 19.3505 10.1585 19.1161C9.93966 18.8817 9.64292 18.75 9.3335 18.75C9.02408 18.75 8.72733 18.8817 8.50854 19.1161C8.28975 19.3505 8.16683 19.6685 8.16683 20C8.16683 20.3315 8.28975 20.6495 8.50854 20.8839C8.72733 21.1183 9.02408 21.25 9.3335 21.25Z" fill="#0074E3" />
+                                </svg>
+                                <input type="@(!isPasswordVisible ? "password" : "text")" class="custom-input" @bind="password" placeholder="Password" required />
+                                @if (!string.IsNullOrWhiteSpace(passwordError))
+                                {
+                                    <i class="material-icons">error</i>
+                                }
+                                <button type="button" class="password-toggle-btn" @onclick="() => isPasswordVisible = !isPasswordVisible">
+                                    <i class="material-icons toggle-icons">
+                                        @(!isPasswordVisible ? "visibility_off" : "visibility")
+                                    </i>
+                                </button>
+                            </div>
+                            <div style="height:20px">
+                                <span class="error-text">@passwordError</span>
+                            </div>
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="12" Class="checkbox-con">
+                        <input type="checkbox" class="custom-checkbox" id="rememberMe" @bind="rememberMe" />
+                        <label for="rememberMe" class="checkbox-label">Remember me!</label>
+                    </MudItem>
+
+                    <MudOverlay Visible="@isLoading" DarkBackground="true" ZIndex="9999">
+                        <MudProgressCircular Color="Color.Tertiary" Indeterminate="true" />
+                    </MudOverlay>
+
+                    <MudItem md="6">
+                        <MudButton Variant="Variant.Filled" Class="btn-login p-4" FullWidth="true" @onclick="OnLoginClicked" Disabled="@isLoading">
+                            Login
+                        </MudButton>
+                    </MudItem>
+
+                    <div style="padding: 20px; margin-left: auto; float:right;">
+                        <p class="footer-txt">Powered by</p>
+                        <img src="./images/LogoFooter.svg" alt="Powered by MTR Software Inc." style="width: 195.288px; height: 53.141px;" />
+                    </div>
+                </MudForm>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<style>
+    html body {
+        background: #0074E3;
+    }
+
+    .logo-container {
+        padding: 20px;
+        padding: 0;
+        border-radius: 10px;
+        background-color: 10px;
+    }
+
+    .logo-section {
+        background: #fff !important;
+        border-radius: 15px !important;
+    }
+
+    .h-span {
+        color: #fff;
+        text-align: center;
+        font-family: Inter;
+        font-size: 25px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .logo-image {
+        height: 450px;
+    }
+
+    .branding-text {
+        background: #000;
+        color: #fff;
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    .image-container {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-container {
+        padding: 5px 40px;
+        background-color: transparent;
+        border-radius: 10px;
+        box-shadow: none;
+    }
+
+    .login-txt {
+        color: #FFF;
+        text-align: justify;
+        font-family: Inter;
+        font-size: 30px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        border-bottom: 2px solid #2596be;
+        padding: 0px 0 10px 0;
+    }
+
+    .btn-login {
+        background-color: black !important;
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 15px;
+        color: #FFF;
+        text-align: center;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+        height: 58px
+    }
+
+    .custom-field-container {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 5px;
+    }
+
+    .custom-label {
+        color: #FFF;
+        text-align: justify;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .custom-input {
+        width: 100%;
+        border-radius: 15px;
+        border: 0.5px solid #CBCBCB;
+        box-sizing: border-box;
+        height: 57px;
+        padding: 10px;
+        align-self: stretch;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-top: 10px;
+        padding-left: 50px;
+    }
+
+    .input-with-icon {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 10px;
+        top: 23px;
+    }
+
+    .checkbox-con {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .custom-checkbox {
+        width: 30px;
+        height: 30px;
+    }
+
+    .checkbox-label {
+        color: #FFF;
+        text-align: center;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+
+
+    .footer-txt {
+        color: #FFF;
+        font-family: Inter;
+        font-size: 14.592px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    /*validation*/
+    .error-text {
+        color: #fff;
+        font-size: 13px;
+        margin-left: 5px;
+    }
+
+    .material-icons {
+        position: absolute;
+        right: 3px;
+        color: red;
+    }
+    /*toggel*/
+    .password-toggle-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        position: absolute;
+        right: 10px;
+        top: 8px;
+    }
+
+        .password-toggle-btn .toggle-icons {
+            font-size: 20px;
+            color: #0074E3;
+            position: absolute;
+            right: 15px;
+            top: 18px;
+        }
+
+</style>
+
+@code {
+    private bool isLoading = false;
+    private bool rememberMe = false;
+    private MudForm form;
+    private string username;
+    private string password;
+    private string domainId;
+    private string errorMessage;
+    // private string password = "password";
+    private bool isPasswordVisible = false;
+
+    // Validation
+    private string companyIdError = string.Empty;
+    private string usernameError = string.Empty;
+    private string passwordError = string.Empty;
+
+    [Inject] ApiService _apiService { get; set; }
+    [Inject] GlobalServices _globalService { get; set; }
+    [Inject] IJSRuntime jsRuntime { get; set; }
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    @inject ILogger<Login> _logger
+
+    @inject IJSRuntime JS
+
+    async Task OnLoginClicked()
+    {
+        isLoading = true; 
+        StateHasChanged();
+        _logger.LogInformation("Login process started.");
+        await LogToBrowserConsole("Login process started.");
+
+        companyIdError = string.Empty;
+        usernameError = string.Empty;
+        passwordError = string.Empty;
+
+        _logger.LogInformation("Reset validation errors.");
+        await LogToBrowserConsole("Reset validation errors.");
+
+        // Validate Company ID
+        if (string.IsNullOrWhiteSpace(domainId))
+        {
+            companyIdError = "Company ID is required.";
+            _logger.LogWarning("Validation failed: Company ID is required.");
+            await LogToBrowserConsole("Validation failed: Company ID is required.");
+        }
+        else if (!int.TryParse(domainId, out _))
+        {
+            companyIdError = "Company ID must be a valid integer.";
+            _logger.LogWarning("Validation failed: Company ID must be a valid integer.");
+            await LogToBrowserConsole("Validation failed: Company ID must be a valid integer.");
+        }
+        else
+        {
+            _logger.LogInformation("Company ID validated successfully.");
+            await LogToBrowserConsole("Company ID validated successfully.");
+        }
+
+        // Validate Username
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            usernameError = "Username is required.";
+            _logger.LogWarning("Validation failed: Username is required.");
+            await LogToBrowserConsole("Validation failed: Username is required.");
+        }
+        else if (username.Length < 3)
+        {
+            usernameError = "Username must be at least 3 characters long.";
+            _logger.LogWarning("Validation failed: Username must be at least 3 characters long.");
+            await LogToBrowserConsole("Validation failed: Username must be at least 3 characters long.");
+        }
+        else
+        {
+            _logger.LogInformation("Username validated successfully.");
+            await LogToBrowserConsole("Username validated successfully.");
+        }
+
+        // Validate Password
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            passwordError = "Password is required.";
+            _logger.LogWarning("Validation failed: Password is required.");
+            await LogToBrowserConsole("Validation failed: Password is required.");
+        }
+        else
+        {
+            _logger.LogInformation("Password validated successfully.");
+            await LogToBrowserConsole("Password validated successfully.");
+        }
+
+        // Check if any validation errors
+        if (!string.IsNullOrWhiteSpace(companyIdError) || !string.IsNullOrWhiteSpace(usernameError) || !string.IsNullOrWhiteSpace(passwordError))
+        {
+            _logger.LogWarning("Validation errors present, stopping login process.");
+            await LogToBrowserConsole("Validation errors present, stopping login process.");
+            return;
+        }
+
+        _logger.LogInformation("All validations passed.");
+        await LogToBrowserConsole("All validations passed.");
+
+        await form.Validate();
+        _logger.LogInformation("Form validation initiated.");
+        await LogToBrowserConsole("Form validation initiated.");
+
+        if (form.IsValid)
+        {
+            _logger.LogInformation("Form is valid.");
+            await LogToBrowserConsole("Form is valid.");
+
+            isLoading = true;
+            _logger.LogInformation("Loading state set to true.");
+            await LogToBrowserConsole("Loading state set to true.");
+
+            int domainID = int.Parse(domainId);
+            _logger.LogInformation($"Parsed domainId: {domainID}");
+            await LogToBrowserConsole($"Parsed domainId: {domainID}");
+
+            var loginData = new LoginDto
+                {
+                    Username = username,
+                    Password = password,
+                    DomainId = domainID,
+                };
+
+            _logger.LogInformation("Login data prepared.");
+            await LogToBrowserConsole("Login data prepared.");
+
+            try
+            {
+                _logger.LogInformation("Making login HTTP POST request.");
+                await LogToBrowserConsole("Making login HTTP POST request.");
+
+                bool isSuccess = await _apiService.MakeLoginHttpPostRequest<LoginDto>("Authenticate/adminlogin", loginData);
+
+                if (isSuccess)
+                {
+                    _logger.LogInformation("Login successful.");
+                    await LogToBrowserConsole("Login successful.");
+
+                    _globalService.domainId = domainID;
+
+                    if (_globalService.loggedInUserData != null)
+                    {
+                        _logger.LogInformation("Storing logged-in user data.");
+                        await LogToBrowserConsole("Storing logged-in user data.");
+                        await StoreUserDataAsync(_globalService.loggedInUserData);
+                    }
+
+                    // Remember Me logic
+                    if (rememberMe)
+                    {
+                        _logger.LogInformation("Remember Me option selected. Storing credentials in local storage.");
+                        await LogToBrowserConsole("Remember Me option selected. Storing credentials in local storage.");
+                        await localStorage.SetItemAsync("domainId", domainId);
+                        await localStorage.SetItemAsync("username", username);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Remember Me option not selected. Removing credentials from local storage.");
+                        await LogToBrowserConsole("Remember Me option not selected. Removing credentials from local storage.");
+                        await localStorage.RemoveItemAsync("domainId");
+                        await localStorage.RemoveItemAsync("username");
+                    }
+
+                    _logger.LogInformation("Navigating to dashboard.");
+                    await LogToBrowserConsole("Navigating to dashboard.");
+                    NavigationManager.NavigateTo("/dashboard");
+                    Snackbar.Add("Login successful!", Severity.Success);
+                }
+                else
+                {
+                    _logger.LogWarning("Login failed. Incorrect username or password.");
+                    await LogToBrowserConsole("Login failed. Incorrect username or password.");
+                    Snackbar.Add("Login failed. Incorrect username or password, please try again.", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception occurred during login: {ex.Message}");
+                await LogToBrowserConsole($"Exception occurred during login: {ex.Message}");
+                Snackbar.Add("An error occurred while attempting to login.", Severity.Error);
+            }
+            finally
+            {
+                _logger.LogInformation("Resetting loading state.");
+                await LogToBrowserConsole("Resetting loading state.");
+                isLoading = false;
+            }
+        }
+        else
+        {
+            _logger.LogWarning("Form is invalid.");
+            await LogToBrowserConsole("Form is invalid.");
+        }
+
+        _logger.LogInformation("Login process completed.");
+        await LogToBrowserConsole("Login process completed.");
+        isLoading = false;
+    }
+
+    async Task LogToBrowserConsole(string message)
+    {
+        await JS.InvokeVoidAsync("console.log", message);
+    }
+
+
+    private async Task StoreUserDataAsync(LoggedInUserDto user)
+    {
+        if (user != null)
+        {
+            var userJson = System.Text.Json.JsonSerializer.Serialize(user);
+            await localStorage.SetItemAsync("loggedInUserData", userJson);
+            Console.WriteLine($"Stored userJson: {userJson}");
+        }
+    }
+}

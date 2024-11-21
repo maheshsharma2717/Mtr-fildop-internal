@@ -1,0 +1,222 @@
+﻿<MudDialog>
+    <DialogContent>
+        <EditForm Model="paymentKey">
+            <MudPaper Class="pa-4" Style="max-width:500px; margin: auto;box-shadow: none;">
+                <div class="head-container mb-5">
+                    <MudText Typo="Typo.h5" Align="Align.Start" Class="heading-txt mb-2">Stripe Testing Environment</MudText>
+                    <MudButton OnClick="Cancel" Class="close-btn">
+                        <img src="./images/Close.svg" alt="X" />
+                    </MudButton>
+                </div>
+                <MudGrid>
+                    <MudItem Class="pt-2" md="12">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Testing Mode Status</span>
+                            <div class="custom-select-wrapper">
+                                <select class="custom-select-popup">
+                                    @* <option value="" disabled selected>Select Bank Name</option> *@
+                                    <option value="Bank Of America">Disable</option>
+                                    <option value="Bank B">Enable</option>
+                                </select>
+                            </div>
+                        </div>
+                    </MudItem>
+                    <MudItem Class="pt-0" md="12">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Secret Key</span>
+                            <input type="text" @bind="paymentKey.PublishKey" class="custom-input" placeholder="Secret Key" required />
+                        </div>
+                    </MudItem>
+
+                    <MudItem Class="pt-0" md="12">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Publish Key</span>
+                            <input type="text" @bind="paymentKey.TestingMode" class="custom-input" placeholder="Publish Key" required />
+                        </div>
+                    </MudItem>
+
+                    <!-- Buttons -->
+                    <MudItem  md="12" class="d-flex justify-center">
+                        <MudButton Variant="Variant.Filled" FullWidth="true" Class="AddBtn" OnClick="Submit">Save</MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+<style>
+    .blur {
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog-background {
+        background-color: transparent;
+    }
+
+    .dialog-background-title {
+        background: rgba(0, 0, 0, 0.5);
+        color: var(--mud-palette-white);
+    }
+
+    .dialog-background-surface {
+        background: rgba(255, 255, 255, 0.75);
+    }
+
+    .mud-dialog-width-sm {
+        max-width: 950px;
+    }
+
+    .head-container {
+        display: flex;
+        justify-content: space-between
+    }
+
+    .heading-txt {
+        color: #000;
+        font-family: Inter;
+        font-size: 25px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+    }
+
+    .user-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .custom-field-container {
+        margin-bottom: 16px;
+    }
+
+    .custom-label {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        margin-bottom: 14px;
+        color: #000;
+        font-family: Inter;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .custom-span {
+        font-family: Inter;
+        font-size: 11px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .custom-input {
+        width: 100%;
+        border-radius: 5px;
+        border: 0.5px solid #CBCBCB;
+        padding: 8px;
+        box-sizing: border-box;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        align-self: stretch;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .custom-select-popup {
+        width: 100%;
+        border-radius: 5px;
+        border: 0.5px solid #CBCBCB !important;
+        padding: 8px;
+        box-sizing: border-box;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        align-self: stretch;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        text-align: center;
+    }
+
+    .custom-select:focus {
+        border-color: #CBCBCB;
+        outline: none;
+    }
+
+    .custom-select option:disabled {
+        color: #888 !important;
+    }
+
+    .AddBtn {
+        display: flex;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        border: 0.5px #555454;
+        background: #0074E3;
+        color: #FFF;
+        text-align: center;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+        .AddBtn:has(:hover) {
+            background: #0074c3;
+        }
+
+
+    .custom-select-popup option[value=""][disabled] {
+        color: #9e9e9e;
+    }
+
+    .mud-dialog-title{
+        display:none !important;
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private PaymentKeys paymentKey = new PaymentKeys();
+
+    private void Submit()
+    {
+        MudDialog.Close(DialogResult.Ok(paymentKey));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    public class PaymentKeys
+    {
+        public string TestingMode    { get; set; }
+        public string SecretKey { get; set; }
+        public string PublishKey { get; set; }
+    }
+}
+
+
+
+

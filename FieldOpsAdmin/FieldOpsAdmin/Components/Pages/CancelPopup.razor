@@ -1,0 +1,152 @@
+﻿@* 
+<MudDialog MaxWidth="MaxWidth.Small" Class="dialog-container">
+    <DialogContent>
+        <div class="icon-container">
+            <img src="@IconSrc" class="icon pb-2" />
+        </div>
+        <div class="content-container">
+            @Message
+        </div>
+        <DialogActions class="btn-container">
+            <MudButton OnClick="Cancel" Class="cancel-btn" Style="@CancelButtonStyle">
+                @CancelButtonText
+            </MudButton>
+            <MudButton OnClick="Submit" Class="yes-btn" Style="@ConfirmButtonStyle">
+                @ConfirmButtonText
+            </MudButton>
+        </DialogActions>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string IconSrc { get; set; } = "./Images/Red-icon.svg";
+    [Parameter] public string Message { get; set; }
+    [Parameter] public string ConfirmButtonText { get; set; } = "YES";
+    [Parameter] public string CancelButtonText { get; set; } = "NO";
+    [Parameter] public string ConfirmButtonColor { get; set; }
+    [Parameter] public string CancelButtonColor { get; set; }
+
+    private string ConfirmButtonStyle => $"background-color:{ConfirmButtonColor}; color:white;";
+    private string CancelButtonStyle => $"background-color:{CancelButtonColor}; color:white;";
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    private void Cancel() => MudDialog.Cancel();
+}
+ *@
+
+ <MudDialog MaxWidth="MaxWidth.Small" Class="dialog-container">
+    <DialogContent>
+        <div class="icon-container">
+            <img src="@IconSrc" class="icon pb-2" />
+        </div>
+        <div class="content-container">
+            @Message
+        </div>
+        <DialogActions class="btn-container">
+            <MudButton OnClick="Cancel" Class="cancel-btn" Style="@CancelButtonStyle">
+                @CancelButtonText
+            </MudButton>
+            <MudButton OnClick="Submit" Class="yes-btn" Style="@ConfirmButtonStyle">
+                @ConfirmButtonText
+            </MudButton>
+        </DialogActions>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string IconSrc { get; set; } = "./Images/Red-icon.svg";
+    [Parameter] public string Message { get; set; }
+    [Parameter] public string ConfirmButtonText { get; set; } = "YES";
+    [Parameter] public string CancelButtonText { get; set; } = "NO";
+    [Parameter] public string ConfirmButtonColor { get; set; }
+    [Parameter] public string CancelButtonColor { get; set; }
+
+    private string ConfirmButtonStyle => $"background-color:{ConfirmButtonColor}; color:white;";
+    private string CancelButtonStyle => $"background-color:{CancelButtonColor}; color:white;";
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    private void Cancel() => MudDialog.Cancel();
+}
+
+
+<style>
+    .mud-dialog-width-sm {
+        width: 395px;
+    }
+
+    .mud-dialog-title {
+        display: none;
+    }
+
+    .dialog-container {
+        padding: 15px 30px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .icon-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .content-container {
+        color: #313131;
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+
+    .btn-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 25px;
+    }
+
+    .cancel-btn {
+        width: 100px;
+        height: 40px;
+        background-color: @CancelButtonColor;
+        color: white;
+        font-weight: 600;
+        border-radius: 6px;
+    } 
+    .cancel-btn:hover {
+        width: 100px;
+        height: 40px;
+        background-color: @CancelButtonColor;
+        color: white;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    .yes-btn {
+        width: 100px;
+        height: 40px;
+        background-color: @ConfirmButtonColor;
+        color: white;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+    .yes-btn:hover {
+        width: 100px;
+        height: 40px;
+        background-color: @ConfirmButtonColor;
+        color: white;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+</style>
+

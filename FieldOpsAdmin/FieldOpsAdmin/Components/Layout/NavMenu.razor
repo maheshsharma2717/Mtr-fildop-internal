@@ -1,0 +1,153 @@
+﻿@code {
+    private bool _open = true;
+}
+
+<MudDrawer @bind-Open="@_open" Elevation="1" Style="background-color: #0074E3;">
+    <MudDrawerHeader>
+        <div class="img-logo">
+            <img src="./images/Logo.svg" alt="FieldOps Logo" class="LogoImg" style="width: 225.343px; height: 109.368px;" />
+        </div>
+    </MudDrawerHeader>
+    <MudNavMenu style="padding-top: 70px;">
+        <MudNavLink Href="/dashboard" Match="NavLinkMatch.All" class="nav-link-style" style="margin-bottom: 10px; height: 60px;">
+            <span class="custom-svg">
+                <img src="./images/NavLinkDashboard.svg" alt="Dashboard Icon" />
+            </span>
+            Dashboard
+        </MudNavLink>
+        <MudNavLink Href="/service" Match="NavLinkMatch.Prefix" class="nav-link-style" style="margin-bottom: 10px;">
+            <span class="custom-svg">
+                <img src="./images/NavLinkBookings.svg" alt="Service Bookings Icon" />
+            </span>
+            Service Bookings
+        </MudNavLink>
+        <MudNavLink Href="/ServiceCategories" Match="NavLinkMatch.Prefix" class="nav-link-style" style="margin-bottom: 10px;">
+            <span class="custom-svg">
+                <img src="./images/NavLinkCategories.svg" alt="Service Categories Icon" />
+            </span>
+            Service Categories
+        </MudNavLink>
+        <MudNavLink Href="/customers" Match="NavLinkMatch.Prefix" class="nav-link-style" style="margin-bottom: 10px;">
+            <span class="custom-svg">
+                <img src="./images/NavLinkManagement.svg" alt="Customer Management Icon" />
+            </span>
+            Customer Management
+        </MudNavLink>
+        <MudNavLink Href="/employees" Match="NavLinkMatch.Prefix" class="nav-link-style" style="margin-bottom: 10px;">
+            <span class="custom-svg">
+                <img src="./images/NavLinkEmployeeManagement.svg" alt="Employee Management Icon" />
+            </span>
+            Employee Management
+        </MudNavLink>
+        <MudNavLink Href="/transactions" Match="NavLinkMatch.Prefix" class="nav-link-style" style="margin-bottom: 10px;">
+            <span class="custom-svg">
+                <img src="./images/NavLinkTransactions.svg" alt="Transactions Icon" />
+            </span>
+            Transactions
+        </MudNavLink>
+        <MudNavLink Href="/all-notifications" Match="NavLinkMatch.Prefix" class="nav-link-style" style="margin-bottom: 10px;">
+            <span class="custom-svg">
+                <img src="./images/NavLinkNotifications.svg" alt="Notifications Icon" />
+            </span>
+            Notifications
+        </MudNavLink>
+        <MudNavLink Href="/PaymentSettings" Match="NavLinkMatch.Prefix" class="nav-link-style" style="margin-bottom: 10px;">
+            <span class="custom-svg">
+                <img src="./images/NavLinkSettings.svg" alt="Settings Icon" />
+            </span>
+            Settings
+        </MudNavLink>
+    </MudNavMenu>
+    <MudSpacer />
+    <div style="padding: 20px;margin-left: 49px;">
+        <p class="footer-txt">Powered by</p>
+        <img src="./images/LogoFooter.svg" alt="Powered by MTR Software Inc." style="width: 195.288px; height: 53.141px;" />
+    </div>
+</MudDrawer>
+
+<style>
+    .custom-svg img {
+        width: 24px;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    .nav-link-style {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        border-radius: 8px;
+        transition: background-color 0.2s ease-in-out;
+        color: white;
+    }
+
+        .nav-link-style.active {
+            background-color: #3A9FFF;
+            border-radius: 8px;
+            
+        }
+
+        .nav-link-style:hover {
+            background-color: #3381D6;
+        }
+
+    .MudDrawerHeader {
+        padding: 16px;
+        text-align: center;
+    }
+
+    .footer-txt {
+        color: #FFF;
+        font-family: Inter;
+        font-size: 14.592px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .text-white {
+        display: flex;
+        height: 60px;
+        padding: 0px 15px;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        align-self: stretch;
+        border-radius: 5px;
+        background: #3A9FFF;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .mud-drawer.mud-drawer-responsive.mud-drawer-pos-left,
+    .mud-drawer.mud-drawer-persistent.mud-drawer-pos-left {
+        right: auto;
+        width: 360px;
+    }
+
+    .mud-nav-link .mud-nav-link-text {
+         
+        color: white !important;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .img-logo{
+        margin-left: 11%;
+        margin-top: 15px;
+        height: 58px;
+    }
+
+    a.mud-nav-link.mud-ripple.active {
+        height: 60px !important;
+        padding-top: 17px;
+        border-radius: 6px;
+        background-color: #3A9FFF !important;
+    }
+</style>

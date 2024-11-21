@@ -1,0 +1,461 @@
+﻿@page "/transactions"
+@inject IDialogService DialogService
+<MudContainer Class="main-container" MaxWidth="MaxWidth.Large">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="py-3" Style="background-color:#fff;padding: 20px;border-radius:8px;">
+        <MudContainer Class="custom-container mb-5 p-5">
+            <MudGrid Spacing="3">
+                <MudItem xs="12" sm="6" md="6" lg="4">
+                    <MudPaper Class="custom-card transaction-card card-total-earning">
+                        <MudGrid>
+                            <MudItem xs="12" Class="top-row">
+                                <div class="icon-wrapper">
+                                    <img src="./Images/transactions-total-earning.svg" class="icon-image" />
+                                </div>
+                                <div class="top-right">
+                                    <h2 class="count-text">$5000.00</h2>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="12" Class="bottom-row">
+                                <div class="bottom-left">
+                                    <span class="description">Total Earning</span>
+                                </div>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="6" lg="4">
+                    <MudPaper Class="custom-card transaction-card card-available-balance">
+                        <MudGrid>
+                            <MudItem xs="12" Class="top-row">
+                                <div class="icon-wrapper">
+                                    <img src="./Images/transactions-available-balance.svg" class="icon-image" />
+                                </div>
+                                <div class="top-right">
+                                    <h2 class="count-text">$1000.00</h2>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="12" Class="bottom-row">
+                                <div class="bottom-left">
+                                    <span class="description">Available Balance</span>
+                                </div>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="6" lg="4">
+                    <MudPaper Class="custom-card transaction-card card-total-withdraw">
+                        <MudGrid>
+                            <MudItem xs="12" Class="top-row">
+                                <div class="icon-wrapper">
+                                    <img src="./Images/transactions-total-withdraw.svg" class="icon-image" />
+                                </div>
+                                <div class="top-right">
+                                    <h2 class="count-text">$2034.00</h2>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="12" Class="bottom-row">
+                                <div class="bottom-left">
+                                    <span class="description">Total Withdraw</span>
+                                </div>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="6" lg="4">
+                    <MudPaper Class="custom-card transaction-card card-pending-withdraw">
+                        <MudGrid>
+                            <MudItem xs="12" Class="top-row">
+                                <div class="icon-wrapper">
+                                    <img src="./Images/transactions-pending-withdraw-requests-arrow.svg" class="icon-image" />
+                                    <img src="./Images/transactions-pending-withdraw-requests-money.svg" class="icon-image" />
+                                </div>
+                                <div class="top-right">
+                                    <h2 class="count-text">01</h2>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="12" Class="bottom-row">
+                                <div class="bottom-left">
+                                    <div class="description">Pending Withdraw Requests</div>
+                                    <MudLink Href="/GridWithdrawal">
+                                    <img src="./Images/NextArrowGolden.svg" class="arrow-image" />
+                                    </MudLink>
+                                </div>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="6" lg="4">
+                    <MudPaper Class="custom-card transaction-card card-completed-withdraw">
+                        <MudGrid>
+                            <MudItem xs="12" Class="top-row">
+                                <div class="icon-wrapper">
+                                    <img src="./Images/transactions-completed-withdraws-arrow.svg" class="icon-image" />
+                                    <img src="./Images/transactions-completed-withdraws-money.svg" class="icon-image" />
+                                </div>
+                                <div class="top-right">
+                                    <h2 class="count-text">01</h2>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="12" Class="bottom-row">
+                                <div class="bottom-left pb-2">
+                                    <div class="description">Completed Withdraws</div>
+                                    <img src="./Images/NextArrowGreen.svg" class="arrow-image" />
+                                </div>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="6" lg="4">
+                    <MudPaper Class="custom-card transaction-card card-rejected-withdraws">
+                        <MudGrid>
+                            <MudItem xs="12" Class="top-row">
+                                <div class="icon-wrapper">
+                                    <img src="./Images/transactions-rejected-withdraws-arrow.svg" class="icon-image" />
+                                    <img src="./Images/transactions-rejected-withdraws-money.svg" class="icon-image" />
+                                </div>
+                                <div class="top-right">
+                                    <h2 class="count-text">01</h2>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="12" Class="bottom-row">
+                                <div class="bottom-left pb-2">
+                                    <div class="description">Rejected Withdraws</div>
+                                    <img src="./Images/NextArrowRed.svg" class="arrow-image" />
+                                </div>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
+        <!--  -->
+        <MudContainer Style="border-bottom:0.3px solid #8F8F8F;" Class="p-2 my-3">
+            <MudText Typo="Typo.h6" Class="recent-txt">Recent Transactions</MudText>
+        </MudContainer>
+
+        <MudContainer Class="custom-container">
+            <MudTable Items="transactions" Striped="false" Bordered="false" Class="custom-table mb-5 mt-5">
+                <HeaderContent>
+                    <MudTh Class="t-head" Style="width: 15%;">Trans ID</MudTh>
+                    <MudTh Class="t-head" Style="width: 15%;">Amount</MudTh>
+                    <MudTh Class="t-head" Style="width: 10%;">Type</MudTh>
+                    <MudTh Class="t-head" Style="width: 15%;">Balance</MudTh>
+                    <MudTh Class="t-head" Style="width: 15%;">Date</MudTh>
+                    <MudTh Class="t-head" Style="width: 13%;">Status</MudTh>
+                    <MudTh Class="t-head" Style="width: 17%;">Action</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd ColSpan="7">
+                        <MudPaper Class="row-card" Elevation="0" Style="border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
+                            <MudGrid Class="grid-rows">
+                                <MudItem xs="2" Class="text-center grid-item" Style="width: 15%;">
+                                    @context.TransId
+                                </MudItem>
+                                <MudItem xs="2" Class="text-center grid-item" Style="width: 15%;">
+                                    @context.Amount.ToString("C")
+                                </MudItem>
+                                <MudItem xs="2" Class="text-center grid-item" Style="width: 10%;">
+                                    @context.Type
+                                </MudItem>
+                                <MudItem xs="2" Class="text-center grid-item" Style="width: 15%;">
+                                    @context.Balance
+                                </MudItem>
+                                <MudItem xs="2" Class="text-center grid-item" Style="width: 15%;">
+                                    @context.Date.ToString("MMMM dd, yyyy")
+                                </MudItem>
+                                <MudItem xs="2" Class="text-center grid-item" Style="width: 15%;">
+                                    @*     @if (context.Status == "Pending")
+                                    {
+                                    <MudChip Text="Pending" T="string"></MudChip>
+                                    }
+                                    else
+                                    {
+                                    <MudChip  Text="Completed" T="string"></MudChip>
+                                    } *@
+                                    <span class="@GetStatusClass(@context.Status)">
+                                        @context.Status
+                                    </span>
+                                </MudItem>
+                                <MudItem xs="2" Class="text-center grid-item" Style="width: 15%;">
+                                    <MudIconButton OnClick="OpenEditTransactionDetails">
+                                        <img src="./Images/EditAction.svg" alt="Edit Icon" style="width: 41px; height: 30px;" />
+                                    </MudIconButton>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudContainer>
+    </MudContainer>
+</MudContainer>
+
+<style>
+    .main-container {
+        padding: 24px;
+    }
+
+    .custom-card {
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #fff;
+    }
+
+    .icon-wrapper {
+        /* display: inline-block; */
+        vertical-align: middle;
+        margin-right: 10px;
+        padding: 15px;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .count-text {
+        color: #343434;
+        font-family: Inter;
+        font-size: 32px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .description {
+        color: #343434;
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+    }
+
+    .bottom-right img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .bottom-left {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /*card bg*/
+    .card-total-earning {
+        background-color: #ECFEEF;
+    }
+
+    .card-available-balance {
+        background-color: #D8E8FF;
+    }
+
+    .card-total-withdraw {
+        background-color: #F1ECFE;
+    }
+
+    .card-pending-withdraw {
+        background-color: #FDF6DD;
+    }
+
+    .card-completed-withdraw {
+        background-color: #ECFEEF;
+    }
+
+    .card-rejected-withdraws {
+        background-color: #FEECEC;
+    }
+
+    /*rec text*/
+    .recent-txt {
+        color: #000;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+        padding-bottom: 15px;
+    }
+    /*grid*/
+    .mud-table-root .mud-table-head {
+        background-color: #Efefef;
+    }
+
+    .t-head {
+        text-align: center;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+        color: #000 !important;
+    }
+
+    .text-center {
+        text-align: center;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        color: #000;
+    }
+
+    .active-page {
+        background-color: #0074e3 !important;
+        color: #fff !important;
+        border: none !important;
+    }
+
+    .status-pending {
+        border-radius: 16px;
+        background: #DCB012;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-active {
+        color: #FFF;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 16px;
+        background: #4AD771;
+    }
+
+    .status-cancelled {
+        color: #FFF;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 16px;
+        background: #E64444;
+    }
+
+    .row-card {
+        border: 0.5px solid #767676;
+        border-radius: 10px;
+        padding: 15px;
+        background-color: white;
+    }
+
+    .action-container {
+        display: flex;
+        justify-content: space-around;
+        background: #f1f1f1;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    /*Mud Over wright and border */
+
+    .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
+        height: auto;
+        padding: 15px;
+    }
+
+    .mud-table-root .mud-table-body .mud-table-cell {
+        border-bottom: none;
+    }
+
+    .mud-table-root .mud-table-cell {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mud-grid-spacing-xs-6 > .grid-item {
+        padding-left: 24px;
+        padding-top: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .grid-rows {
+        justify-content: space-between !important;
+    }
+
+    .custom-container {
+        max-height: 100%;
+    }
+
+    .grid-rows > .mud-grid-item {
+        flex-basis: auto;
+    }
+
+</style>
+
+@code {
+    public class Transaction
+    {
+        public string TransId { get; set; }
+        public decimal Amount { get; set; }
+        public string Type { get; set; }
+        public string Balance { get; set; }
+        public DateTime Date { get; set; }
+        public string Status { get; set; }
+    }
+
+    private List<Transaction> transactions = new List<Transaction>
+    {
+        new Transaction { TransId = "1232323", Amount = 100.00m, Type = "Task", Balance = "Credit", Date = DateTime.Parse("July 12, 2024"), Status = "Pending" },
+        new Transaction { TransId = "1232324", Amount = 100.00m, Type = "Withdraw", Balance = "Debit", Date = DateTime.Parse("July 12, 2024"), Status = "Completed" },
+        new Transaction { TransId = "1232324", Amount = 100.00m, Type = "Task", Balance = "Credit", Date = DateTime.Parse("July 12, 2024"), Status = "Cancelled" }
+    };
+
+    private string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "status-pending",
+            "Completed" => "status-active",
+            "Cancelled" => "status-cancelled",
+            _ => ""
+        };
+    }
+    // edit popup
+    private Task OpenEditTransactionDetails()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<TransactionDetailsPopup>("", options);
+    }
+}

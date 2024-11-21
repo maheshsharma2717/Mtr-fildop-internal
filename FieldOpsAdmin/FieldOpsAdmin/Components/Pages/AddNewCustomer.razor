@@ -1,0 +1,1413 @@
+﻿@page "/customer"
+@using FieldOpsAdmin.Services
+@using FieldOpsAdmin.Service
+@using System.Text
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="customer">
+            <MudPaper Class="pa-4" Style="max-width: 1300px; margin: auto;box-shadow: none;">
+                <div class="head-container mb-5">
+                    <MudText Typo="Typo.h5" Align="Align.Start" Class="heading-txt mb-2">Add New Customer</MudText>
+                    <MudButton OnClick="Cancel">
+                        <img src="./images/Close.svg" alt="X" />
+                    </MudButton>
+                </div>
+                <MudGrid>
+                    <MudItem xs="12" class="d-flex mt-2 user-container">
+                        <span class="avatar-container">
+                            @if (isLoadingImage)
+                            {
+                                <MudProgressCircular Color="Color.Info" Indeterminate="true" />
+                            }
+                            else
+                            {
+                                <img src="@AvatarImageSrc" alt="Avatar Image" class="avatar-img" />
+                            }
+                        </span>
+                        <MudItem class="d-flex flex-column ml-3">
+                            <MudButton Variant="Variant.Outlined" Style="color:#0074E3; border-color:#0074E3;" OnClick="TriggerFileUpload">
+                                Upload Photo
+                            </MudButton>
+
+                            <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="mt-2" OnClick="RemoveImage" Disabled="@(!IsImageUploaded)">
+                                Remove
+                            </MudButton>
+
+                            <InputFile id="fileInput" OnChange="HandleFileSelected" style="display:none;" />
+                        </MudItem>
+                    </MudItem>
+
+                    <MudItem md="6">
+                        <div class="custom-field-container">
+                            <span class="custom-label">First Name</span>
+                            <input type="text" @bind="customer.FirstName" class="custom-input" placeholder="First Name" autocomplete="new-password" required />
+                            <div style="height:20px"><span class="error-text">@firstNameError</span></div>
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="6">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Middle Name (Optional)</span>
+                            <input type="text" @bind="customer.MiddleName" class="custom-input" placeholder="Middle Name" autocomplete="off" />
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="6">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Last Name</span>
+                            <input type="text" @bind="customer.LastName" class="custom-input" placeholder="Last Name" autocomplete="new-password" required />
+                            <div style="height:20px"><span class="error-text">@lastNameError</span></div>
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="6">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Email</span>
+                            <div class="email-field-container">
+                                <img src="./images/Mail.svg" class="email-icon" alt="Email Icon" />
+                                <input type="email" @bind="customer.Email" class="custom-input custom-input-email" placeholder="Email" autocomplete="new-password" required />
+                            </div>
+                            <div style="height:20px;"><span class="error-text">@emailError</span></div>
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="6">
+                        <div class="custom-field-container">
+                            <span class="custom-label">Phone Number</span>
+
+                            <div class="phone-input-container">
+                                <img src="@selectedFlag" alt="Country Flag" class="flag-icon" />
+                                <div class="select-wrapper">
+                                    <select class="country-code-select" @onchange="UpdateCountryCode">
+                                        @foreach (var countryCode in CountryCodes)
+                                        {
+                                            <option value="@countryCode.Value">@countryCode.Text</option>
+                                        }
+                                    </select>
+                                    <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" Class="dropdown-icon" />
+                                </div>
+
+                                <input type="text"
+                                       value="@customer.PhoneNumber"
+                                       id="phoneNumber"
+                                       class="phone-number-input"
+                                       placeholder="@phonePlaceholder"
+                                       @oninput="OnPhoneInput"
+                                       maxlength="@phoneMask.Length"
+                                       autocomplete="off"
+                                       required />
+                            </div>
+                            <div style="height:20px"><span class="error-text">@phoneNumberError</span></div>
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="6">
+                        <div class="custom-field-container custom-field-container-password">
+                            <span class="custom-label">Password</span>
+                            <div class="password-field-container">
+                                <input type="@passwordInputType" @bind="customer.Password" class="custom-input custom-input-password" placeholder="Password" autocomplete="new-password" required />
+                                <MudIconButton OnClick="TogglePasswordVisibility" Class="password-toggle-button">
+                                    <i class="material-icons mr-3">@((isPasswordVisible ? "visibility_off" : "visibility"))</i>
+                                </MudIconButton>
+                            </div>
+                            <div style="height:20px"><span class="error-text">@passwordError</span></div>
+                        </div>
+                    </MudItem>
+
+                    <MudItem md="6">
+                        <div class="custom-field-container custom-field-container-password">
+                            <span class="custom-label">Confirm Password</span>
+                            <div class="password-field-container">
+                                <input type="@confirmPasswordInputType" @bind="customer.ConfirmPassword" class="custom-input" placeholder="Confirm Password" autocomplete="new-password" required />
+                                <MudIconButton OnClick="ToggleConfirmPasswordVisibility" Class="password-toggle-button">
+                                    <i class="material-icons mr-3">@((isConfirmPasswordVisible ? "visibility_off" : "visibility"))</i>
+                                </MudIconButton>
+                            </div>
+                            <div style="height:20px"><span class="error-text">@confirmPasswordError</span></div>
+                        </div>
+                    </MudItem>
+
+                    <MudOverlay Visible="@isLoading" DarkBackground="true" ZIndex="9999">
+                        <MudProgressCircular Color="Color.Tertiary" Indeterminate="true" />
+                    </MudOverlay>
+
+                    <MudItem xs="12" class="d-flex justify-center mt-4">
+                        <MudButton Variant="Variant.Filled" FullWidth="true" Class="AddBtn" @onclick="Submit">Add Customer</MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool isLoading = false;
+    private MudForm form;
+    private string errorMessage;
+    private string key;
+    private class SelectListItem
+    {
+        public string Value { get; set; } = "";
+        public string Text { get; set; } = "";
+    }
+
+    // List of country codes to be used in the dropdown
+    private List<SelectListItem> CountryCodes = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "+1", Text = "+1" },
+        new SelectListItem { Value = "+7", Text = "+7" },
+        new SelectListItem { Value = "+27", Text = "+27" },
+        new SelectListItem { Value = "+30", Text = "+30" },
+        new SelectListItem { Value = "+31", Text = "+31" },
+        new SelectListItem { Value = "+32", Text = "+32" },
+        new SelectListItem { Value = "+33", Text = "+33" },
+        new SelectListItem { Value = "+34", Text = "+34" },
+        new SelectListItem { Value = "+36", Text = "+36" },
+        new SelectListItem { Value = "+39", Text = "+39" },
+        new SelectListItem { Value = "+40", Text = "+40" },
+        new SelectListItem { Value = "+41", Text = "+41" },
+        new SelectListItem { Value = "+43", Text = "+43" },
+        new SelectListItem { Value = "+44", Text = "+44" },
+        new SelectListItem { Value = "+45", Text = "+45" },
+        new SelectListItem { Value = "+46", Text = "+46" },
+        new SelectListItem { Value = "+47", Text = "+47" },
+        new SelectListItem { Value = "+48", Text = "+48" },
+        new SelectListItem { Value = "+49", Text = "+49" },
+        new SelectListItem { Value = "+55", Text = "+55" },
+        new SelectListItem { Value = "+57", Text = "+57" },
+        new SelectListItem { Value = "+60", Text = "+60" },
+        new SelectListItem { Value = "+61", Text = "+61" },
+        new SelectListItem { Value = "+62", Text = "+62" },
+        new SelectListItem { Value = "+63", Text = "+63" },
+        new SelectListItem { Value = "+81", Text = "+81" },
+        new SelectListItem { Value = "+82", Text = "+82" },
+        new SelectListItem { Value = "+84", Text = "+84" },
+        new SelectListItem { Value = "+90", Text = "+90" },
+        new SelectListItem { Value = "+91", Text = "+91" },
+        new SelectListItem { Value = "+92", Text = "+92" },
+        new SelectListItem { Value = "+94", Text = "+94" },
+        new SelectListItem { Value = "+98", Text = "+98" },
+        new SelectListItem { Value = "+216", Text = "+216" },
+        new SelectListItem { Value = "+213", Text = "+213" },
+        new SelectListItem { Value = "+218", Text = "+218" },
+        new SelectListItem { Value = "+221", Text = "+221" },
+        new SelectListItem { Value = "+225", Text = "+225" },
+        new SelectListItem { Value = "+226", Text = "+226" },
+        new SelectListItem { Value = "+234", Text = "+234" },
+        new SelectListItem { Value = "+237", Text = "+237" },
+        new SelectListItem { Value = "+242", Text = "+242" },
+        new SelectListItem { Value = "+243", Text = "+243" },
+        new SelectListItem { Value = "+255", Text = "+255" },
+        new SelectListItem { Value = "+254", Text = "+254" },
+        new SelectListItem { Value = "+256", Text = "+256" },
+        new SelectListItem { Value = "+261", Text = "+261" },
+        new SelectListItem { Value = "+260", Text = "+260" },
+        new SelectListItem { Value = "+263", Text = "+263" },
+        new SelectListItem { Value = "+351", Text = "+351" },
+        new SelectListItem { Value = "+352", Text = "+352" },
+        new SelectListItem { Value = "+353", Text = "+353" },
+        new SelectListItem { Value = "+354", Text = "+354" },
+        new SelectListItem { Value = "+355", Text = "+355" },
+        new SelectListItem { Value = "+356", Text = "+356" },
+        new SelectListItem { Value = "+357", Text = "+357" },
+        new SelectListItem { Value = "+358", Text = "+358" },
+        new SelectListItem { Value = "+359", Text = "+359" },
+        new SelectListItem { Value = "+370", Text = "+370" },
+        new SelectListItem { Value = "+371", Text = "+371" },
+        new SelectListItem { Value = "+372", Text = "+372" },
+        new SelectListItem { Value = "+373", Text = "+373" },
+        new SelectListItem { Value = "+374", Text = "+374" },
+        new SelectListItem { Value = "+375", Text = "+375" },
+        new SelectListItem { Value = "+376", Text = "+376" },
+        new SelectListItem { Value = "+377", Text = "+377" },
+        new SelectListItem { Value = "+378", Text = "+378" },
+        new SelectListItem { Value = "+380", Text = "+380" },
+        new SelectListItem { Value = "+381", Text = "+381" },
+        new SelectListItem { Value = "+382", Text = "+382" },
+        new SelectListItem { Value = "+383", Text = "+383" },
+        new SelectListItem { Value = "+385", Text = "+385" },
+        new SelectListItem { Value = "+386", Text = "+386" },
+        new SelectListItem { Value = "+387", Text = "+387" },
+        new SelectListItem { Value = "+389", Text = "+389" },
+        new SelectListItem { Value = "+420", Text = "+420" },
+        new SelectListItem { Value = "+421", Text = "+421" },
+        new SelectListItem { Value = "+423", Text = "+423" },
+        new SelectListItem { Value = "+509", Text = "+509" },
+        new SelectListItem { Value = "+880", Text = "+880" },
+        new SelectListItem { Value = "+964", Text = "+964" },
+        new SelectListItem { Value = "+966", Text = "+966" },
+        new SelectListItem { Value = "+971", Text = "+971" },
+        new SelectListItem { Value = "+972", Text = "+972" },
+        new SelectListItem { Value = "+974", Text = "+974" },
+        new SelectListItem { Value = "+994", Text = "+994" },
+        new SelectListItem { Value = "+995", Text = "+995" }
+    };
+    // validation
+    private string firstNameError = string.Empty;
+    private string lastNameError = string.Empty;
+    private string emailError = string.Empty;
+    private string phoneNumberError = string.Empty;
+    private string passwordError = string.Empty;
+    private string confirmPasswordError = string.Empty;
+    private static readonly Regex emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
+
+    [Inject] ApiService _apiService { get; set; }
+    [Inject] GlobalServices _globalService { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] private CustomerEventService CustomerEventService { get; set; }
+    [Inject] IJSRuntime JS { get; set; }
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private CustomerDto customer = new CustomerDto();
+    private string AvatarImageSrc { get; set; } = "./Images/Add-User.svg";
+    private bool isLoadingImage = false;
+
+    private bool IsImageUploaded { get; set; } = false;
+
+
+    private void Cancel()
+    {
+        isLoading = false;
+        MudDialog.Cancel();
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            isLoadingImage = true;
+            StateHasChanged();
+
+            var content = new MultipartFormDataContent();
+            var fileStreamContent = new StreamContent(file.OpenReadStream());
+            fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(fileStreamContent, "file", file.Name);
+
+            var response = await _apiService.MakeHttpPostUploadPicRequest<FileUploadRes>($"File/uploadfile?FileName=profilepicture&domainId={_globalService.domainId}", content);
+
+            if (response.IsSuccess)
+            {
+                key = response.Result.Key;
+                AvatarImageSrc = response.Result.FileUrl;
+                IsImageUploaded = true;
+            }
+            else
+            {
+                Console.WriteLine("File upload failed.");
+            }
+
+            isLoadingImage = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task TriggerFileUpload()
+    {
+        await JS.InvokeVoidAsync("triggerFileInputClick", "fileInput");
+    }
+
+    private void RemoveImage()
+    {
+        AvatarImageSrc = "./Images/Add-User.svg";
+        customer.ProfileUrl = null;
+        IsImageUploaded = false;
+    }
+
+    private string passwordInputType = "password";
+    private bool isPasswordVisible = false;
+
+    private string confirmPasswordInputType = "password";
+    private bool isConfirmPasswordVisible = false;
+
+    private void TogglePasswordVisibility()
+    {
+        isPasswordVisible = !isPasswordVisible;
+        passwordInputType = isPasswordVisible ? "text" : "password";
+    }
+
+    private void ToggleConfirmPasswordVisibility()
+    {
+        isConfirmPasswordVisible = !isConfirmPasswordVisible;
+        confirmPasswordInputType = isConfirmPasswordVisible ? "text" : "password";
+    }
+    [Inject] ISnackbar Snackbar { get; set; }
+
+
+    //Title casing
+    private void ApplyTitleCase(string fieldName, ChangeEventArgs e)
+    {
+        var value = e.Value.ToString();
+        value = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value.ToLower());
+
+        if (fieldName == "FirstName")
+        {
+            customer.FirstName = value;
+        }
+        else if (fieldName == "LastName")
+        {
+            customer.LastName = value;
+        }
+        StateHasChanged();
+    }
+
+    // phone lib
+    private string selectedFlag = "./images/usa.jpg";
+    string selectedCode = "+1";
+    private string phonePlaceholder = "(239) 555-0108";
+    private string rawPhoneNumber = string.Empty;
+    private string phoneMask = "(000) 000-0000";
+
+    private void UpdateCountryCode(ChangeEventArgs e)
+    {
+        selectedCode = e.Value.ToString();
+
+        switch (selectedCode)
+        {
+            case "+1":
+                selectedFlag = "./images/usa.jpg";
+                phoneMask = "(000) 000-0000";
+                phonePlaceholder = "(239) 555-0108";
+                break;
+
+            case "+7":
+                selectedFlag = "./images/Russia.jpg";
+                phoneMask = "000-000-0000";
+                phonePlaceholder = "900-000-0000";
+                break;
+            case "+30":
+                selectedFlag = "./images/Greece.png";
+                phoneMask = "0000 000 000";
+                phonePlaceholder = "210 123 4567";
+                break;
+            case "+31":
+                selectedFlag = "./images/Netherlands.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "020 123 4567";
+                break;
+            case "+32":
+                selectedFlag = "./images/Belgium.png";
+                phoneMask = "000 00 00 00";
+                phonePlaceholder = "02 123 45 67";
+                break;
+            case "+33":
+                selectedFlag = "./images/France.png";
+                phoneMask = "00 00 00 00 00";
+                phonePlaceholder = "01 23 45 67 89";
+                break;
+            case "+34":
+                selectedFlag = "./images/Spain.jpg";
+                phoneMask = "000 00 00 00";
+                phonePlaceholder = "600 12 34 56";
+                break;
+            case "+36":
+                selectedFlag = "./images/Hungary.png";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "30 123 4567";
+                break;
+            case "+39":
+                selectedFlag = "./images/Italy.jpg";
+                phoneMask = "000 000 0000";
+                phonePlaceholder = "345 678 9012";
+                break;
+            case "+40":
+                selectedFlag = "./images/Romania.jpg";
+                phoneMask = "0000 000 000";
+                phonePlaceholder = "021 123 4567";
+                break;
+            case "+41":
+                selectedFlag = "./images/Switzerland.jpg";
+                phoneMask = "00 000 00 00";
+                phonePlaceholder = "021 123 45 67";
+                break;
+            case "+43":
+                selectedFlag = "./images/Austria.png";
+                phoneMask = "0 000 000 000";
+                phonePlaceholder = "0664 123 4567";
+                break;
+            case "+44":
+                selectedFlag = "./images/UnitedKingdom.jpg";
+                phoneMask = "0000 000 000";
+                phonePlaceholder = "020 1234 5678";
+                break;
+            case "+45":
+                selectedFlag = "./images/Denmark.png";
+                phoneMask = "00 00 00 00";
+                phonePlaceholder = "12 34 56 78";
+                break;
+            case "+46":
+                selectedFlag = "./images/Sweden.jpg";
+                phoneMask = "00-000 00 00";
+                phonePlaceholder = "08-123 45 67";
+                break;
+            case "+47":
+                selectedFlag = "./images/Norway.jpg";
+                phoneMask = "00 00 00 00";
+                phonePlaceholder = "21 23 45 67";
+                break;
+            case "+48":
+                selectedFlag = "./images/Poland.jpg";
+                phoneMask = "00 000 00 00";
+                phonePlaceholder = "12 345 67 89";
+                break;
+            case "+49":
+                selectedFlag = "./images/Germany.png";
+                phoneMask = "0 000 000 000";
+                phonePlaceholder = "030 1234567";
+                break;
+            case "+55":
+                selectedFlag = "./images/Brazil.png";
+                phoneMask = "(00) 00000-0000";
+                phonePlaceholder = "(21) 91234-5678";
+                break;
+            case "+57":
+                selectedFlag = "./images/Colombia.png";
+                phoneMask = "(000) 000-0000";
+                phonePlaceholder = "(1) 234-5678";
+                break;
+            case "+61":
+                selectedFlag = "./images/Australia.png";
+                phoneMask = "(00) 0000 0000";
+                phonePlaceholder = "(02) 1234 5678";
+                break;
+            case "+90":
+                selectedFlag = "./images/Turkey.jpg";
+                phoneMask = "(00) 0000 0000";
+                phonePlaceholder = "(0212) 123 45 67";
+                break;
+            case "+91":
+                selectedFlag = "./images/India.png";
+                phoneMask = "00000-00000";
+                phonePlaceholder = "98765-43210";
+                break;
+            case "+92":
+                selectedFlag = "./images/Pakistan.jpg";
+                phoneMask = "0000-0000000";
+                phonePlaceholder = "0300-1234567";
+                break;
+            case "+98":
+                selectedFlag = "./images/Iran.png";
+                phoneMask = "00-0000-0000";
+                phonePlaceholder = "(021) 1234-5678";
+                break;
+            case "+351":
+                selectedFlag = "./images/Portugal.jpg";
+                phoneMask = "00 0000 0000";
+                phonePlaceholder = "21 123 4567";
+                break;
+            case "+352":
+                selectedFlag = "./images/Luxembourg.jpg";
+                phoneMask = "00 000 00 00";
+                phonePlaceholder = "44 12 34 56";
+                break;
+            case "+353":
+                selectedFlag = "./images/Ireland.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "01 234 5678";
+                break;
+            case "+354":
+                selectedFlag = "./images/Iceland.jpg";
+                phoneMask = "000 0000";
+                phonePlaceholder = "555 1234";
+                break;
+            case "+355":
+                selectedFlag = "./images/Albania.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "067 123 4567";
+                break;
+            case "+356":
+                selectedFlag = "./images/MaltaFlag.jpg";
+                phoneMask = "00 0000 0000";
+                phonePlaceholder = "21 123 456";
+                break;
+            case "+357":
+                selectedFlag = "./images/Cyprus.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "22 123 456";
+                break;
+            case "+358":
+                selectedFlag = "./images/Finland.png";
+                phoneMask = "000 0000";
+                phonePlaceholder = "09 123 4567";
+                break;
+            case "+359":
+                selectedFlag = "./images/Bulgaria.jpg";
+                phoneMask = "00 000 000";
+                phonePlaceholder = "02 123 456";
+                break;
+            case "+370":
+                selectedFlag = "./images/Lithuania.jpg";
+                phoneMask = "000 0000";
+                phonePlaceholder = "8 123 45678";
+                break;
+            case "+371":
+                selectedFlag = "./images/Latvia.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "67 123 456";
+                break;
+            case "+372":
+                selectedFlag = "./images/Estonia.jpg";
+                phoneMask = "000 0000";
+                phonePlaceholder = "6 123 4567";
+                break;
+            case "+373":
+                selectedFlag = "./images/Moldova.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "22 123 456";
+                break;
+            case "+374":
+                selectedFlag = "./images/Armenia.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "10 123 456";
+                break;
+            case "+375":
+                selectedFlag = "./images/Belarus.jpg";
+                phoneMask = "00 000 00 00";
+                phonePlaceholder = "017 123 45 67";
+                break;
+            case "+376":
+                selectedFlag = "./images/Andorra.jpg";
+                phoneMask = "000 000";
+                phonePlaceholder = "123 456";
+                break;
+            case "+377":
+                selectedFlag = "./images/Monaco.jpg";
+                phoneMask = "00 00 00 00";
+                phonePlaceholder = "93 123 456";
+                break;
+            case "+378":
+                selectedFlag = "./images/SanMarino.jpg";
+                phoneMask = "0 000 0000";
+                phonePlaceholder = "0549 123 456";
+                break;
+            case "+380":
+                selectedFlag = "./images/Ukraine.jpg";
+                phoneMask = "00 000 00 00";
+                phonePlaceholder = "044 123 45 67";
+                break;
+            case "+381":
+                selectedFlag = "./images/Serbia.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "11 123 4567";
+                break;
+            case "+382":
+                selectedFlag = "./images/Montenegro.jpg";
+                phoneMask = "00 000 000";
+                phonePlaceholder = "20 123 456";
+                break;
+            case "+383":
+                selectedFlag = "./images/Kosovo.jpg";
+                phoneMask = "00 000 000";
+                phonePlaceholder = "38 123 456";
+                break;
+            case "+385":
+                selectedFlag = "./images/Croatia.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "01 234 5678";
+                break;
+            case "+386":
+                selectedFlag = "./images/Slovenia.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "01 234 5678";
+                break;
+            case "+387":
+                selectedFlag = "./images/Bosnia.jpg";
+                phoneMask = "00 000 000";
+                phonePlaceholder = "30 123 456";
+                break;
+            case "+389":
+                selectedFlag = "./images/NorthMacedonia.jpg";
+                phoneMask = "0 000 0000";
+                phonePlaceholder = "02 123 4567";
+                break;
+            case "+420":
+                selectedFlag = "./images/CzechRepublic.jpg";
+                phoneMask = "00 000 000";
+                phonePlaceholder = "02 123 456";
+                break;
+            case "+421":
+                selectedFlag = "./images/Slovakia.jpg";
+                phoneMask = "00 000 000";
+                phonePlaceholder = "02 123 456";
+                break;
+            case "+423":
+                selectedFlag = "./images/Liechtenstein.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "0041 123 456";
+                break;
+            case "+880":
+                selectedFlag = "./images/Bangladesh.png";
+                phoneMask = "0000 000 0000";
+                phonePlaceholder = "0171 234 5678";
+                break;
+            case "+964":
+                selectedFlag = "./images/Iraq.png";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "0770 123 4567";
+                break;
+            case "+994":
+                selectedFlag = "./images/Azerbaijan.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "012 123 4567";
+                break;
+            case "+995":
+                selectedFlag = "./images/Georgia.jpg";
+                phoneMask = "000 00 00";
+                phonePlaceholder = "912 13 67";
+                break;
+            case "+213":
+                selectedFlag = "./images/Algeria.png";
+                phoneMask = "00 000 00 00";
+                phonePlaceholder = "12 456 78 98";
+                break;
+            case "+226":
+                selectedFlag = "./images/BurkinaFaso.png";
+                phoneMask = "00 00 00 00";
+                phonePlaceholder = "98 76 54 32";
+                break;
+            case "+237":
+                selectedFlag = "./images/Cameroon.png";
+                phoneMask = "0000 000 000";
+                phonePlaceholder = "1234 456 890";
+                break;
+            case "+242":
+                selectedFlag = "./images/CongoRepublic.png";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "12 345 6548";
+                break;
+            case "+243":
+                selectedFlag = "./images/CongoDemocratic.jpg";
+                phoneMask = "00 000 000 000";
+                phonePlaceholder = "12 345 678 987";
+                break;
+            case "+225":
+                selectedFlag = "./images/CotedIvoire.png";
+                phoneMask = "00 00 00 00 00";
+                phonePlaceholder = "12 34 56 78 98";
+                break;
+            case "+509":
+                selectedFlag = "./images/Haiti.png";
+                phoneMask = "00 00 00 00";
+                phonePlaceholder = "12 34 56 78";
+                break;
+            case "+62":
+                selectedFlag = "./images/Indonesia.png";
+                phoneMask = "0000-0000-0000";
+                phonePlaceholder = "1234-5678-9874";
+                break;
+            case "+972":
+                selectedFlag = "./images/Israel.png";
+                phoneMask = "000-000-0000";
+                phonePlaceholder = "123-567-9874";
+                break;
+            case "+81":
+                selectedFlag = "./images/Japan.png";
+                phoneMask = "000-0000-0000";
+                phonePlaceholder = "123-5678-9874";
+                break;
+            case "+82":
+                selectedFlag = "./images/SouthKorea.png";
+                phoneMask = "00-0000-0000";
+                phonePlaceholder = "12-5678-9874";
+                break;
+            case "+254":
+                selectedFlag = "./images/Kenya.png";
+                phoneMask = "0000 000 000";
+                phonePlaceholder = "1234 567 874";
+                break;
+            case "+218":
+                selectedFlag = "./images/Libya.png";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "12 567 9874";
+                break;
+            case "+261":
+                selectedFlag = "./images/Madagascar.png";
+                phoneMask = "00 00 000 00";
+                phonePlaceholder = "12 34 987 23";
+                break;
+            case "+60":
+                selectedFlag = "./images/Malaysia.png";
+                phoneMask = "00-0000 0000";
+                phonePlaceholder = "12-3498 3253";
+                break;
+            case "+234":
+                selectedFlag = "./images/Nigeria.png";
+                phoneMask = "0000 000 0000";
+                phonePlaceholder = "1234 498 3253";
+                break;
+            case "+63":
+                selectedFlag = "./images/Philippines.png";
+                phoneMask = "0000 000 0000";
+                phonePlaceholder = "1234 498 3253";
+                break;
+            case "+974":
+                selectedFlag = "./images/Qatar.png";
+                phoneMask = "0000 0000";
+                phonePlaceholder = "1234 3253";
+                break;
+            case "+966":
+                selectedFlag = "./images/SaudiArabia.png";
+                phoneMask = "0000 0000";
+                phonePlaceholder = "1234 3253";
+                break;
+            case "+221":
+                selectedFlag = "./images/Senegal.png";
+                phoneMask = "00 00 000 00";
+                phonePlaceholder = "12 32 456 89";
+                break;
+            case "+27":
+                selectedFlag = "./images/SouthAfrica.png";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "12 342 4569";
+                break;
+            case "+94":
+                selectedFlag = "./images/SriLanka.png";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "12 342 4569";
+                break;
+            case "+255":
+                selectedFlag = "./images/Tanzania.jpg";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "12 342 4569";
+                break;
+            case "+216":
+                selectedFlag = "./images/Tunisia.png";
+                phoneMask = "00 000 000";
+                phonePlaceholder = "12 342 456";
+                break;
+            case "+256":
+                selectedFlag = "./images/Uganda.pnd";
+                phoneMask = "000 000 0000";
+                phonePlaceholder = "123 342 4567";
+                break;
+            case "+971":
+                selectedFlag = "./images/UAE.png";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "12 342 4567";
+                break;
+            case "+84":
+                selectedFlag = "./images/Vietnam.png";
+                phoneMask = "00 0000 0000";
+                phonePlaceholder = "12 3426 4567";
+                break;
+            case "+260":
+                selectedFlag = "./images/Zambia.png";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "12 342 4567";
+                break;
+            case "+263":
+                selectedFlag = "./images/Zimbabwe.png";
+                phoneMask = "00 000 0000";
+                phonePlaceholder = "12 342 4567";
+                break;
+            default:
+                selectedFlag = "./images/usa.jpg";
+                phoneMask = "(000) 000-0000";
+                phonePlaceholder = "(239) 555-0108";
+                break;
+        }
+
+        customer.PhoneNumber = string.Empty;
+        rawPhoneNumber = string.Empty;
+        StateHasChanged();
+    }
+    private void OnPhoneInput(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString() ?? string.Empty;
+        rawPhoneNumber = input;
+        Console.WriteLine($"Raw Phone Number: {rawPhoneNumber}, Length: {rawPhoneNumber.Length}");
+
+        int maxDigits = phoneMask.Length;
+        Console.WriteLine($"Max Digits (Including Formatting): {maxDigits}");
+
+        if (rawPhoneNumber.Any(char.IsLetter))
+        {
+            phoneNumberError = "Phone Number should not contain letters.";
+            customer.PhoneNumber = string.Empty;
+        }
+        else
+        {
+            phoneNumberError = string.Empty;
+
+            if (rawPhoneNumber.Length > maxDigits)
+            {
+                rawPhoneNumber = rawPhoneNumber.Substring(0, maxDigits);
+            }
+
+            string digitsOnly = new string(rawPhoneNumber.Where(char.IsDigit).ToArray());
+
+            customer.PhoneNumber = ApplyProgressiveMask(digitsOnly, phoneMask);
+
+            Console.WriteLine($"Formatted Phone Number: {customer.PhoneNumber}");
+        }
+
+        StateHasChanged();
+    }
+
+    private string ApplyProgressiveMask(string rawNumber, string mask)
+    {
+        int rawIndex = 0;
+        var formattedNumber = new StringBuilder();
+
+        foreach (char c in mask)
+        {
+            if (c == '0')
+            {
+                if (rawIndex < rawNumber.Length)
+                {
+                    formattedNumber.Append(rawNumber[rawIndex]);
+                    rawIndex++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                formattedNumber.Append(c);
+            }
+        }
+
+        return formattedNumber.ToString();
+    }
+
+    private async Task Submit()
+    {
+        firstNameError = lastNameError = emailError = phoneNumberError = passwordError = confirmPasswordError = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(customer.FirstName))
+        {
+            firstNameError = "First Name is required.";
+        }
+        else if (customer.FirstName.Length < 3)
+        {
+            firstNameError = "First Name must be at least 3 characters.";
+        }
+        if (string.IsNullOrWhiteSpace(customer.LastName))
+        {
+            lastNameError = "Last Name is required.";
+        }
+
+        if (string.IsNullOrWhiteSpace(customer.Email))
+        {
+            emailError = "Email is required.";
+        }
+
+        else if (!emailRegex.IsMatch(customer.Email))
+        {
+            emailError = "Email format is not valid. It should look like example@mail.com";
+        }
+        if (string.IsNullOrWhiteSpace(customer.PhoneNumber))
+        {
+            phoneNumberError = "Phone Number is required";
+        }
+        else if (!customer.PhoneNumber.All(c => char.IsDigit(c) || c == '-' || c == '(' || c == ')' || c == ' '))
+        {
+            //phoneNumberError = "Phone Number should contain only numbers, spaces, hyphens, or parentheses.";
+            phoneNumberError = "Phone Number should contain only numbers, spaces, hyphens, or parentheses.";
+        }
+       //  string regexPattern = phoneMask
+       // .Replace("0", "\\d")
+       // .Replace(" ", "\\s")
+       // .Replace("(", "\\(")
+       // .Replace(")", "\\)");
+
+       //  if (!System.Text.RegularExpressions.Regex.IsMatch(customer.PhoneNumber, "^" + regexPattern + "$"))
+       //  {
+       //      phoneNumberError = "Phone Number should match the required format.";
+       //  }
+        if (string.IsNullOrWhiteSpace(customer.Password))
+        {
+            passwordError = "Password is required.";
+        }
+        else if (customer.Password.Length < 6)
+        {
+            passwordError = "Password must be at least 6 characters.";
+        }
+        else if (!customer.Password.Any(char.IsUpper))
+        {
+            passwordError = "Password must contain at least one uppercase letter.";
+        }
+        else if (!customer.Password.Any(ch => !char.IsLetterOrDigit(ch)))
+        {
+            passwordError = "Password must contain at least one special character.";
+        }
+
+        if (string.IsNullOrWhiteSpace(customer.ConfirmPassword))
+        {
+            confirmPasswordError = "Confirm Password is required.";
+        }
+        if (customer.Password != customer.ConfirmPassword)
+        {
+            confirmPasswordError = "Passwords do not match.";
+        }
+
+        if (!string.IsNullOrWhiteSpace(firstNameError) || !string.IsNullOrWhiteSpace(lastNameError) ||
+            !string.IsNullOrWhiteSpace(emailError) || !string.IsNullOrWhiteSpace(phoneNumberError) ||
+            !string.IsNullOrWhiteSpace(passwordError) || !string.IsNullOrWhiteSpace(confirmPasswordError))
+        {
+
+            StateHasChanged();
+            return;
+        }
+
+        if (key == null)
+        {
+            Snackbar.Add("Profile is required", Severity.Error);
+        }
+        else
+        {
+            isLoading = true;
+
+            StateHasChanged();
+            var newCustomer = new CustomerDto
+                {
+                    FirstName = customer.FirstName,
+                    MiddleName = customer.MiddleName,
+                    LastName = customer.LastName,
+                    Email = customer.Email,
+                    PhoneNumber = customer.PhoneNumber,
+                    CountryCode = selectedCode,
+                    Password = customer.Password,
+                    ConfirmPassword = customer.ConfirmPassword,
+                    ProfileUrl = key,
+                    IsActive = true
+                };
+            bool isSuccess = await _apiService.MakeHttpPostRequest<CustomerDto>($"Customers/AddOrUpdateCustomers?domainId={_globalService.domainId}", newCustomer);
+
+            if (isSuccess)
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+                CustomerEventService.NotifyCustomerAdded();
+                NavigationManager.NavigateTo("/customers");
+                Snackbar.Add("Customer added successfully!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Failed to add customer.", Severity.Error);
+            }
+            isLoading = false;
+            StateHasChanged();
+        }
+
+    }
+
+    // private async Task Submit()
+    // {
+    //     firstNameError = lastNameError = emailError = phoneNumberError = passwordError = confirmPasswordError = string.Empty;
+
+    //     bool isValid = true;
+    //     if (string.IsNullOrWhiteSpace(customer.FirstName))
+    //     {
+    //         firstNameError = "First Name is required.";
+    //         isValid = false;
+    //     }
+    //     else if (customer.FirstName.Length < 3)
+    //     {
+    //         firstNameError = "First Name must be at least 3 characters.";
+    //         isValid = false;
+    //     }
+    //     if (string.IsNullOrWhiteSpace(customer.LastName))
+    //     {
+    //         lastNameError = "Last Name is required.";
+    //         isValid = false;
+    //     }
+
+    //     if (string.IsNullOrWhiteSpace(customer.Email))
+    //     {
+    //         emailError = "Email is required.";
+    //         isValid = false;
+    //     }
+
+    //     else if (!emailRegex.IsMatch(customer.Email))
+    //     {
+    //         emailError = "Email format is not valid. It should look like example@mail.com";
+    //         isValid = false;
+    //     }
+    //     if (string.IsNullOrWhiteSpace(customer.PhoneNumber))
+    //     {
+    //         phoneNumberError = "Phone Number is required";
+    //         isValid = false;
+    //     }
+    //     else if (!customer.PhoneNumber.All(c => char.IsDigit(c) || c == '-' || c == '(' || c == ')' || c == ' '))
+    //     {
+    //         phoneNumberError = "Phone Number should contain only numbers, spaces, hyphens, or parentheses.";
+    //         isValid = false;
+    //     }
+    //    //  string regexPattern = phoneMask
+    //    // .Replace("0", "\\d")
+    //    // .Replace(" ", "\\s")
+    //    // .Replace("(", "\\(")
+    //    // .Replace(")", "\\)");
+
+    //    //   if (!System.Text.RegularExpressions.Regex.IsMatch(customer.PhoneNumber, "^" + regexPattern + "$"))
+    //    //  {
+    //    //      phoneNumberError = "Phone Number should match the required format.";
+    //    //      isValid = false;
+    //    //  }
+    //     if (string.IsNullOrWhiteSpace(customer.Password))
+    //     {
+    //         passwordError = "Password is required.";
+    //         isValid = false;
+    //     }
+    //     else if (customer.Password.Length < 6)
+    //     {
+    //         passwordError = "Password must be at least 6 characters.";
+    //         isValid = false;
+    //     }
+    //     else if (!customer.Password.Any(char.IsUpper))
+    //     {
+    //         passwordError = "Password must contain at least one uppercase letter.";
+    //         isValid = false;
+    //     }
+    //     else if (!customer.Password.Any(ch => !char.IsLetterOrDigit(ch)))
+    //     {
+    //         passwordError = "Password must contain at least one special character.";
+    //         isValid = false;
+    //     }
+
+    //     if (string.IsNullOrWhiteSpace(customer.ConfirmPassword))
+    //     {
+    //         confirmPasswordError = "Confirm Password is required.";
+    //         isValid = false;
+    //     }
+    //     if (customer.Password != customer.ConfirmPassword)
+    //     {
+    //         confirmPasswordError = "Passwords do not match.";
+    //         isValid = false;
+    //     }
+    //     if (!isValid)
+    //     {
+    //         StateHasChanged();
+    //         return;
+    //     }
+
+    //     // if (!string.IsNullOrWhiteSpace(firstNameError) || !string.IsNullOrWhiteSpace(lastNameError) ||
+    //     //     !string.IsNullOrWhiteSpace(emailError) || !string.IsNullOrWhiteSpace(phoneNumberError) ||
+    //     //     !string.IsNullOrWhiteSpace(passwordError) || !string.IsNullOrWhiteSpace(confirmPasswordError))
+    //     // {
+    //     //     isLoading = false;
+    //     //     StateHasChanged();
+    //     //     return;
+    //     // }
+
+    //     if (key == null)
+    //     {
+    //         isLoading = false;
+    //         Snackbar.Add("Profile is required", Severity.Error);
+    //         StateHasChanged();
+    //         return;
+    //     }
+
+    //     try
+    //     {
+    //         isLoading = true;
+    //         StateHasChanged();
+
+    //         var newCustomer = new CustomerDto
+    //             {
+    //                 FirstName = customer.FirstName,
+    //                 MiddleName = customer.MiddleName,
+    //                 LastName = customer.LastName,
+    //                 Email = customer.Email,
+    //                 PhoneNumber = customer.PhoneNumber,
+    //                 CountryCode = selectedCode,
+    //                 Password = customer.Password,
+    //                 ConfirmPassword = customer.ConfirmPassword,
+    //                 ProfileUrl = key,
+    //                 IsActive = true
+    //             };
+
+    //         bool isSuccess = await _apiService.MakeHttpPostRequest<CustomerDto>($"Customers/AddOrUpdateCustomers?domainId={_globalService.domainId}", newCustomer);
+
+    //         if (isSuccess)
+    //         {
+    //             MudDialog.Close(DialogResult.Ok(true));
+    //             CustomerEventService.NotifyCustomerAdded();
+    //             Snackbar.Add("Customer added successfully!", Severity.Success);
+    //         }
+    //         else
+    //         {
+    //             Snackbar.Add("Failed to add customer.", Severity.Error);
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+    //     }
+    //     finally
+    //     {
+    //         isLoading = false;
+    //         StateHasChanged();
+    //     }
+    // }
+
+}
+
+
+<style>
+    /*mud override*/
+    .mud-grid-item {
+        padding-top: 1px !important;
+    }
+
+    .blur {
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog-background {
+        background-color: transparent;
+    }
+
+    .dialog-background-title {
+        background: rgba(0, 0, 0, 0.5);
+        color: var(--mud-palette-white);
+    }
+
+    .dialog-background-surface {
+        background: rgba(255, 255, 255, 0.75);
+    }
+
+    .mud-dialog-width-sm {
+        max-width: 950px;
+    }
+
+    .head-container {
+        display: flex;
+        justify-content: space-between
+    }
+
+    .heading-txt {
+        color: #000;
+        font-family: Inter;
+        font-size: 25px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+    }
+
+    .avatar-container {
+        width: 147px !important;
+        height: 147px !important;
+        border: 0.1px solid #CBCBCB;
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        background: #D9D9D9;
+    }
+
+    .avatar-img {
+        object-fit: fill;
+        object-position: center;
+        width: 147px !important;
+        height: 147px !important;
+    }
+
+    .user-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .custom-label {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-bottom: 8px;
+    }
+
+    .custom-input {
+        width: 100%;
+        border-radius: 5px;
+        border: 0.5px solid #CBCBCB;
+        padding: 8px;
+        box-sizing: border-box;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        align-self: stretch;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .custom-select {
+        width: 100%;
+        border-radius: 5px;
+        border: 0.5px solid #CBCBCB;
+        padding: 8px;
+        box-sizing: border-box;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        align-self: stretch;
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+        .custom-select:focus {
+            border-color: #CBCBCB;
+            outline: none;
+        }
+
+        .custom-select option:disabled {
+            color: #888 !important;
+        }
+
+    .AddBtn {
+        display: flex;
+        height: 57px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        border: 0.5px #555454;
+        background: #0074E3;
+        color: #fff;
+    }
+
+        .AddBtn:has(:hover) {
+            background: #0074c3;
+        }
+
+    .phone-input-container {
+        display: flex;
+        align-items: center;
+        border: 0.5px solid #CBCBCB;
+        border-radius: 5px;
+        padding: 8px;
+        box-sizing: border-box;
+        width: 100%;
+        height: 57px;
+    }
+
+    .flag-icon {
+        width: 24px;
+        height: 16px;
+        margin-right: 8px;
+    }
+
+    .country-code-select {
+        border: none;
+        font-size: 16px;
+        font-weight: 600;
+        background-color: transparent;
+        appearance: none;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        margin-right: 8px;
+    }
+
+    .phone-number-input {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        font-weight: 600;
+        color: #000;
+        font-family: Inter;
+    }
+
+        .phone-number-input::placeholder {
+            color: #CBCBCB;
+        }
+
+    .phone-input-container:focus-within {
+        border-color: #000;
+    }
+
+    .select-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .country-code-select {
+        appearance: none;
+        padding-right: 30px;
+        font-size: 1rem;
+        height: 35px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .dropdown-icon {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    /* password*/
+    .custom-field-container-password {
+        position: relative;
+    }
+
+    .password-field-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-input-password {
+        flex: 1;
+        padding-right: 20px !important;
+    }
+
+    .password-toggle-button {
+        position: absolute;
+        right: 0;
+        padding: 0;
+        height: 100%;
+        background-color: transparent !important;
+    }
+    /*email*/
+    .email-field-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+
+    .email-icon {
+        position: absolute;
+        left: 10px;
+        color: #888;
+    }
+
+    .custom-input-email {
+        padding-left: 40px;
+    }
+
+    /*validation*/
+    .error-text {
+        color: #ff0000;
+        font-size: 13px;
+        margin-left: 5px;
+    }
+
+    .tran {
+        background-color: transparent !important;
+    }
+</style>
+

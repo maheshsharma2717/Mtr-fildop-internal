@@ -1,0 +1,383 @@
+﻿@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@inject ApiService _apiService
+@inject GlobalServices _globalService
+@using FieldOpsAdmin.Services
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="accountModel" OnValidSubmit="Submit">
+            <MudPaper Class="pa-4" Style="max-width: 1000px; margin: auto;box-shadow: none;">
+                <div class="head-container mb-5">
+                    <MudText Typo="Typo.h5" Align="Align.Start" Class="heading-txt mb-2">@TitleText</MudText>
+                        <MudButton OnClick="Cancel" Class="close-btn">
+                            <img src="./images/Close.svg" alt="X" />
+                        </MudButton>
+                    </div>
+
+                    <MudGrid>
+                        <MudItem md="6">
+                            <div class="custom-field-container">
+                                <span class="custom-label">Account Holder First Name</span>
+                                <input type="text" @bind="accountModel.FirstName" class="custom-input" placeholder="First Name" required />
+                            </div>
+                        </MudItem>
+
+                        <MudItem md="6">
+                            <div class="custom-field-container">
+                                <span class="custom-label">Account Holder Middle Name <span class="custom-span">(Optional)</span></span>
+                                <input type="text" @bind="accountModel.MiddleName" class="custom-input" placeholder="Middle Name" />
+                            </div>
+                        </MudItem>
+
+                        <MudItem md="6">
+                            <div class="custom-field-container">
+                                <span class="custom-label">Account Holder Last Name</span>
+                                <input type="text" @bind="accountModel.LastName" class="custom-input" placeholder="Last Name" required />
+                            </div>
+                        </MudItem>
+
+                        <MudItem md="6">
+                            <div class="custom-field-container">
+                                <span class="custom-label">Bank Name</span>
+                                <div class="custom-select-wrapper">
+                                    <select class="custom-select-popup" @bind="accountModel.BankName">
+                                        <option value="" disabled>Select Bank Name</option>
+                                        @foreach (var bank in bankList)
+                                    {
+                                        <option value="@bank.BankName">@bank.BankName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </MudItem>
+
+                        <MudItem md="6">
+                            <div class="custom-field-container">
+                                <span class="custom-label">Account Number</span>
+                                <input type="text" @bind="accountModel.AccountNumber" class="custom-input" placeholder="Account Number" required />
+                            </div>
+                        </MudItem>
+
+                        <MudItem md="6">
+                            <div class="custom-field-container">
+                                <span class="custom-label">Routing Number</span>
+                                <input type="text" @bind="accountModel.RoutingNumber" class="custom-input" placeholder="Routing Number" required />
+                            </div>
+                        </MudItem>
+
+                        <MudItem md="6">
+                            <div class="custom-field-container">
+                                <span class="custom-label">Account Type</span>
+                                <select class="custom-select-popup" @bind="accountModel.AccountType">
+                                    <option value="" disabled>Select Account Type</option>
+                                    <option value="Checking">Checking</option>
+                                    <option value="Savings">Savings</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </MudItem>
+                        <MudItem md="6" class="d-flex justify-center mt-4"></MudItem>
+                        <MudItem md="6" class="d-flex justify-center mt-4">
+                            <MudButton Variant="Variant.Filled" FullWidth="true" Class="close" OnClick="Cancel">Close</MudButton>
+                        </MudItem>
+
+                        <MudItem md="6" class="d-flex justify-center mt-4">
+                            <MudButton Variant="Variant.Filled" FullWidth="true" Class="AddBtn">@ButtonText</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </EditForm>
+        </DialogContent>
+    </MudDialog>
+
+    <style>
+        .blur {
+            backdrop-filter: blur(10px);
+        }
+
+        .dialog-background {
+            background-color: transparent;
+        }
+
+        .dialog-background-title {
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--mud-palette-white);
+        }
+
+        .dialog-background-surface {
+            background: rgba(255, 255, 255, 0.75);
+        }
+
+        .mud-dialog-width-sm {
+            max-width: 950px;
+        }
+
+        .mud-dialog-title {
+            display: none;
+        }
+
+        .head-container {
+            display: flex;
+            justify-content: space-between
+        }
+
+        .heading-txt {
+            color: #000;
+            font-family: Inter;
+            font-size: 25px;
+            font-style: normal;
+            font-weight: 800;
+            line-height: normal;
+        }
+
+        .user-container {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .custom-field-container {
+            margin-bottom: 16px;
+        }
+
+        .custom-label {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 14px;
+            color: #000;
+            font-family: Inter;
+            font-size: 18px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+        }
+
+        .custom-span {
+            font-family: Inter;
+            font-size: 11px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+        }
+
+        .custom-input {
+            width: 100%;
+            border-radius: 5px;
+            border: 0.5px solid #CBCBCB;
+            padding: 8px;
+            box-sizing: border-box;
+            height: 57px;
+            padding: 10px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            align-self: stretch;
+            color: #000;
+            font-family: Inter;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+        }
+
+        .custom-select-popup {
+            width: 100%;
+            border-radius: 5px;
+            border: 0.5px solid #CBCBCB !important;
+            padding: 8px;
+            box-sizing: border-box;
+            height: 57px;
+            padding: 10px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            align-self: stretch;
+            color: #000;
+            font-family: Inter;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+            text-align: center;
+        }
+
+        .custom-select:focus {
+            border-color: #CBCBCB;
+            outline: none;
+        }
+
+        .custom-select option:disabled {
+            color: #888 !important;
+        }
+
+        .AddBtn {
+            display: flex;
+            height: 50px;
+            padding: 10px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+            border: 0.5px #555454;
+            background: #0074E3;
+            color: #FFF;
+            text-align: center;
+            font-family: Inter;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+        }
+
+            .AddBtn:has(:hover) {
+                background: #0074c3;
+            }
+
+        .close {
+            display: flex;
+            height: 50px;
+            padding: 10px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+            border: 0.5px #555454;
+            background: #5A5A5A !important;
+            color: #FFF;
+            text-align: center;
+            font-family: Inter;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+        }
+
+            .close:has(:hover) {
+                background: #5A5A5A;
+            }
+
+        .custom-select-popup option[value=""][disabled] {
+            color: #9e9e9e;
+        }
+    </style>
+
+    @code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private AccountModel1 accountModel = new AccountModel1();
+    private List<BankModel> bankList = new List<BankModel>(); 
+
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public int? BankId { get; set; }
+    [Parameter] public int? UserId { get; set; }
+
+    private string TitleText => IsEdit ? "Edit Bank Account" : "Add New Bank Account";
+    private string ButtonText => IsEdit ? "Update" : "Submit";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // await LoadBanks(); 
+
+        if (IsEdit && BankId.HasValue)
+        {
+            await LoadBankAccount(BankId.Value);
+            LoadBanks();
+        }
+        else
+        {
+            accountModel = new AccountModel1();
+        }
+    }
+
+    private async Task LoadBanks()
+    {
+        try
+        {
+            var response = await _apiService.MakeHttpGetRequest<List<BankModel>>($"Bank/GetAllBanks?domainId={_globalService.domainId}");
+
+            if (response != null && response.Count > 0)
+            {
+                bankList = response; 
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("No banks found or the operation was not successful.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception occurred: {ex.Message}");
+        }
+    }
+
+    private async Task LoadBankAccount(int bankId)
+    {
+        try
+        {
+            var userId = UserId;
+            var response = await _apiService.MakeHttpGetRequest<AccountModel1>($"Bank/GetBankByIdAndUserID?UserId={userId}&bankId={bankId}&domainId={_globalService.domainId}");
+
+            if (response != null)
+            {
+                accountModel = response;
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("No bank accounts found or the operation was not successful.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception occurred: {ex.Message}");
+        }
+    }
+
+    private void Submit()
+    {
+        if (IsEdit)
+        {
+        }
+        else
+        {
+        }
+        MudDialog.Close(DialogResult.Ok(accountModel));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    public class BankModel
+    {
+        public int Id { get; set; }
+        public string BankName { get; set; }
+    }
+
+    public class BankAccountResponse
+    {
+        public List<AccountModel1> Result { get; set; }
+        public bool IsSuccess { get; set; }
+        public string Message { get; set; }
+    }
+
+    public class AccountModel1
+    {
+        public int Id { get; set; }
+        public string UserName { get; set; }
+        public string FirstName { get; set; }
+        public string MiddleName { get; set; }
+        public string LastName { get; set; }
+        public string LastName2 { get; set; }
+        public string? BankName { get; set; }
+        public string OtherBankName { get; set; }
+        public string AccountNumber { get; set; }
+        public string RoutingNumber { get; set; }
+        public string AccountType { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public string OtherAccountType { get; set; }
+    }
+}

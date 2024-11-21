@@ -1,0 +1,447 @@
+﻿@using MudBlazor
+@using FieldOpsAdmin.Models
+@using FieldOpsAdmin.Service
+@using FieldOpsAdmin.Services
+@inject ApiService _apiService
+@inject GlobalServices _globalService
+@inject NavigationManager NavigationManager
+    @page "/EditService"
+
+<MudContainer>
+    <MudPaper Style="border-radius: 10px; border: 1px solid #e0e0e0;padding:30px;margin-top:30px;margin-bottom:30px">
+        <MudGrid Style="padding:20px;">
+            <MudItem md="6">
+                <div class="custom-select-wrapper">
+                    <label class="custom-label">Select Category</label>
+                    <select class="custom-select" @bind="serviceDetails.CategoryName">
+                        <option value="" disabled>Select a category</option>
+                        @if (categories != null)
+                        {
+                            @foreach (var category in categories)
+                            {
+                                <option value="@category.Name">@category.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </MudItem>
+
+            <MudItem md="6">
+                <div class="service-title-container">
+                    <label class="custom-label">Service Title</label>
+                    <input type="text" placeholder="Service Title" class="service-input" @bind="serviceDetails.Name" />
+                </div>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Style="padding:20px;">
+            <MudItem md="12">
+                <div class="service-description-container">
+                    <label class="custom-label">Service Description</label>
+                    <textarea placeholder="Type Service Description Here" class="service-description" @bind="serviceDetails.Description"></textarea>
+                </div>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Style="padding:20px;">
+            <MudItem md="11">
+                <div class="file-uploader-container">
+                    <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" MaxFileSize="10485760">
+                        <ActivatorContent>
+                            <div class="file-uploader">
+                                <img src="./Images/Attechment-Icon.svg" class="mr-2" />
+                                <span class="placeholder-text">Upload Document here</span>
+                            </div>
+                        </ActivatorContent>
+                    </MudFileUpload>
+                    <div class="file-limit-message">
+                        Document Should not be more than 10MB
+                    </div>
+                </div>
+            </MudItem>
+            <MudItem md="1" Class="upload-file">
+                <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" MaxFileSize="10485760">
+                    <ActivatorContent>
+                        <MudItem md="1" Class="upload-file">
+                            <button class="plus-button">+</button>
+                        </MudItem>
+                    </ActivatorContent>
+                </MudFileUpload>
+            </MudItem>
+
+            <MudItem md="12">
+                <div id="file-list">
+                    @if (!string.IsNullOrWhiteSpace(serviceDetails.Documents))
+                    {
+                        var documentNames = serviceDetails.Documents.Split(',');
+                        <div class="d-flex flex-wrap">
+                            @for (int i = 0; i < documentNames.Length; i++)
+                            {
+                                var documentName = documentNames[i].Trim();
+                                <div class="file-item mt-3">
+                                    <span>@(i + 1). @documentName</span>
+                                    <button class="delete-button" @onclick="() => DeleteFile(i)">Delete</button>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>No Documents Uploaded</p>
+                    }
+                </div>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Style="padding:20px;">
+            <MudItem md="12">
+                <div class="service-title-container">
+                    <label class="custom-label">Address</label>
+                    <input type="text" Placeholder="Address" class="service-input" @bind="serviceDetails.Address" />
+                </div>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Style="padding:20px;">
+            <MudItem md="12">
+                <div class="service-title-container">
+                    <label class="custom-label">Offer Price</label>
+                    <div class="price-input-wrapper">
+                        <span class="dollar-symbol">$</span>
+                        <input type="number" placeholder="$" class="price-input" @bind="serviceDetails.Price" />
+                    </div>
+                </div>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Style="padding:20px;">
+            <MudItem md="12">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Style="background-color: #032F59; padding: 12px 0; border-radius: 5px;" @onclick="UpdateService">
+                    Update Request
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+<style>
+    .mud-input.mud-input-underline:before {
+        left: unset;
+    }
+
+    .custom-select-wrapper,
+    .service-title-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .custom-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-bottom: 8px;
+        color: #000;
+    }
+
+    .custom-select {
+        height: 48px;
+        padding: 0px 14px;
+        border-radius: 4px;
+        border: 0.5px solid #3A3A3A;
+        box-sizing: border-box;
+        background-color: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        color: #000;
+        outline: none;
+        text-align: center;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .service-input {
+        height: 48px;
+        padding: 0px 14px;
+        border-radius: 4px;
+        border: 1px solid #3A3A3A;
+        box-sizing: border-box;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        color: #000;
+    }
+
+        .service-input:focus {
+            outline: none;
+        }
+    /*Description*/
+    .service-description {
+        font-family: 'Inter', sans-serif;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 23px;
+        color: #000;
+        width: 100%;
+        height: 100px;
+        padding: 10px;
+        border-radius: 4px;
+        border: 0.5px solid #000;
+        background-color: #F4F4F4;
+        box-sizing: border-box;
+        resize: vertical;
+    }
+
+        .service-description:focus {
+            outline: none;
+        }
+    /*file attachment*/
+    .file-uploader-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .custom-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-bottom: 8px;
+        color: #000;
+    }
+
+    .file-uploader {
+        display: flex;
+        align-items: center;
+        border: 0.5px solid #3A3A3A;
+        border-radius: 4px;
+        background-color: #fff;
+        padding: 10px;
+        position: relative;
+    }
+
+    .attachment-icon {
+        font-size: 20px;
+        margin-right: 10px;
+    }
+
+    .file-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        color: #000;
+        outline: none;
+    }
+
+    .placeholder-text {
+        color: #aaa;
+        font-size: 16px;
+    }
+
+    .plus-button {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background-color: #1DC141;
+        color: white;
+        border: none;
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .upload-file {
+    }
+
+    .file-limit-message {
+        color: #FB1010;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-top: 10px;
+    }
+
+    .file-item {
+        display: flex;
+        padding: 10px;
+    }
+
+    .delete-button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        color: #FB1010;
+        font-family: Inter;
+        font-size: 15px;
+        font-style: italic;
+        font-weight: 500;
+        line-height: normal;
+    }
+
+    /*price*/
+
+    .price-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        border: 1px solid #3A3A3A;
+        border-radius: 8px;
+        padding: 10px;
+        background-color: #fff;
+    }
+
+    .dollar-symbol {
+        font-size: 18px;
+        color: #000;
+        margin-right: 5px;
+    }
+
+    .price-input {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        width: 100%;
+        border: none;
+        outline: none;
+        margin-left: 5px;
+        height: 48px;
+        padding: 0px 14px;
+        border-radius: 4px;
+        color: #000;
+        text-align: center;
+        margin-left: 5px;
+    }
+
+</style>
+@code {
+    private IList<IBrowserFile> files = new List<IBrowserFile>();
+    public TaskViewModel serviceDetails = new TaskViewModel();
+    private bool isLoading = false;
+    private List<CategoryDto> categories;
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var uri = new Uri(NavigationManager.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var taskId = query["id"];
+            if (int.TryParse(taskId, out int id))
+            {
+                await getServiceByIdAsync(id);
+                await LoadCategories();
+                StateHasChanged();
+            }
+        }
+    }
+
+    public async Task getServiceByIdAsync(int id)
+    {
+        try
+        {
+            serviceDetails = await _apiService.MakeHttpGetRequest<TaskViewModel>($"Task/GetTaskById/{id}?domainId={_globalService.domainId}");
+            if (serviceDetails == null)
+            {
+                Console.WriteLine("No service details found.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching service details: {ex.Message}");
+        }
+    }
+
+    private async Task LoadCategories()
+    {
+        isLoading = true;
+        try
+        {
+            categories = await _apiService.MakeHttpGetRequest<List<CategoryDto>>($"Admin/getallservicecategories?domainId={_globalService.domainId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading categories: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task UpdateService()
+    {
+        var updatedService = new TaskViewModel
+            {
+                Id = serviceDetails.Id,
+                CategoryName = serviceDetails.CategoryName,
+                Name = serviceDetails.Name,
+                Description = serviceDetails.Description,
+                Address = serviceDetails.Address,
+                Price = serviceDetails.Price,
+                Documents = serviceDetails.Documents
+            };
+
+        try
+        {
+            // Call your API to update the service
+            // var response = await _apiService.MakeHttpPutRequest($"Task/UpdateService/{updatedService.Id}?domainId={_globalService.domainId}", updatedService);
+            // if (response.IsSuccessStatusCode)
+            // {
+            //     NavigationManager.NavigateTo("/services");
+            // }
+            // else
+            // {
+            //     Console.WriteLine("Failed to update the service.");
+            // }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating service: {ex.Message}");
+        }
+    }
+
+    private void UploadFiles(IReadOnlyList<IBrowserFile> newFiles)
+    {
+        foreach (var file in newFiles)
+        {
+            files.Add(file);
+            if (!string.IsNullOrWhiteSpace(serviceDetails.Documents))
+            {
+                serviceDetails.Documents += $",{file.Name}"; 
+            }
+            else
+            {
+                serviceDetails.Documents = file.Name; // First file
+            }
+        }
+    }
+
+    private void DeleteFile(int index)
+    {
+        if (index >= 0)
+        // if (index >= 0 && index < files.Count)
+        {
+            files.RemoveAt(index - 1);
+            var updatedDocuments = new List<string>(serviceDetails.Documents.Split(','));
+            updatedDocuments.RemoveAt(index);
+            serviceDetails.Documents = string.Join(",", updatedDocuments);
+        }
+        else
+        {
+            Snackbar.Add("Failed to delete", Severity.Error);
+        }
+    }
+}
+

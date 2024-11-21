@@ -1,0 +1,498 @@
+﻿@page "/emp-ongoing-task"
+@inject IDialogService DialogService
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudItem xs="12" Class="mt-5">
+            <MudContainer Class="custom-container mb-5 p-5" Style="background-color:#fff; border:0.1px solid #cbcbcb; border-radius:10px;">
+                <MudContainer Class="mt-5">
+                    <MudGrid AlignItems="Center" Style="justify-content:space-between; width: width: calc(100% + 24px)!important;">
+                        <MudItem lg="3" md="12" xs="12" Class="mb-3">
+                            <MudText Typo="Typo.h6" Class="pl-2 d-flex align-items-center">Ongoing Tasks</MudText>
+                        </MudItem>
+                        <MudItem lg="2" md="12" xs="12" Class="mb-3">
+                            <div class="custom-select-wrapper">
+                                <select class="custom-select" @onchange="OnRowsPerPageChange">
+                                    <option value="6">View Rows: 6</option>
+                                    <option value="100">View Rows: 100</option>
+                                    <option value="200">View Rows: 200</option>
+                                    <option value="300">View Rows: 300</option>
+                                    <option value="400">View Rows: 400</option>
+                                </select>
+                            </div>
+                        </MudItem>
+                        <MudItem lg="4" md="12" xs="12" Class="mb-3">
+                            <div class="search-container">
+                                <input type="text" placeholder="Search Tasks" class="search-input" @bind="_searchTerm" @oninput="SearchCustomers" />
+                                <img src="./Images/Search.svg" alt="Search Icon" class="mud-icon" />
+                            </div>
+                        </MudItem>
+
+                        <MudItem lg="3" xs="12" Class="d-flex  mb-3">
+                            <MudButton Variant="Variant.Filled" Class="add-btn" OnClick="OpenAddNewBankAccount">
+                                <img src="./Images/edit-customer-info.svg" alt="Add Icon" class="mud-icon" />
+                                Assign New Task
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudContainer>
+
+                <MudContainer Class="custom-container">
+                    <MudTable Items="PagedEmpPendingTask" Filter="empPendingFilter" Striped="false" Bordered="false" Class="custom-table mb-5 mt-5">
+                        <HeaderContent>
+                            <MudTh Class="t-head" Style="width: 10%; text-align: center;" @onclick="SortBySN" SortDirection="@_snSortDirection">
+                                @if (_snSortDirection == SortDirection.Ascending)
+                                {
+                                    <span class="custom-svg">
+                                        <img src="./images/sorting.svg" alt="Sort Ascending" style="width: 12px; height: 18px;" />
+                                    </span>
+                                }
+                                else if (_snSortDirection == SortDirection.Descending)
+                                {
+                                    <span class="custom-svg">
+                                        <img src="./images/sorting.svg" alt="Sort Descending" style="transform: rotate(-180deg); width: 12px; height: 18px;" />
+                                    </span>
+                                }
+                                SN
+                            </MudTh>
+                            <MudTh Class="t-head" Style="width: 18%; text-align: center;">Title</MudTh>
+                            <MudTh Class="t-head" Style="width: 20%; text-align: center;">Category</MudTh>
+                            <MudTh Class="t-head" Style="width: 20%; text-align: center;">Assign Date Time</MudTh>
+                            <MudTh Class="t-head" Style="width: 18%; text-align: center;">Action</MudTh>
+                        </HeaderContent>
+
+                        <RowTemplate>
+                            <MudTd ColSpan="8">
+                                <MudPaper Class="row-card" Elevation="0">
+                                    <MudGrid Class="grid-rows">
+                                        <MudItem xs="3" Class="text-center grid-item" Style="width: 8%;">
+                                            @context.SN
+                                        </MudItem>
+                                        <MudItem xs="3" Class="text-center grid-item" Style="width: 20%;">
+                                            @context.Title
+                                        </MudItem>
+                                        <MudItem xs="3" Class="text-center grid-item" Style="width: 20%;">
+                                            @context.Category
+                                        </MudItem>
+                                        <MudItem xs="3" Class="text-center grid-item" Style="width: 20%;">
+                                            @context.DateTime.ToString("MMMM dd yyyy")
+                                        </MudItem>
+                                        <MudItem xs="3" Class="text-center grid-item" Style="width: 20%;">
+                                            <div class="action-container">
+                                                <MudIconButton>
+                                                    <img src="./Images/EditAction.svg" alt="Edit Icon" style="width: 30px; height: 20px;" />
+                                                </MudIconButton>
+                                                <MudIconButton>
+                                                    <img src="./Images/CancelledAction.svg" alt="Cancel Icon" style="width: 25px; height: 20px;" />
+                                                </MudIconButton>
+                                               @*  <MudIconButton>
+                                                    <img src="./Images/OnGoingAction.svg" alt="Ongoing Icon" style="width: 20px; height: 20px;" />
+                                                </MudIconButton> *@
+                                                <MudIconButton>
+                                                    <img src="./Images/DuplicateAction.svg" alt="Duplicate Icon" style="width: 25px; height: 20px;" />
+                                                </MudIconButton>
+                                            </div>
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudPaper>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudContainer>
+
+                <PagerContent>
+                    <MudGrid AlignItems="Center" Justify="Justify.Center">
+                        <MudItem>
+                            <div class="custom-pagination py-3">
+                                <button @onclick="PreviousPage">
+                                    <img src="./Images/Chevron_Left_MD.svg" alt="Previous" class="pagination-icon" />
+                                </button>
+                                @for (int i = 1; i <= TotalPages; i++)
+                                {
+                                    <button @onclick="() => GoToPage(i)" class="pagination-button @GetActiveClass(i)">
+                                        @i
+                                    </button>
+                                }
+                                <button @onclick="NextPage">
+                                    <img src="./Images/Chevron_Right_MD.svg" alt="Next" class="pagination-icon" />
+                                </button>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </PagerContent>
+            </MudContainer>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<style>
+    /*head*/
+    .add-btn {
+        display: flex;
+        padding: 10px;
+        justify-content: space-evenly;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 16px;
+        line-height: normal;
+        font-weight: 700;
+        background: #0074E3;
+        text-transform: capitalize;
+        width: 100% !important;
+    }
+
+        .add-btn:hover {
+            display: flex;
+            padding: 10px;
+            justify-content: space-evenly;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            color: #FFF;
+            font-family: Inter;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: normal;
+            background: #0074E3;
+            text-transform: capitalize;
+            width: 100% !important;
+        }
+
+    .mud-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .search-container {
+        display: flex;
+        padding: 10px 18px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        font-size: 14px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+        width: 100%;
+    }
+
+    .search-input {
+        border: none;
+        outline: none;
+        flex-grow: 1;
+        background: transparent;
+        font-size: 14px;
+    }
+
+    .search-icon {
+        font-size: 20px;
+        color: #000;
+    }
+
+    .custom-select {
+        flex-shrink: 0;
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 0.5px solid #000;
+        background: #EFEFEF;
+        font-size: 14px;
+        width:100%;
+    }
+
+    /*table*/
+    .mud-table-root .mud-table-head {
+        background-color: #Efefef;
+    }
+
+    .t-head {
+        text-align: center;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+        color: #000 !important;
+    }
+
+    .text-center {
+        text-align: center;
+        font-family: Inter;
+        font-size: 17px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        color: #000;
+    }
+
+    .active-page {
+        background-color: #0074e3 !important;
+        color: #fff !important;
+        border: none !important;
+    }
+
+    .status-pending {
+        border-radius: 16px;
+        background: #DCB012;
+        color: #FFF;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-active {
+        color: #FFF;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        height: 21px;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 16px;
+        background: #4AD771;
+    }
+
+    .row-card {
+        border: 0.5px solid #767676;
+        border-radius: 10px;
+        padding: 15px;
+        background-color: white;
+    }
+
+    .action-container {
+        display: flex;
+        justify-content: space-around;
+        background: #f1f1f1;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    /*Mud Over wright and border */
+
+    .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
+        height: auto;
+        padding: 15px;
+    }
+
+    .mud-table-root .mud-table-body .mud-table-cell {
+        border-bottom: none;
+    }
+
+    .mud-table-root .mud-table-cell {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mud-grid-spacing-xs-6 > .grid-item {
+        padding-left: 24px;
+        padding-top: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .grid-rows {
+        justify-content: space-between !important;
+    }
+
+    .custom-container {
+        max-height: 100%;
+    }
+    /*pagination*/
+
+    .custom-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .pagination-button {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #000;
+        background-color: transparent;
+        color: #000;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    /*bank grid */
+
+    .grid-rows > .mud-grid-item {
+        flex-basis: auto;
+    }
+</style>
+@code {
+    private string _searchTerm;
+    private int _rowsPerPage = 6;
+
+    public class EmpPendingTask
+    {
+        public int SN { get; set; }
+        public string Title { get; set; }
+        public string Category { get; set; }
+        public DateTime DateTime { get; set; }
+    }
+    private List<EmpPendingTask> empPendingTaskes = new()
+    {
+        new EmpPendingTask { SN = 1, Title = "Need House Painter", Category = "Painter", DateTime = new DateTime(2024, 7, 12) },
+        new EmpPendingTask { SN = 2, Title = "Need House Carpainter", Category = "Painter", DateTime = new DateTime(2024, 7, 12) },
+        new EmpPendingTask { SN = 3, Title = "Need House Painter", Category = "Painter", DateTime = new DateTime(2024, 7, 12) },
+        new EmpPendingTask { SN = 4, Title = "Need House Painter", Category = "Painter", DateTime = new DateTime(2024, 7, 12) },
+        new EmpPendingTask { SN = 5, Title = "Need House Painter", Category = "Painter", DateTime = new DateTime(2024, 7, 12) },
+        new EmpPendingTask { SN = 6, Title = "Need House Painter", Category = "Painter", DateTime = new DateTime(2024, 7, 12) },
+        new EmpPendingTask { SN = 7, Title = "Need House Painter", Category = "Painter", DateTime = new DateTime(2024, 7, 12) }
+    };
+
+
+    private List<EmpPendingTask> PagedEmpPendingTask => empPendingTaskes
+        .Where(empPendingFilter)
+        .Skip((currentPage - 1) * _rowsPerPage)
+        .Take(_rowsPerPage)
+        .ToList();
+    //sorting
+    private Func<EmpPendingTask, bool> empPendingFilter => x =>
+       {
+           if (string.IsNullOrWhiteSpace(_searchTerm))
+               return true;
+           return x.Title.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase);
+       };
+    private SortDirection _snSortDirection = SortDirection.None;
+    private bool _isSortedAscending;
+
+    private void SortBySN()
+    {
+        if (_snSortDirection == SortDirection.None || _snSortDirection == SortDirection.Descending)
+        {
+            _isSortedAscending = true;
+            _snSortDirection = SortDirection.Ascending;
+            empPendingTaskes = empPendingTaskes.OrderBy(sr => sr.SN).ToList();
+        }
+        else
+        {
+            _isSortedAscending = false;
+            _snSortDirection = SortDirection.Descending;
+            empPendingTaskes = empPendingTaskes.OrderByDescending(sr => sr.SN).ToList();
+        }
+    }
+
+    //
+    private string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "status-pending",
+            "Active" => "status-active",
+
+            _ => ""
+        };
+    }
+
+    //pagination
+
+    private int currentPage = 1;
+    private int totalPages = 1;
+
+    public int TotalPages
+    {
+        get => totalPages;
+        set
+        {
+            if (totalPages != value)
+            {
+                totalPages = value;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private string GetActiveClass(int pageNumber)
+    {
+        Console.WriteLine($"Page Number: {pageNumber}, Current Page: {currentPage}");
+        return pageNumber == currentPage ? "active-page" : "";
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber > 0 && pageNumber <= TotalPages)
+        {
+            currentPage = pageNumber;
+            StateHasChanged();
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            StateHasChanged();
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < TotalPages)
+        {
+            currentPage++;
+            StateHasChanged();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        TotalPages = (int)Math.Ceiling((double)empPendingTaskes.Count / _rowsPerPage);
+    }
+
+   
+    private void OnRowsPerPageChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var rowsPerPage))
+        {
+            _rowsPerPage = rowsPerPage;
+            currentPage = 1;
+            TotalPages = (int)Math.Ceiling((double)empPendingTaskes.Count / _rowsPerPage);
+            StateHasChanged();
+        }
+    }
+
+    private Task OpenAddNewBankAccount()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<AddNewBankAccount>("", options);
+    }
+    //search
+    private void SearchCustomers(ChangeEventArgs e)
+    {
+        _searchTerm = e.Value.ToString();
+    }
+    private Func<EmpPendingTask, bool> CustomersFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchTerm))
+            return true;
+        return x.Title.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase)
+             || x.Category.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase);
+    };
+}
+
